@@ -2,6 +2,10 @@ cgi-bin/
 ckEditor/
 ckeditor4/
 fpdf/
+docs/
+images/
+MapIcons/
+oldsite/
 Google/
 tabulator-master/
 database.php
