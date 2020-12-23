@@ -1,0 +1,14 @@
+RewriteEngine On 
+RewriteCond %{SERVER_PORT} 80 
+RewriteRule ^(.*)$ https://www.tgcgymnastics.com/$1 [R,L]
+
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^([^\.]+)$ $1.php [NC,L]
+
+RewriteEngine On
+rewriterule ^recruit(.*)$ https://docs.google.com/forms/d/e/1FAIpQLSf7I1RtUsZmMVrjajshRD0ZI1nl4MyUZuLkZDKrEitWh3IbHA/viewform [r=302,nc]
+
+RewriteEngine On
+rewriterule ^poll(.*)$ https://forms.gle/Dz3woVsqPB4essidA [r=302,nc]
