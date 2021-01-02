@@ -61,7 +61,7 @@ error_reporting(E_ALL);
 		return $return;
 	}
 	
-	if(userIsLoggedIn()) //quick way of parsing input to prevent sql injections since I post code to github
+	if(userIsLoggedIn()) //quick way of parsing input to prevent sql injections since we control who has login permissions
 	{
 		$meetID = $_REQUEST['meetID'];
 		$Reg = new meetRegistration("byMeet",$meetID);

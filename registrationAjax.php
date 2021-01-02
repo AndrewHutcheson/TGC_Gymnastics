@@ -8,7 +8,7 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-if(userIsLoggedIn()) //quick way of parsing input to prevent sql injections since I post code to github
+if(userIsLoggedIn()) //quick way of parsing input to prevent sql injections since we control who has login permission
 {
 	if(isset($_REQUEST['competitionID']))
 		$Reg = new meetRegistration("byComp",$_REQUEST['competitionID']);

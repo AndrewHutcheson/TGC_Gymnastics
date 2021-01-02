@@ -31,7 +31,7 @@ function getInstitutionsInMeet($meet)
 	return implode(",", $insts);
 }
 
-if(userIsLoggedIn()) //quick way of parsing input to prevent sql injections since I post code to github since gender isn't sanitized
+if(userIsLoggedIn()) //quick way of parsing input to prevent sql injections since we control who has login permissions
 {
 	if(isset($_REQUEST['getLiveScores']))
 	{

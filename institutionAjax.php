@@ -3,7 +3,7 @@
 require_once("globals.php");
 require_once("auth.php");
 
-if(userIsLoggedIn()) //quick way of parsing input to prevent sql injections since I post code to github
+if(userIsLoggedIn()) //quick way of parsing input to prevent sql injections since we control who has login permissions
 {
 	if (isset($_REQUEST['getProgramDetails']))
 	{
