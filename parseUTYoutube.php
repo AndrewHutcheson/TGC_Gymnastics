@@ -165,10 +165,10 @@ Should anything need to be changed contact the webmaster or Andrew Hutcheson. Ex
 						LastName 
 					FROM 
 						Identifiers_People, 
-						Identifiers_Permissions
+						Identifiers_Affiliations
 					WHERE 
-						Identifiers_People.ID = Identifiers_Permissions.PersonID
-						AND Identifiers_Permissions.Season = ?
+						Identifiers_People.ID = Identifiers_Affiliations.PersonID
+						AND Identifiers_Affiliations.Season = ?
 					;");
 
 
@@ -179,9 +179,9 @@ Should anything need to be changed contact the webmaster or Andrew Hutcheson. Ex
 						LastName 
 					FROM 
 						Identifiers_People, 
-						Identifiers_Permissions
+						Identifiers_Affiliations
 					WHERE 
-						Identifiers_People.ID = Identifiers_Permissions.PersonID
+						Identifiers_People.ID = Identifiers_Affiliations.PersonID
 					;");
 			$stmtAllNames->execute();
 			
@@ -582,10 +582,10 @@ if (isset($_REQUEST['buttonSet'])){
 						LastName 
 					FROM 
 						Identifiers_People, 
-						Identifiers_Permissions
+						Identifiers_Affiliations
 					WHERE 
-						Identifiers_People.ID = Identifiers_Permissions.PersonID
-						AND Identifiers_Permissions.Season = " . $year . "
+						Identifiers_People.ID = Identifiers_Affiliations.PersonID
+						AND Identifiers_Affiliations.Season = " . $year . "
 				;";
 			if($name_query = mysqli_query($con,$sql))
 			{
@@ -619,7 +619,7 @@ if (isset($_REQUEST['buttonSet'])){
 						LastName 
 					FROM 
 						Identifiers_People a, 
-						Identifiers_Permissions b
+						Identifiers_Affiliations b
 					WHERE 
 						a.ID = b.PersonID
 				;";

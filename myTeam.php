@@ -93,12 +93,12 @@ function getPeepDeets()
 			Identifiers_People.Birthday
 		FROM
 			Identifiers_People,
-			Identifiers_Permissions
+			Identifiers_Affiliations
 		WHERE
-			Identifiers_People.ID = Identifiers_Permissions.PersonID AND
-			Identifiers_Permissions.ClubID = ?
+			Identifiers_People.ID = Identifiers_Affiliations.PersonID AND
+			Identifiers_Affiliations.ClubID = ?
 		Order By 
-			Identifiers_Permissions.Season Desc
+			Identifiers_Affiliations.Season Desc
 		");
 		
 	$stmt->execute();

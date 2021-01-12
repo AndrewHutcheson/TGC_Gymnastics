@@ -15,7 +15,7 @@
 	{
 		$sql = "
 			Delete From 
-				Identifiers_Permissions
+				Identifiers_Affiliations
 			Where
 				ID = ?
 			LIMIT 1
@@ -26,7 +26,7 @@
 	{
 		$sql = "
 			Update 
-				Identifiers_Permissions
+				Identifiers_Affiliations
 			Set
 				PersonID = ?
 			Where

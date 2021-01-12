@@ -257,7 +257,7 @@ function getMeetsForWhichUserIsAdmin()
 	else
 	{
 		$season = "Season >= " . getCurrentSeason() . " AND ";
-		$hostClub = "AND HostClub IN (Select InstitutionID From Identifiers_Permissions Where PersonID = ? And Year = " . getCurrentSeason() . ")";
+		$hostClub = "AND HostClub IN (Select InstitutionID From Identifiers_Affiliations Where PersonID = ? And Year = " . getCurrentSeason() . ")";
 	}
 	
 	$stmtMeets= $conn->prepare("

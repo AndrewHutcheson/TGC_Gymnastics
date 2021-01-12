@@ -105,7 +105,7 @@ function affiliatePerson($personID,$institutionID,$season)
 		$sql0 = "Select 
 					count(*) as num
 				From
-					Identifiers_Permissions
+					Identifiers_Affiliations
 				Where
 					PersonID = ? AND
 					ClubID = ? AND
@@ -128,7 +128,7 @@ function affiliatePerson($personID,$institutionID,$season)
 		{
 			$sql2 = "
 				INSERT INTO
-					Identifiers_Permissions(Season,PersonID,ClubID,GymnastPermission)
+					Identifiers_Affiliations(Season,PersonID,ClubID,GymnastPermission)
 				VALUES
 					(?,?,?,1)
 				;";
@@ -287,7 +287,7 @@ function updatePermission($permission,$permissionValue,$personID,$season,$instit
 		
 		$sqlAdmin = "
 				Update
-					Identifiers_Permissions
+					Identifiers_Affiliations
 				Set
 					InstitutionAdminPermission = ?
 				Where 
@@ -298,7 +298,7 @@ function updatePermission($permission,$permissionValue,$personID,$season,$instit
 				;";
 		$sqlRegister = "
 				Update
-					Identifiers_Permissions
+					Identifiers_Affiliations
 				Set
 					CaptainPermission = ?
 				Where 
@@ -446,7 +446,7 @@ function updatePersonType($ID,$Season,$Type,$institutionID)
 		
 		$sql = "
 				Update
-					Identifiers_Permissions
+					Identifiers_Affiliations
 				Set
 					Type = ?
 				Where 
@@ -549,7 +549,7 @@ function getTeamData($institutionID,$year)
 		
 		$sql = "
 				Select
-					Identifiers_Permissions.ID AS PermissionID,
+					Identifiers_Affiliations.ID AS PermissionID,
 					Identifiers_People.ID AS ID,
 					FirstName,
 					LastName,
@@ -566,11 +566,11 @@ function getTeamData($institutionID,$year)
 					InstitutionAdminPermission
 				From
 					Identifiers_People,
-					Identifiers_Permissions
+					Identifiers_Affiliations
 				Where
-					Identifiers_People.ID = Identifiers_Permissions.PersonID AND
-					Identifiers_Permissions.ClubID = ? AND
-					Identifiers_Permissions.Season = ? AND
+					Identifiers_People.ID = Identifiers_Affiliations.PersonID AND
+					Identifiers_Affiliations.ClubID = ? AND
+					Identifiers_Affiliations.Season = ? AND
 					Identifiers_People.ID > 100
 				;";
 				

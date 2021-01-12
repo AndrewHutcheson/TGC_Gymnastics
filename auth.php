@@ -139,7 +139,7 @@
 						Season
 					FROM 
 						Identifiers_People people, 
-						Identifiers_Permissions permissions, 
+						Identifiers_Affiliations permissions, 
 						Identifiers_Institutions clubs
 					WHERE 
 						clubs.ID = permissions.ClubID AND

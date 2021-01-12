@@ -256,7 +256,7 @@ function addNewPerson($firstName,$lastName,$middleName,$season,$institutionID,$g
 			
 			$sql2 = "
 				INSERT INTO
-					Identifiers_Permissions(Season,PersonID,ClubID,GymnastPermission)
+					Identifiers_Affiliations(Season,PersonID,ClubID,GymnastPermission)
 				VALUES
 					(?,?,?,1)
 				;";

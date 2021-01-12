@@ -19,14 +19,14 @@ if (isset($_GET['term'])){
 								LEFT JOIN
 									(
 										SELECT
-											Identifiers_Permissions.PersonID,
-											GROUP_CONCAT(" ",Identifiers_Permissions.Season,ifnull(Identifiers_Institutions.Abbr,Identifiers_Institutions.Name) ORDER BY Season Desc) As Schools
+											Identifiers_Affiliations.PersonID,
+											GROUP_CONCAT(" ",Identifiers_Affiliations.Season,ifnull(Identifiers_Institutions.Abbr,Identifiers_Institutions.Name) ORDER BY Season Desc) As Schools
 										FROM
-											Identifiers_Permissions,
+											Identifiers_Affiliations,
 											Identifiers_Institutions
 										WHERE
-											Identifiers_Institutions.ID = Identifiers_Permissions.ClubID AND
-											Identifiers_Permissions.GymnastPermission = 1
+											Identifiers_Institutions.ID = Identifiers_Affiliations.ClubID AND
+											Identifiers_Affiliations.GymnastPermission = 1
 										GROUP BY
 											PersonID
 										ORDER BY 
