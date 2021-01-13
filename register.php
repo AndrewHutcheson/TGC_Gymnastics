@@ -1,6 +1,5 @@
-<?php include("headers.php"); ?>
-<?php include("auth.php"); ?>
-<?php include("globals.php"); ?>
+<?php require_once("headers.php"); ?>
+<?php require_once("auth.php"); ?>
 
 <?
 
@@ -84,7 +83,8 @@ function userLoggedInNameParts(){
 				;";
 			if($stmt = $con->prepare($query))
 			{
-				$stmt->bind_param("i",getUserID());
+				$userID = getUserID();
+				$stmt->bind_param("i",$userID);
 				$stmt->execute();
 				$stmt->store_result(); //allow us to get properties, e.g. stmt->num_rows;
 			}

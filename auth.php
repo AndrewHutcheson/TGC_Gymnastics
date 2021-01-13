@@ -1,17 +1,6 @@
 <?php
 	session_start();
-	require_once("database.php"); 
-
-	//UPDATE TO NEW CONN
-	$con= new mysqli($sql_login_host, $sql_login_user, $sql_login_pass, $sql_login_db);
-	
-	/*ini_set('display_errors', 1);
-	ini_set('display_startup_errors', 1);
-	error_reporting(E_ALL);*/
-	
-    if($con->connect_error){
-        die("Connection Problem: ". $con->connect_error);
-    }
+	require_once("globals.php"); 
 	
 	if(isset($_REQUEST['userWantsToLogIn'])){
 		getCredentials();
@@ -23,7 +12,7 @@
 	
 	function getSalt($user)
 	{
-		global $con;
+		global $conn;
 		
 		$salt = "fail";
 		
@@ -36,19 +25,15 @@
 					Username = ?
 				";
 				
-		$stmt = $con->prepare($sql);
-		//$stmt->bindParam(1, $user, PDO::PARAM_STR, 250);
-		$stmt->bind_param("s",$user);
+		$stmt = $conn->prepare($sql);
+		$stmt->bindParam(1, $user, PDO::PARAM_STR, 250);
 		$stmt->execute();
 		
 		$count = 0;
 	
-		$stmt->bind_result($tempSalt);
-	
-		//while($row = $stmt->fetch(PDO::FETCH_ASSOC))
-		while($stmt->fetch())
+		while($row = $stmt->fetch(PDO::FETCH_ASSOC))
 		{
-			$salt = $tempSalt;
+			$salt = $row["Salt"];
 			$count++;
 		}
 		
@@ -57,53 +42,27 @@
 	
 	function writeToLoginLog($PersonID, $Success)
 	{
-		global $con;
+		global $conn;
 		$sql = "
 				INSERT INTO Log_Login (PersonID, Success, PageID, IPAddress, UserAgent, Browser, Referrer)
 				VALUES(?,?,?,?,?,?,?);
 				";
-		$stmt = $con->prepare($sql);
-		$stmt->bind_param("iisssss",$PersonID,$Success,basename($_SERVER['SCRIPT_FILENAME']),$_SERVER['REMOTE_ADDR'],$_SERVER['HTTP_USER_AGENT'],get_browser(),$_SERVER['HTTP_REFERER']);
+		$stmt = $conn->prepare($sql);
+		//$stmt->bind_param("iisssss",$PersonID,$Success,basename($_SERVER['SCRIPT_FILENAME']),$_SERVER['REMOTE_ADDR'],$_SERVER['HTTP_USER_AGENT'],get_browser(),$_SERVER['HTTP_REFERER']);
+		
+		$filename = basename($_SERVER['SCRIPT_FILENAME']);
+		$browser = get_browser();
+		
+		$stmt->bindParam(1, $PersonID, PDO::PARAM_INT, 250);
+		$stmt->bindParam(2, $Success, PDO::PARAM_INT, 250);
+		$stmt->bindParam(3, $filename, PDO::PARAM_STR, 250);
+		$stmt->bindParam(4, $_SERVER['REMOTE_ADDR'], PDO::PARAM_STR, 250);
+		$stmt->bindParam(5, $_SERVER['HTTP_USER_AGENT'], PDO::PARAM_STR, 250);
+		$stmt->bindParam(6, $browser, PDO::PARAM_STR, 250);
+		$stmt->bindParam(7, $_SERVER['HTTP_REFERER'], PDO::PARAM_STR, 250);
 		
 		$stmt->execute();
 	}
-	
-	
-	function getPermissions()
-	{
-		//so let's get certain permissions. They have a name, type and value
-		/*
-			map | view | layer
-			map | view |control
-			map | edit | etc
-			
-			clubadmin | clubID | canAddclubadmin
-			clubadmin | clubID | caneditclubdata
-			
-			tgcadmin
-			
-			gymnast | clubID
-			coach | clubID
-			
-			ugh and then program ID...
-		*/
-		/*
-			db table would be
-			personid
-			start date
-			end date
-			name
-			type
-			value
-		*/
-	}
-	
-	function checkPermission($name, $type, $value)
-	{
-		//get personid from session
-		//get current date from systime
-	}
-	
 	
 	//ok so this function returns an array of [clubid]=>{array},[clubid]=>{array},[clubid]=>{array}
 	//how to do other stuff? I could make clubID not numeric.
@@ -125,143 +84,139 @@
 		else
 			$currentSeason = idate("Y");
 			
-		global $con;
+		global $conn;
 		$query = "SELECT 
-						people.ID, 
+						people.ID as PersonID, 
 						ClubID, 
 						coalesce(clubs.AltName,clubs.Name) As Name, 
-						CoachPermission, 
-						CaptainPermission, 
-						InstitutionAdminPermission, 
-						ProgramAdminPermission, 
-						GymnastPermission, 
-						ExecutivePermission,
 						Season
 					FROM 
 						Identifiers_People people, 
-						Identifiers_Affiliations permissions, 
+						Identifiers_Affiliations affiliations, 
 						Identifiers_Institutions clubs
 					WHERE 
-						clubs.ID = permissions.ClubID AND
-						people.ID = permissions.PersonID AND
+						clubs.ID = affiliations.ClubID AND
+						people.ID = affiliations.PersonID AND
 						
 						people.Username = ? AND
 						people.PasswordHash = ? AND
-						permissions.Season = ? 
+						affiliations.Season = ? 
 					";
 					
-		if($stmt = $con->prepare($query))
+		if($stmt = $conn->prepare($query))
 		{
-			$stmt->bind_param("sss",$username,$passwordhash,$currentSeason);
-				
+			//$stmt->bind_param("sss",$username,$passwordhash,$currentSeason);
+			$stmt->bindParam(1, $username, PDO::PARAM_STR, 250);
+			$stmt->bindParam(2, $passwordhash, PDO::PARAM_STR, 250);
+			$stmt->bindParam(3, $currentSeason, PDO::PARAM_STR, 250);
+			
 			$stmt->execute();
-			$stmt->store_result(); //allow us to get properties, e.g. stmt->num_rows;
+			//$stmt->store_result(); //allow us to get properties, e.g. stmt->num_rows;
 		}
 		else
 		{
-			printf("Errormessage: %s\n", $con->error);
+			printf("Errormessage: %s\n", $conn->error);
 		}
 		
-		if($stmt->num_rows >= 1)
+		if($stmt->rowCount() >= 1)
 		{
-			$stmt->bind_result($UserID,$ClubID,$ClubName,$UserCoachPermission,$UserCaptainPermission,$UserAdministratorPermission,$ProgramAdminPermission, $UserGymnastPermission,$UserExecutivePermission,$season);
-		
-			while($stmt->fetch())
+			while($row = $stmt->fetch(PDO::FETCH_ASSOC))
 			{
-				$permissions[$ClubID] = array(
-										'ClubName'=>$ClubName,
-										'CoachPermission'=>$UserCoachPermission,
-										'CaptainPermission'=>$UserCaptainPermission,
-										'InstitutionAdminPermission'=>$UserAdministratorPermission,
-										'ProgramAdminPermission'=>$ProgramAdminPermission,
-										'GymnastPermission'=>$UserGymnastPermission,
-										'ExecutivePermission'=>$UserExecutivePermission,
-										'Season'=>$season
-										);
+				$PersonID = $row['PersonID'];
 			}
 			
-			$_SESSION['permissions'] = $permissions;
 			$_SESSION['userIsLoggedIn'] = true;
-			writeToLoginLog($UserID, 1);
-			$_SESSION['userID'] = $UserID;
+			writeToLoginLog($PersonID, 1);
+			$_SESSION['userID'] = $PersonID;
 		}
 		else
 		{
 			echo "<script>alert('That username/password combination was not found.');</script>";
 			writeToLoginLog($UserID, 0);
 		}
-
-		mysqli_stmt_close($stmt);
-		mysqli_close($con);
+	}
+	
+	function doesUserHavePermission($permissionName,$permissionValue){
+		global $conn;
+		
+		$permissionFound = false;
+		
+		$query = "	SELECT 
+						* 
+					FROM
+						Identifiers_Permissions
+					Where 
+						PermissionName = ? AND
+						PermissionValue = ? AND
+						Season = " . getCurrentSeason() . " AND
+						PersonID = ?
+				";
+		$stmt = $conn->prepare($query);
+		
+		$userID = getUserID();
+		$stmt->bindParam(1, $permissionName, PDO::PARAM_STR, 100);
+		$stmt->bindParam(2, $permissionValue, PDO::PARAM_INT, 20);
+		$stmt->bindParam(3, $userID, PDO::PARAM_INT, 20);
+		
+		$stmt->execute();
+		
+		//while($row = $stmt->fetch(PDO::FETCH_ASSOC))
+		if($stmt->rowCount() > 0)
+		{
+			$permissionFound = true;
+		}
+		
+		return $permissionFound;
 	}
 	
 	function userIsAdminFor($club){
-		if($_SESSION['permissions'][$club]['InstitutionAdminPermission']){
-			return true;
-		}
-		else{
-			return false;
-		}
+		return doesUserHavePermission("InstitutionAdmin",$club);
+	}
+	
+	function userCanRegisterFor($club){
+		return doesUserHavePermission("Registration",$club);
 	}
 	
 	function userIsCoachFor($club){
-		if($_SESSION['permissions'][$club]['CoachPermission']){
-			return true;
-		}
-		else{
-			return false;
-		}
+		return doesUserHavePermission("Registration",$club);
 	}
 	
 	function userIsCaptainFor($club){
-		if($_SESSION['permissions'][$club]['CaptainPermission']){
-			return true;
-		}
-		else{
-			return false;
-		}
-	}
-	
-	function userIsGymnastFor($club){
-		if($_SESSION['permissions'][$club]['GymnastPermission']){
-			return true;
-		}
-		else{
-			return false;
-		}
-	}
-	
-	function userIsAlumniFor($club){
-		//get the years they were in club
-	}
-	
-	function userIsJudge(){
-		//todo
+		return doesUserHavePermission("Registration",$club);
 	}
 	
 	function userIsExecutiveAdministrator(){ //e.g. TGC administrator. This is independent of club affiliation.
-		$isExecutive = false;
-
-		//Scan through all of their affiliated clubs -> gets anyone dual enrolled
-		if(isset($_SESSION['permissions']))
-		foreach ($_SESSION['permissions'] as $inner) { //inner is just a number
-			//then see if ANY of them have an executive flag
-			foreach ($inner as $key=>$value) { //each key is the permission name and the value is true or false
-				if(isset($_REQUEST['debugPermissions']))
-				{echo "<pre>"; print_r($_SESSION['permissions']); echo "</pre>";}
-			   if(($key=='ExecutivePermission')&&($value==1))
-			   {
-					$isExecutive = true;
-			   }
-			}
-		}
-		if($isExecutive){
-			return true;
-		}
-		else{
-			return false;
-		}
+		return doesUserHavePermission("TGCAdmin",1);
+		//return true;
 	}
+	
+	function userIsGymnastFor($club){
+		global $conn;
+		
+		$affiliationFound = false;
+		
+		$query = "	SELECT 
+						* 
+					FROM
+						Identifiers_Affiliations
+					Where 
+						PersonID = " . getUserID() . " AND
+						ClubID = ? AND
+						Season = " . getCurrentSeason() . "
+				";
+		$stmt = $conn->prepare($query);
+		
+		$stmt->bindParam(1, $club, PDO::PARAM_INT, 10);
+		
+		$stmt->execute();
+		
+		while($row = $stmt->fetch(PDO::FETCH_ASSOC))
+		{
+			$affiliationFound = true;
+		}
+		
+		return $affiliationFound;
+	}	
 	
 	function userIsLoggedIn(){
 		if(isset($_SESSION['userIsLoggedIn'])){
@@ -276,7 +231,7 @@
 	}
 	
 	function userLoggedInNameIs(){
-		global $con;
+		global $conn;
 		$thename = "nobody";
 		
 		if(userIsLoggedIn())
@@ -289,25 +244,20 @@
 					WHERE
 						ID = ?
 				;";
-			if($stmt = $con->prepare($query))
+			if($stmt = $conn->prepare($query))
 			{
-				$stmt->bind_param("i",getUserID());
+				$userID = getUserID();
+				$stmt->bindParam(1,$userID,PDO::PARAM_INT, 10);
 				$stmt->execute();
-				$stmt->store_result(); //allow us to get properties, e.g. stmt->num_rows;
+				//$stmt->store_result(); //allow us to get properties, e.g. stmt->num_rows;
 			}
 			else
 			{
-				printf("Errormessage: %s\n", $con->error);
+				printf("Errormessage: %s\n", $conn->error);
 			}
-			//echo $stmt->num_rows;
-			if($stmt->num_rows >= 1)
+			while($row = $stmt->fetch(PDO::FETCH_ASSOC))
 			{
-				$stmt->bind_result($Name);
-			
-				while($stmt->fetch())
-				{
-					$thename = $Name;
-				}
+				$thename = $row['Name'];
 			}	
 		}			
 		return $thename;
@@ -317,16 +267,26 @@
 	{
 		$clubList = array(); //array of club ID's.
 		
-		if(isset($_SESSION['permissions'])){ //if we got here they are logged in
-			foreach ($_SESSION['permissions'] as $inner => $theArray) { //inner is now clubid, array is the array of perms.
-				foreach ($theArray as $key => $value) { //key is name of permission, valus is true/false
-				   if($key=='CaptainPermission')
-				   {
-					   if($value==1)
-							$clubList[$inner] = $theArray['ClubName'];
-				   }
-				}
-			}
+		global $conn;
+		
+		$query = "	SELECT 
+						PermissionValue as ClubID,
+						Identifiers_Institutions.Name as ClubName
+					FROM
+						Identifiers_Permissions,
+						Identifiers_Institutions
+					Where 
+						PersonID = " . getUserID() . " AND
+						PermissionName = 'Registration' AND
+						Season = " . getCurrentSeason() . " AND
+						Identifiers_Permissions.PermissionValue = Identifiers_Institutions.ID
+				";
+		$stmt = $conn->prepare($query);
+		$stmt->execute();
+		
+		while($row = $stmt->fetch(PDO::FETCH_ASSOC))
+		{
+			$clubList[$row['ClubID']] = $row['ClubName'];
 		}
 		
 		return $clubList;
@@ -336,16 +296,26 @@
 	{
 		$clubList = array(); //array of club ID's.
 		
-		if(isset($_SESSION['permissions'])){ //if we got here they are logged in
-			foreach ($_SESSION['permissions'] as $inner => $theArray) { //inner is now clubid, array is the array of perms.
-				foreach ($theArray as $key => $value) { //key is name of permission, valus is true/false
-				   if($key=='CoachPermission')
-				   {
-					   if($value==1)
-							$clubList[$inner] = $theArray['ClubName'];
-				   }
-				}
-			}
+		global $conn;
+		
+		$query = "	SELECT 
+						PermissionValue as ClubID,
+						Identifiers_Institutions.Name as ClubName
+					FROM
+						Identifiers_Permissions,
+						Identifiers_Institutions
+					Where 
+						PersonID = " . getUserID() . " AND
+						PermissionName = 'Registration' AND
+						Season = " . getCurrentSeason() . " AND
+						Identifiers_Permissions.PermissionValue = Identifiers_Institutions.ID
+				";
+		$stmt = $conn->prepare($query);
+		$stmt->execute();
+		
+		while($row = $stmt->fetch(PDO::FETCH_ASSOC))
+		{
+			$clubList[$row['ClubID']] = $row['ClubName'];
 		}
 		
 		return $clubList;
@@ -353,9 +323,9 @@
 	
 	function getListOfUserClubAdministrativePermissions(){
 		$clubList = array(); //array of club ID's.
+		global $conn;
 		
 		if(userIsExecutiveAdministrator()){ // if they are executive, they are admin for all clubs
-			global $con;
 			$query = "SELECT
 						ID,
 						coalesce(Identifiers_Institutions.AltName,Identifiers_Institutions.Name) As Name
@@ -367,46 +337,54 @@
 						Identifiers_Institutions.State IN ('TX','OK','LA','KS')
 					ORDER BY Name ASC
 						";
-			if($stmt = $con->prepare($query)){
+			if($stmt = $conn->prepare($query)){
 				$stmt->execute();
-				$stmt->store_result(); //allow us to get properties, e.g. stmt->num_rows;
 			}
 			else{
-				printf("Errormessage: %s\n", $con->error);
+				printf("Errormessage: %s\n", $conn->error);
 			}
 			
-			if($stmt->num_rows >= 1){
-				$stmt->bind_result($ClubID,$ClubName);
-			
-				while($stmt->fetch()){
-					$clubList[$ClubID] = $ClubName;
-				}
+			while($row = $stmt->fetch(PDO::FETCH_ASSOC))
+			{
+				$clubList[$row['ID']] = $row['Name'];
 			}
+		
 		}
 		else{
-			if(isset($_SESSION['permissions'])){ //else they are just admin for their own club(s)
-				foreach ($_SESSION['permissions'] as $inner => $theArray) { //inner is now clubid, array is the array of perms.
-					foreach ($theArray as $key => $value) { //key is name of permission, valus is true/false
-					   if($key=='InstitutionAdminPermission')
-					   {
-						   if($value==1)
-								$clubList[$inner] = $theArray['ClubName'];
-					   }
-					}
-				}
+			$query = "	SELECT 
+						PermissionValue as ClubID,
+						Identifiers_Institutions.Name as ClubName
+					FROM
+						Identifiers_Permissions,
+						Identifiers_Institutions
+					Where 
+						PersonID = " . getUserID() . " AND
+						PermissionName = 'InstitutionAdmin' AND
+						Season = " . getCurrentSeason() . " AND
+						Identifiers_Permissions.PermissionValue = Identifiers_Institutions.ID
+				";
+			$stmt = $conn->prepare($query);
+			$stmt->execute();
+			
+			while($row = $stmt->fetch(PDO::FETCH_ASSOC))
+			{
+				$clubList[$row['ClubID']] = $row['ClubName'];
 			}
 		}
 		return $clubList;
 	}
 	
 	function getUserID(){
-		return $_SESSION['userID'];
+		if(isset($_SESSION['userID']))
+			return $_SESSION['userID'];
+		else
+			return 0;
 	}
 	
 	//nomenclature here may be misleading. Username doesnt mean crendential, but rather then name *of* the user.
 	function userIdToUserName($userID)
 	{
-		global $con;
+		global $conn;
 		$thename = "nobody";
 		
 		if(userIsLoggedIn())
@@ -419,7 +397,7 @@
 					WHERE
 						ID = ?
 				;";
-			if($stmt = $con->prepare($query))
+			if($stmt = $conn->prepare($query))
 			{
 				$stmt->bind_param("i",$userID);
 				$stmt->execute();
@@ -427,7 +405,7 @@
 			}
 			else
 			{
-				printf("Errormessage: %s\n", $con->error);
+				printf("Errormessage: %s\n", $conn->error);
 			}
 			//echo $stmt->num_rows;
 			if($stmt->num_rows >= 1)
@@ -462,9 +440,8 @@
 	}
 	
 	function logout(){
-		unset($_SESSION['permissions']);
-		unset($_SESSION['userIsLoggedIn']);
 		unset($_SESSION['userID']);
+		unset($_SESSION['userIsLoggedIn']);
 	}
 	
 	if(isset($_REQUEST['debugPermissions']))

@@ -15,7 +15,7 @@ error_reporting(E_ALL);
 		echo "PDO object error: " . $e->getMessage();
 	}
 	
-if(userIsLoggedIn()) //quick way of parsing input to prevent sql injections since I post code to github
+if(userIsLoggedIn()) //quick way of parsing input since we already control who has access
 {	
 	if(isset($_REQUEST['getTeamData']))
 	{
@@ -272,6 +272,15 @@ function updatePermission($permission,$permissionValue,$personID,$season,$instit
 	$error = false;
 	$errorMsg = "";
 	
+	if($permission == "Registration")
+	{
+		$permission = "Registration";
+	}
+	elseif($permission == "Administrate")
+	{
+		$permission = "InstitutionAdmin";
+	}
+	
 	if($permissionValue=="false") //because of this bullshit https://bugs.php.net/bug.php?id=38546 https://stackoverflow.com/questions/10242312/pdo-bindvalue-with-pdoparam-bool-causes-statement-execute-to-fail-silently
 	{
 		$permissionValue = 0;
@@ -283,47 +292,39 @@ function updatePermission($permission,$permissionValue,$personID,$season,$instit
 	
 	try
 	{
-		//$conn->beginTransaction();
-		
-		$sqlAdmin = "
-				Update
-					Identifiers_Affiliations
-				Set
-					InstitutionAdminPermission = ?
-				Where 
-					PersonID = ? AND
-					ClubID = ? AND
-					Season = ?
-				LIMIT 1
-				;";
-		$sqlRegister = "
-				Update
-					Identifiers_Affiliations
-				Set
-					CaptainPermission = ?
-				Where 
-					PersonID = ? AND
-					ClubID = ? AND
-					Season = ?
-				LIMIT 1
-				;";
-		
-		if($permission == "Administrate") {$sql = $sqlAdmin;}
-		if($permission == "Registration") {$sql = $sqlRegister;}
-		
-		$stmt = $conn->prepare($sql);
-		
-		$stmt->bindParam(1, $permissionValue, PDO::PARAM_INT,1);
-		$stmt->bindParam(2, $personID, PDO::PARAM_INT, 7);
-		$stmt->bindParam(3, $institutionID, PDO::PARAM_INT,6);
-		$stmt->bindParam(4, $season, PDO::PARAM_INT, 4);
-		
-		$stmt->execute();
-		$rows = $stmt->rowCount();
-		if($rows < 1)
+		#if permission exists, then delete it
+		#else insert it.
+		if($permissionValue == 1)
+		{		
+			$sql = "INSERT INTO
+					Identifiers_Permissions(Season,PersonID,PermissionName,PermissionValue)
+					Values(?,?,?,?)
+				";
+			$stmt = $conn->prepare($sql);
+			$stmt->bindParam(1, $season, PDO::PARAM_INT, 4);
+			$stmt->bindParam(2, $personID, PDO::PARAM_INT, 10);
+			$stmt->bindParam(3, $permission, PDO::PARAM_STR, 100);
+			$stmt->bindParam(4, $institutionID, PDO::PARAM_INT, 10);
+			$stmt->execute();
+		}
+		else
 		{
-			$error = true;
-			$errorMsg .= "rows updated: " . $rows . " personID is " . $personID;
+			$sql = "Delete 
+					From
+						Identifiers_Permissions
+					Where
+						Season = ? AND
+						PersonID = ? AND
+						PermissionName Like ? AND
+						PermissionValue = ?	
+					Limit 1
+				";
+			$stmt = $conn->prepare($sql);
+			$stmt->bindParam(1, $season, PDO::PARAM_INT, 4);
+			$stmt->bindParam(2, $personID, PDO::PARAM_INT, 10);
+			$stmt->bindParam(3, $permission, PDO::PARAM_STR, 100);
+			$stmt->bindParam(4, $institutionID, PDO::PARAM_INT, 10);
+			$stmt->execute();
 		}
 	}
 	catch (PDOException $e)
@@ -333,7 +334,7 @@ function updatePermission($permission,$permissionValue,$personID,$season,$instit
 	}
 	if(!$error)
 	{
-		//$conn->commit();
+		
 		$return_arr = array(
 							'Error' => false,
 							'Message'=>"success"
@@ -549,7 +550,7 @@ function getTeamData($institutionID,$year)
 		
 		$sql = "
 				Select
-					Identifiers_Affiliations.ID AS PermissionID,
+					Identifiers_Affiliations.ID AS AffiliationID,
 					Identifiers_People.ID AS ID,
 					FirstName,
 					LastName,
@@ -560,10 +561,7 @@ function getTeamData($institutionID,$year)
 					Email,
 					Phone,
 					Privacy,
-					Type,
-					CoachPermission,
-					CaptainPermission,
-					InstitutionAdminPermission
+					Type
 				From
 					Identifiers_People,
 					Identifiers_Affiliations
@@ -584,15 +582,16 @@ function getTeamData($institutionID,$year)
 		
 		while($row = $stmt->fetch(PDO::FETCH_ASSOC))
 		{
-			$registration = $row['CaptainPermission'] ;
-			$administrate = $row['InstitutionAdminPermission'];
+			$person = $row['ID'];
+			$registration = canUserRegisterForClub($person,$institutionID,$year);
+			$administrate = isUserClubAdmin($person,$institutionID,$year);
 			
 			//fucking boolean vs t/f string vs 1/0
-			if($registration == 1) { $registration = true; }
-			if($administrate == 1) { $administrate = true; }
+			//if($registration == 1) { $registration = true; }
+			//if($administrate == 1) { $administrate = true; }
 			
 			$return_array[$count] = array(
-										'PermissionID'=>$row['PermissionID'],
+										'PermissionID'=>$row['AffiliationID'],
 										'ID'=>$row['ID'],
 										'FirstName'=>$row['FirstName'],
 										'LastName'=>$row['LastName'],
@@ -626,4 +625,71 @@ function getTeamData($institutionID,$year)
 		return 'ERROR: ' . $e->getMessage()."<br/>".var_dump($conn->errorInfo());
 	}
 }
+
+function isUserClubAdmin($user,$club,$season)
+{
+	global $conn;
+		
+	$permissionFound = false;
+	
+	$query = "	SELECT 
+					* 
+				FROM
+					Identifiers_Permissions
+				Where 
+					PersonID = ? AND
+					PermissionName = 'InstitutionAdmin' AND
+					PermissionValue = ? AND
+					Season = ?
+			";
+	$stmt = $conn->prepare($query);
+	
+	$stmt->bindParam(1, $user, PDO::PARAM_STR, 100);
+	$stmt->bindParam(2, $club, PDO::PARAM_INT, 20);
+	$stmt->bindParam(3, $season, PDO::PARAM_INT, 4);
+	
+	$stmt->execute();
+	
+	//while($row = $stmt->fetch(PDO::FETCH_ASSOC))
+	if($stmt->rowCount() > 0)
+	{
+		$permissionFound = true;
+	}
+	
+	return $permissionFound;
+}
+
+function canUserRegisterForClub($user,$club,$season)
+{
+	global $conn;
+		
+	$permissionFound = false;
+	
+	$query = "	SELECT 
+					* 
+				FROM
+					Identifiers_Permissions
+				Where 
+					PersonID = ? AND
+					PermissionName = 'Registration' AND
+					PermissionValue = ? AND
+					Season = ?
+			";
+	$stmt = $conn->prepare($query);
+	
+	$stmt->bindParam(1, $user, PDO::PARAM_STR, 100);
+	$stmt->bindParam(2, $club, PDO::PARAM_INT, 20);
+	$stmt->bindParam(3, $season, PDO::PARAM_INT, 4);
+	
+	$stmt->execute();
+	
+	//while($row = $stmt->fetch(PDO::FETCH_ASSOC))
+	if($stmt->rowCount() > 0)
+	{
+		$permissionFound = true;
+	}
+	
+	return $permissionFound;
+}
+
 ?>
