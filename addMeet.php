@@ -26,7 +26,7 @@ function getMeets()
 				},
 				error: function (textStatus, errorThrown) {
 					//console.log(errorThrown);
-					alert("error downloading meet data"+ textStatus);
+					alert("Error downloading meet list. You probably don't have any meets created yet."+ textStatus);
 				}
 			});
 }
