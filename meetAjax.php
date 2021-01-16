@@ -47,12 +47,14 @@ if(isset($_REQUEST['addNewMeet']))
 	$stmtCompetitions->bindParam(1, $meetSeason, PDO::PARAM_INT, 4);
 	$stmtCompetitions->bindParam(2, $meetDate, PDO::PARAM_STR, 20);
 	$stmtCompetitions->bindParam(3, $meetName, PDO::PARAM_STR, 50);
-	$stmtCompetitions->bindParam(4, $meetHost, PDO::PARAM_INT, 5);
+	$stmtCompetitions->bindParam(4, $meetHost, PDO::PARAM_INT, 10);
 	
 	$returnArray = array();
 	
 	if($stmtCompetitions->execute())
-		echo json_encode($returnArray);	
+		echo json_encode($returnArray);
+	else
+		echo $conn->errorInfo();
 }
 
 if(isset($_REQUEST['getDivisions']))
@@ -345,6 +347,7 @@ function isCompetitionEmptyOfGymnasts($competitionID)
 		return true;
 }
 function isCompetitionEmptyOfTeams($competitionID)
+{
 	global $conn;
 
 	$stmt = $conn->prepare("
