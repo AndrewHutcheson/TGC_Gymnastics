@@ -9,7 +9,7 @@ For a person's purposes however they may want a level assigned the same way they
 
 function autoCompleteSkillName($string,$event)
 {
-	$sql = "select
+	$sql = "select";
 }
 
 function createRoutine()
@@ -44,7 +44,7 @@ function loadRoutine()
 {
 	
 }
-function getSavedRoutineNames
+function getSavedRoutineNames()
 {
 	//where not deleted
 }

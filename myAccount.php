@@ -97,7 +97,8 @@ function setNewPassword($email,$pwd)
 					<div id="content">
 						<div class="inner">
 						<?php
-						if($displayPwdField)							
+						if($displayPwdField)	
+						{						
 						?>
 							<form method = "post">
 								Enter password<input type = "password" /><br/>

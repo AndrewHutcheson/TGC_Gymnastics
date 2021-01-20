@@ -215,7 +215,9 @@ if(userIsLoggedIn())
 					Identifiers_Institutions.ID = Identifiers_Programs.InstitutionID AND
 					Constraints_ClubTypes.ID = Identifiers_Programs.ClubType AND
 					Identifiers_Programs.ClubType IN (3,5,7) AND 
-					Identifiers_Institutions.State ".$state."
+					Identifiers_Institutions.State ".$state." AND
+					Identifiers_Institutions.Inactive >= CURDATE() AND
+					Identifiers_Programs.Inactive >= CURDATE()
 		UNION
 				SELECT 
 					Identifiers_Institutions.ID, 
@@ -244,7 +246,10 @@ if(userIsLoggedIn())
 					Identifiers_Institutions.ID = Identifiers_Programs.InstitutionID AND
 					Constraints_ClubTypes.ID = Identifiers_Programs.ClubType AND
 					Identifiers_Programs.ClubType NOT IN (3,5,7) AND 
-					Identifiers_Institutions.State ".$state."
+					Identifiers_Institutions.State ".$state." AND
+					Identifiers_Institutions.Inactive >= CURDATE() AND
+					Identifiers_Programs.Inactive >= CURDATE()
+		UNION
 				GROUP BY
 					Identifiers_Programs.InstitutionID,
 					Identifiers_Programs.ID
@@ -271,7 +276,10 @@ if(userIsLoggedIn())
 					Identifiers_Institutions.ID = Identifiers_Programs.InstitutionID AND
 					Constraints_ClubTypes.ID = Identifiers_Programs.ClubType AND
 					Identifiers_Programs.ClubType IN (3) AND 
-					Identifiers_Institutions.State ".$state."
+					Identifiers_Institutions.State ".$state." AND
+					Identifiers_Institutions.Inactive >= CURDATE() AND
+					Identifiers_Programs.Inactive >= CURDATE()
+		UNION
 				GROUP BY
 					Identifiers_Programs.InstitutionID
 				HAVING
@@ -299,7 +307,10 @@ if(userIsLoggedIn())
 					Identifiers_Institutions.ID = Identifiers_Programs.InstitutionID AND
 					Constraints_ClubTypes.ID = Identifiers_Programs.ClubType AND
 					Identifiers_Programs.ClubType IN (5) AND 
-					Identifiers_Institutions.State ".$state."
+					Identifiers_Institutions.State ".$state." AND
+					Identifiers_Institutions.Inactive >= CURDATE() AND
+					Identifiers_Programs.Inactive >= CURDATE()
+		UNION
 				GROUP BY
 					Identifiers_Programs.InstitutionID
 				HAVING
@@ -1848,7 +1859,7 @@ if(userIsLoggedIn())
 			</tr>
 			<tr>
 				<td>
-					<div style = "display:inline" id = 'uwocs'>University w/o Club <<? echo $smallU_Cutoff_Abbr; ?> Enrollment: </div><img src = "MapIcons/mm_20_ltblue.png"></img><br/>
+					<div style = "display:inline" id = 'uwocs'>University w/o Club < <? echo $smallU_Cutoff_Abbr; ?> Enrollment: </div><img src = "MapIcons/mm_20_ltblue.png"></img><br/>
 				    <div class="onoffswitch">
 						<input onchange = "showHideLayer('6smallUniv');" type="checkbox" class="onoffswitch-checkbox" id="myonoffswitch_6smallUniv">
 						<label class="onoffswitch-label" for="myonoffswitch_6smallUniv">
@@ -1872,7 +1883,7 @@ if(userIsLoggedIn())
 			</tr>
 			<tr>
 				<td>
-					<div style = "display:inline" id = 'ccwocs'>Comm College w/o Club <<? echo $smallCC_Cutoff_Abbr; ?> Enrollment: </div><img src = "MapIcons/mm_20_purple.png"></img><br/>
+					<div style = "display:inline" id = 'ccwocs'>Comm College w/o Club < <? echo $smallCC_Cutoff_Abbr; ?> Enrollment: </div><img src = "MapIcons/mm_20_purple.png"></img><br/>
 				    <div class="onoffswitch">
 						<input onchange = "showHideLayer('6smallCC');" type="checkbox" class="onoffswitch-checkbox" id="myonoffswitch_6smallCC">
 						<label class="onoffswitch-label" for="myonoffswitch_6smallCC">
@@ -1983,9 +1994,9 @@ if(userIsLoggedIn())
 				<td>
 					<br/>
 						Big - Small University Cutoff Number:<br/>
-						<input type="number" min = "1000" step = "1000" id = "ucutoff" name = "ucutoff" onchange = "toggleCollegiateSizeMarkers();" value = <? echo $smallU_Cutoff;?>></input></br>
+						<input type="number" min = "1000" step = "1000" id = "ucutoff" name = "ucutoff" onchange = "toggleCollegiateSizeMarkers();" value = <? echo $smallU_Cutoff;?> ></input></br>
 						Big - Small Comm College Cutoff Number:<br/>
-						<input type="number" min = "1000" step = "1000" id = "cccutoff" name = "cccutoff" onchange = "toggleCollegiateSizeMarkers();" value = <? echo $smallCC_Cutoff;?>></input></br>
+						<input type="number" min = "1000" step = "1000" id = "cccutoff" name = "cccutoff" onchange = "toggleCollegiateSizeMarkers();" value = <? echo $smallCC_Cutoff;?> ></input></br>
 						<!--button onclick = "toggleCollegiateSizeMarkers();">Update</button-->
 				</td>
 			</tr>

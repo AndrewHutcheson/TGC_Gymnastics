@@ -277,7 +277,7 @@
 												<td>28 Jan</td>
 												<td>Austin Invitational @ Austin Gymnastics Club</td>
 												<td>Austin, TX</td>
-												<td><a href = 'results_/2017_AGC_MW.xlsx'>Results</a></td>
+												<td><a href = "results.php">Results</a></td>
 											</tr>
 											<!--tr style = 'color:green'>
 												<td>28 Jan</td>
@@ -295,13 +295,13 @@
 												<td>4 Feb</td>
 												<td>Jazz Invitational</td>
 												<td>New Orleans, LA</td>
-												<td><a href = 'results_/2017_NOLA_MW.xls'>Results</a></td>
+												<td><a href = "results.php">Results</a></td>
 											</tr>
 											<tr>
 												<td>11 Feb</td>
 												<td>UT Dallas Invitiational</td>
 												<td>Allen, TX</td>
-												<td><a href = 'results_/2017_UTD_MW.xlsx'>Results</a></td>
+												<td><a href = "results.php">Results</a></td>
 											</tr>
 											<!--tr style = 'color:green'>
 												<td>11 Feb</td>
@@ -313,7 +313,7 @@
 												<td>18 Feb</td>
 												<td>Texas Tech Invitational</td>
 												<td>Lubbock, TX</td>
-												<td><a href = 'results_/2017_TTU_MW.xlsx'>Results</a></td>
+												<td><a href = "results.php">Results</a></td>
 											</tr>
 											<tr style = 'color:green'>
 												<td>24 Feb</td>
@@ -331,19 +331,19 @@
 												<td>25 Feb</td>
 												<td>Baylor Invitational (Women Only)</td>
 												<td>Waco, TX</td>
-												<td><a href = 'results_/2017_BU_W.xlsx'>Results</a></td>
+												<td><a href = "results.php">Results</a></td>
 											</tr>
 											<tr style = 'color:green'>
 												<td>25 Feb</td>
 												<td>UTEP Men @ Arizona State University Invitational</td>
 												<td>Phoenix, AZ</td>
-												<td><a href = 'results_/2017_ASU_M.pdf'>Results</a></td>
+												<td><a href = "results.php">Results</a></td>
 											</tr>
 											<tr>
 												<td>25 Mar</td>
 												<td>TGC Championships @ Texas A&M</td>
 												<td>College Station, TX</td>
-												<td><a href = 'results_/2017_TAMU_MW.xlsx'>Results</a></td>
+												<td><a href = "results.php">Results</a></td>
 											</tr>
 											<tr style = 'color:green'>
 												<td>6-8 Apr</td>
@@ -372,19 +372,19 @@
 												<td style = 'color:green'>30 Jan</td>
 												<td>Metroplex Challenge (Men Only)</td>
 												<td>Fort Worth, TX</td>
-												<td><a href = "http://metroplexchallenge.com/results_/">Results</a></td>
+												<td><a href = "http://metroplexchallenge.com/">Results</a></td>
 											</tr>
 											<tr style = 'color:green'>
 												<td>5 Feb</td>
 												<td>Houston National Invitational</td>
 												<td>Houston, TX</td>
-												<td><a href = "http://www.hnimeet.org/results.html">Results</a></td>
+												<td><a href = "results.php">Results</a></td>
 											</tr>
 											<tr>
 												<td>13 Feb</td>
 												<td>UT Dallas Invitational</td>
 												<td>Dallas Area, TX</td>
-												<td><a href = "results_/2016_UTD_MW.pdf">Results</a></td>
+												<td><a href = "results.php">Results</a></td>
 											</tr>
 											<tr style = 'color:green'>
 												<td>13 Feb</td>
@@ -396,19 +396,19 @@
 												<td>28 Feb</td>
 												<td>Baylor Invitational (Women Only)</td>
 												<td>Zero Gravity Gymnastics, Waco, TX</td>
-												<td><a href = "results_/2016_Baylor_W.xlsx">Results</a></td>
+												<td><a href = "results.php">Results</a></td>
 											</tr>
 											<tr>
 												<td>05 Mar</td>
 												<td>Texas State Invitational</td>
 												<td>San Marcos, TX</td>
-												<td><a href = "results_/2016_TSU_MW.xlsx">Results</a></td>
+												<td><a href = "results.php">Results</a></td>
 											</tr>
 											<tr>
 												<td>02 Apr</td>
 												<td>Texas A&M Invitational</td>
 												<td>College Station, TX</td>
-												<td><a href = "results_/2016_TAMU_MW.xlsx">Results</a></td>
+												<td><a href = "results.php">Results</a></td>
 											</tr>
 											<tr style = 'color:green'>
 												<td>14 Apr</td>
@@ -438,7 +438,7 @@
 												<td>Texas A&M Invitational</td>
 												<td>Texas A&M Campus, College Station, TX</td>
 												<td>2:30PM</td>
-												<td><a href = "results_/2015_TAMU1_MW.xlsx">Results</a></td>
+												<td><a href = "results.php">Results</a></td>
 											</tr>
 											<tr style = 'color:green'>
 												<td>30 Jan</td>
@@ -452,42 +452,42 @@
 												<td>Baylor Invitational (Women Only)</td>
 												<td>Zero Gravity Gymnastics, Waco, TX</td>
 												<td>1:45PM</td>
-												<td><a href = "results_/2015_Baylor_W.xlsx">Results</a></td>
+												<td><a href = "results.php">Results</a></td>
 											</tr>
 											<tr>
 												<td>14 Feb</td>
 												<td>UT Dallas Invitational</td>
 												<td>Dallas, TX</td>
 												<td>7:00PM</td>
-												<td><a href = "results_/2015_UTD_MW.xlsx">Results</a></td>
+												<td><a href = "results.php">Results</a></td>
 											</tr>
 											<tr>
 												<td>21 Feb</td>
 												<td>Texas Tech Invitational</td>
 												<td>Lubbock, TX</td>
 												<td>5:00PM</td>
-												<td><a href = "results_/2015_TTU_MW.xlsx">Results</a></td>
+												<td><a href = "results.php">Results</a></td>
 											</tr>
 											<tr>
 												<td>07 Mar</td>
 												<td>Texas A&M Invitational</td>
 												<td>College Station, TX</td>
 												<td>2:30PM</td>
-												<td><a href = "results_/2015_TAMU2_MW.xlsx">Results</a></td>
+												<td><a href = "results.php">Results</a></td>
 											</tr>
 											<tr>
 												<td>21 Mar</td>
 												<td>Abilene Invitational</td>
 												<td>Abilene, TX</td>
 												<td>1:00PM</td>
-												<td><a href = "results_/2015_AB_MW.xlsx">Results</a></td>
+												<td><a href = "results.php">Results</a></td>
 											</tr>
 											<tr>
 												<td>28 Mar</td>
 												<td>TGC Championships (Texas State University)</td>
 												<td>San Marcos, TX</td>
 												<td>M:10:30am<br>W:2:30pm</td>
-												<td><a href = "results_/2015_TSU_MW.xlsx">Results</a></td>
+												<td><a href = "results.php">Results</a></td>
 											</tr>
 											<tr style = 'color:green'>
 												<td>09 Apr</td>
@@ -518,35 +518,35 @@
 												<td>University of Texas Invitational</td>
 												<td>Star Center Gymnastics, Austin, TX</td>
 												<td>4:00pm</td>
-												<td><a href = "results_/2014_UT_MW.xlsx">Results</a></td>
+												<td><a href = "results.php">Results</a></td>
 											</tr>
 											<tr>
 												<td>25 Jan</td>
 												<td>TAMU Invitational</td>
 												<td>College Station, TX</td>
 												<td>3:00pm</td>
-												<td><a href = "results_/2014_TAMU_M.xls">Men</a> <a href = "results_/2014_TAMU_W.xls">Women</a></td>
+												<td><a href = "results.php">Results</a></td>
 											</tr>
 											<tr>
 												<td>16 Feb</td>
 												<td>Baylor Invitational (Women Only)</td>
 												<td>Zero Gravity Gymnastics, Waco, TX</td>
 												<td>12:00pm</td>
-												<td><a href = "results_/2014_Baylor_W.xlsx">Results</a></td>
+												<td><a href = "results.php">Results</a></td>
 											</tr>
 											<tr>
 												<td>01 Mar</td>
 												<td>Texas Tech Invitational</td>
 												<td>Lubbock, TX</td>
 												<td>4:00PM</td>
-												<td><a href = "https://www.beyondthescores.com/competitions/cc40b582-c18b-4936-9d77-0bbed0ac97df/results">Men</a> <a href = "https://www.beyondthescores.com/competitions/e3f6708f-6497-43b5-bd21-54d790110bc8/results">Women</a></td>
+												<td>N/A</td>
 											</tr>
 											<tr>
 												<td>29 Mar</td>
 												<td>Texas A&M Invitational</td>
 												<td>College Station, TX</td>
 												<td>2:00PM</td>
-												<td><a href = "results_/2014_TAMU_MW.xlsx">Results</a></td>
+												<td><a href = "results.php">Results</a></td>
 											</tr>
 											<tr style = 'color:green'>
 												<td>03 Apr</td>
@@ -577,28 +577,28 @@
 												<td>Texas State University</td>
 												<td>San Marcos, TX</td>
 												<td>2:00pm</td>
-												<td><a href = "results_/2013_TSU_MW.xlsx">Results</a></td>
+												<td><a href = "results.php">Results</a></td>
 											</tr>
 											<tr>
 												<td>16 Feb</td>
 												<td>TAMU Invitational</td>
 												<td>College Station, TX</td>
 												<td>2:00pm</td>
-												<td><a href = "results_/2013_TAMU_M.xls">Men</a> <a href = "results_/2013_TAMU_W.xls">Women</a></td>
+												<td><a href = "results.php">Results</a></td>
 											</tr>
 											<tr>
 												<td>23 Feb</td>
 												<td>Baylor Invitational (Women Only)</td>
 												<td>Zero Gravity Gymnastics, Waco, TX</td>
 												<td>2:30pm</td>
-												<td><a href = "results_/2013_BU.xlsx">Results</a></td>
+												<td><a href = "results.php">Results</a></td>
 											</tr>
 											<tr>
 												<td>30 Mar</td>
 												<td>TGC Championships @ Texas Tech</td>
 												<td>Lubbock, TX</td>
 												<td>3:00PM</td>
-												<td><a href = "results_/2013_TTU_MW.xlsx">Men</a> <a href = "results_/2013_TTU_MW.xlsx">Women</a></td>
+												<td><a href = "results.php">Results</a></td>
 											</tr>
 											<tr style = 'color:green'>
 												<td>11 Apr</td>
@@ -627,25 +627,25 @@
 												<td>18 Feb</td>
 												<td>Texas Tech University</td>
 												<td>Lubbock, TX</td>
-												<td><a href = "results_/2012_TTU_M.xlsx">Men</a> <a href = "results_/2012_TTU_W.xlsx">Women</a></td>
+												<td><a href = "results.php">Results</a></td>
 											</tr>
 											<tr>
 												<td>10 Mar</td>
 												<td>Texas A&M Inviational</td>
 												<td>Lubbock, TX</td>
-												<td><a href = "results_/2012_TAMU_MW.xlsx">Results</a>
+												<td><a href = "results.php">Results</a></td>
 											</tr>
 											<tr>
 												<td>24 Mar</td>
 												<td>Texas State Invitational</td>
 												<td>San Marcos, TX</td>
-												<td><a href = "results_/2012_TSU_M.xlsx">Men</a> <a href = "results_/2012_TSU_W.xlsx">Women</a></td>
+												<td><a href = "results.php">Results</a></td>
 											</tr>
 											<tr>
 												<td>31 Mar</td>
 												<td>TGC Championships at UT Austin</td>
 												<td>Austin, TX</td>
-												<td><a href = "results_/2012_UT_MW.xlsx">Results</a></td>
+												<td><a href = "results.php">Results</a></td>
 											</tr>
 											<tr style = 'color:green'>
 												<td>19 Apr</td>
@@ -673,31 +673,31 @@
 												<td>11 Feb</td>
 												<td>University of Texas Inviational</td>
 												<td>Austin, TX</td>
-												<td><a href = "results_/2011_UT_MW.xls">Results</a>
+												<td><a href = "results.php">Results</a></td>
 											</tr>
 											<tr>
 												<td>19 Feb</td>
 												<td>Texas Tech Inviational</td>
 												<td>Lubbock, TX</td>
-												<td><a href = "results_/2011_Tech_M.htm">Men</a> <a href = "results_/2011_Tech_W.htm">Women</a> <a href = "results_/2011_Tech_Team.html">Team</a></td>
+												<td><a href = "results.php">Results</a></td>
 											</tr>
 											<tr>
 												<td>26 Feb</td>
 												<td>Baylor Invitational</td>
 												<td>Waco, TX</td>
-												<td><a href = "results_/2011_Baylor_W.xls">Women Only</a></td>
+												<td><a href = "results.php">Results</a></td>
 											</tr>
 											<tr>
 												<td>12 Mar</td>
 												<td>Texas State Invitational</td>
 												<td>San Marcos, TX</td>
-												<td><a href = "results_/2011_TxState_M.doc">Men</a> <a href = "results_/2011_TxState_W.doc">Women</a> <a href = "results_/2011_TxState_Team.doc">Team</a></td>
+												<td><a href = "results.php">Results</a></td>
 											</tr>
 											<tr>
 												<td>02 Apr</td>
 												<td>TGC Championships at Texas A&M</td>
 												<td>College Station, TX</td>
-												<td><a href = "results_/2011_AM_M.xls">Men</a> <a href = "results_/2011_AM_W.xls">Women</a></td>
+												<td><a href = "results.php">Results</a></td>
 											</tr>
 											<tr style = 'color:green'>
 												<td>07 Apr</td>
@@ -725,7 +725,7 @@
 												<td>16 Jan</td>
 												<td>University of Texas Inviational</td>
 												<td>Austin, TX</td>
-												<td><a href = "results_/2010_UT_M.xls">Men</a> <a href = "results_/2010_UT_W.xls">Women</a><td>
+												<td><a href = "results.php">Results</a></td>
 											</tr>
 											<tr style = 'color:green'>
 												<td>30 Jan</td>
@@ -737,25 +737,25 @@
 												<td>06 Feb</td>
 												<td>Texas A&M Inviational</td>
 												<td>College Station, TX</td>
-												<td><a href = "results_/2010_AM_M.xlsx">Men</a ><a href = "results_/2010_AM_W.xlsx">Women</a><td>
+												<td><a href = "results.php">Results</a></td>
 											</tr>
 											<tr>
 												<td>20 Feb</td>
 												<td>Texas Tech Inviational</td>
 												<td>Lubbock, TX</td>
-												<td><a href = "results_/2010_Tech_M.xlsx">Men</a> <a href = "results_/2010_Tech_W.xlsx">Women</a><td>
+												<td><a href = "results.php">Results</a></td>
 											</tr>
 											<tr>
 												<td>27 Feb</td>
 												<td>Baylor Inviational (Women only)</td>
 												<td>Waco, TX</td>
-												<td><a href = "results_/2010_Baylor_W.xls">Results</a></td>
+												<td><a href = "results.php">Results</a></td>
 											</tr>
 											<tr>
 												<td>16 Jan</td>
 												<td>TGC Championships</td>
 												<td>Abilene, TX</td>
-												<td><a href = "results_/2010_Abilene_M.xls">Men</a> <a href = "results_/2010_Abilene_W.xls">Women</a><td>
+												<td><a href = "results.php">Results</a></td>
 											</tr>
 										</table>
 									</p>
@@ -783,13 +783,13 @@
 												<td>31 Jan</td>
 												<td>University of Texas Inviational</td>
 												<td>Austin, TX</td>
-												<td><a href = "results_/2009_UT_MixedPairs.pdf">Results</a></td>
+												<td><a href = "results.php">Results</a></td>
 											</tr>
 											<tr style = 'color:green'>
 												<td>31 Jan</td>
 												<td>Team Texas @ OU</td>
 												<td>Norman, OK</td>
-												<td><a href = "results_/2009_OU_M.pdf">Results</a></td>
+												<td><a href = "results.php">Results</a></td>
 											</tr>
 											<tr>
 												<td>14 Feb</td>
@@ -807,7 +807,7 @@
 												<td>03 Mar</td>
 												<td>Texas Tech Inviational</td>
 												<td>Lubbock, TX</td>
-												<td><a href = "results_/2009_Tech_M.htm">Men</a> <a href = "results_/2009_Tech_W.htm">Women</a></td>
+												<td><a href = "results.php">Results</a></td>
 											</tr>
 											<tr>
 												<td>21 Mar</td>
@@ -847,7 +847,7 @@
 												<td>02 Feb</td>
 												<td>Texas Tech Inviational</td>
 												<td>Lubbock, TX</td>
-												<td><a href = "results_/2008_Tech_M.xls">Men</a> <a href = "results_/2008_Tech_W.xls">Women</a><td>
+												<td><a href = "results.php">Results</a></td>
 											</tr>
 											<tr style = 'color:green'>
 												<td>23 Feb</td>
@@ -859,7 +859,7 @@
 												<td>01 Mar</td>
 												<td>University of Texas Invitational</td>
 												<td>Austin, TX</td>
-												<td><a href = "results_/2008_UT.xls">Results</a><td>
+												<td><a href = "results.php">Results</a></td>
 											</tr>
 											<tr>
 												<td>15 Mar</td>
