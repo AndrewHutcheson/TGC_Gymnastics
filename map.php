@@ -216,8 +216,8 @@ if(userIsLoggedIn())
 					Constraints_ClubTypes.ID = Identifiers_Programs.ClubType AND
 					Identifiers_Programs.ClubType IN (3,5,7) AND 
 					Identifiers_Institutions.State " . $state . " AND
-					Identifiers_Institutions.Inactive >= CURDATE() AND
-					Identifiers_Programs.Inactive >= CURDATE()
+					(Identifiers_Institutions.Inactive >= CURDATE() OR Identifiers_Institutions.Inactive = '0000-00-00') AND
+					(Identifiers_Programs.Inactive >= CURDATE() OR Identifiers_Programs.Inactive = '0000-00-00')
 		UNION
 				SELECT 
 					Identifiers_Institutions.ID, 
@@ -247,8 +247,8 @@ if(userIsLoggedIn())
 					Constraints_ClubTypes.ID = Identifiers_Programs.ClubType AND
 					Identifiers_Programs.ClubType NOT IN (3,5,7) AND 
 					Identifiers_Institutions.State ".$state." AND
-					Identifiers_Institutions.Inactive >= CURDATE() AND
-					Identifiers_Programs.Inactive >= CURDATE()
+					(Identifiers_Institutions.Inactive >= CURDATE() OR Identifiers_Institutions.Inactive = '0000-00-00') AND
+					(Identifiers_Programs.Inactive >= CURDATE() OR Identifiers_Programs.Inactive = '0000-00-00')
 				GROUP BY
 					Identifiers_Programs.InstitutionID,
 					Identifiers_Programs.ID
@@ -276,8 +276,8 @@ if(userIsLoggedIn())
 					Constraints_ClubTypes.ID = Identifiers_Programs.ClubType AND
 					Identifiers_Programs.ClubType IN (3) AND 
 					Identifiers_Institutions.State ".$state." AND
-					Identifiers_Institutions.Inactive >= CURDATE() AND
-					Identifiers_Programs.Inactive >= CURDATE()
+					(Identifiers_Institutions.Inactive >= CURDATE() OR Identifiers_Institutions.Inactive = '0000-00-00') AND
+					(Identifiers_Programs.Inactive >= CURDATE() OR Identifiers_Programs.Inactive = '0000-00-00')
 				GROUP BY
 					Identifiers_Programs.InstitutionID
 				HAVING
@@ -306,8 +306,8 @@ if(userIsLoggedIn())
 					Constraints_ClubTypes.ID = Identifiers_Programs.ClubType AND
 					Identifiers_Programs.ClubType IN (5) AND 
 					Identifiers_Institutions.State ".$state." AND
-					Identifiers_Institutions.Inactive >= CURDATE() AND
-					Identifiers_Programs.Inactive >= CURDATE()
+					(Identifiers_Institutions.Inactive >= CURDATE() OR Identifiers_Institutions.Inactive = '0000-00-00') AND
+					(Identifiers_Programs.Inactive >= CURDATE() OR Identifiers_Programs.Inactive = '0000-00-00')
 				GROUP BY
 					Identifiers_Programs.InstitutionID
 				HAVING
