@@ -766,7 +766,7 @@ if(userIsLoggedIn())
 		</table>
 	</div>
 
-<?
+<?php
 }
 else
 {
