@@ -215,7 +215,7 @@ if(userIsLoggedIn())
 					Identifiers_Institutions.ID = Identifiers_Programs.InstitutionID AND
 					Constraints_ClubTypes.ID = Identifiers_Programs.ClubType AND
 					Identifiers_Programs.ClubType IN (3,5,7) AND 
-					Identifiers_Institutions.State ".$state." AND
+					Identifiers_Institutions.State " . $state . " AND
 					Identifiers_Institutions.Inactive >= CURDATE() AND
 					Identifiers_Programs.Inactive >= CURDATE()
 		UNION
@@ -249,7 +249,6 @@ if(userIsLoggedIn())
 					Identifiers_Institutions.State ".$state." AND
 					Identifiers_Institutions.Inactive >= CURDATE() AND
 					Identifiers_Programs.Inactive >= CURDATE()
-		UNION
 				GROUP BY
 					Identifiers_Programs.InstitutionID,
 					Identifiers_Programs.ID
@@ -279,7 +278,6 @@ if(userIsLoggedIn())
 					Identifiers_Institutions.State ".$state." AND
 					Identifiers_Institutions.Inactive >= CURDATE() AND
 					Identifiers_Programs.Inactive >= CURDATE()
-		UNION
 				GROUP BY
 					Identifiers_Programs.InstitutionID
 				HAVING
@@ -310,7 +308,6 @@ if(userIsLoggedIn())
 					Identifiers_Institutions.State ".$state." AND
 					Identifiers_Institutions.Inactive >= CURDATE() AND
 					Identifiers_Programs.Inactive >= CURDATE()
-		UNION
 				GROUP BY
 					Identifiers_Programs.InstitutionID
 				HAVING
