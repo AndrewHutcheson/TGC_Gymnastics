@@ -832,6 +832,71 @@ class meetRegistration
 		$this->addToRegistrationLog($oldCompetitionID,$personID,"","Person's Competition (level/division) Changed",$oldCompetitionID,$newCompetitionID);
 	}
 	
+	public function updatePersonEventCompetition($personID, $oldCompetitionID, $newCompetitionID, $institution, $apparatus)
+	{
+		global $conn;
+		$error = false;
+		//$alreadyRegistered = false;
+		try
+		{
+			$conn->beginTransaction();
+			
+			//$alreadyRegistered = checkIfPersonAlreadyRegisteredForCompetition($personID,$newCompetitionID);
+			
+			$sql = "
+					UPDATE
+						Events_Routines
+					SET
+						CompetitionID = ?,
+						RegisteredBy = ?
+					WHERE
+						PersonID = ? AND
+						CompetitionID = ? AND
+						Apparatus =?
+					;";
+					
+			$stmtRegister = $conn->prepare($sql);
+			
+			$stmtRegister->bindParam(1, $newCompetitionID, PDO::PARAM_INT, 5);
+			$stmtRegister->bindParam(2, $_SESSION['userID'], PDO::PARAM_INT, 6);
+			$stmtRegister->bindParam(3, $personID, PDO::PARAM_INT, 5);	
+			$stmtRegister->bindParam(4, $oldCompetitionID, PDO::PARAM_INT, 5);		
+			$stmtRegister->bindParam(5, $apparatus, PDO::PARAM_INT, 5);		
+			
+			//if(!$alreadyRegistered)
+			if(true)
+			{
+				$stmtRegister->execute();
+			}
+		}
+		catch (PDOException $e)
+		{
+			$error = true;
+			$conn->rollBack();
+			echo 'ERROR: ' . $e->getMessage()."<br/>".var_dump($conn->errorInfo());
+		}
+		//I tried a finally block but php blew up.
+		if(!$error)
+		{
+			$conn->commit();
+			
+			$this->autoProcessTeamStuff($institution,$oldCompetitionID,"A");
+			$this->autoProcessTeamStuff($institution,$newCompetitionID,"A");
+			$this->autoProcessTeamStuff($institution,$oldCompetitionID,"B");
+			$this->autoProcessTeamStuff($institution,$newCompetitionID,"B");
+			$this->autoProcessTeamStuff($institution,$oldCompetitionID,"C");
+			$this->autoProcessTeamStuff($institution,$newCompetitionID,"C");
+			$this->autoProcessTeamStuff($institution,$oldCompetitionID,"D");
+			$this->autoProcessTeamStuff($institution,$newCompetitionID,"D");
+			$this->autoProcessTeamStuff($institution,$oldCompetitionID,"E");
+			$this->autoProcessTeamStuff($institution,$newCompetitionID,"E");
+			$this->autoProcessTeamStuff($institution,$oldCompetitionID,"F");
+			$this->autoProcessTeamStuff($institution,$newCompetitionID,"F");
+		}
+		
+		$this->addToRegistrationLog($oldCompetitionID,$personID,"","Person's Competition (level/division) changed for apparatus",$newCompetitionID,$apparatus);
+	}
+	
 	public function updatePersonEvent($personID, $competitionID, $eventID, $registered, $countsForTeamEvent)
 	{
 		global $conn;
@@ -881,6 +946,50 @@ class meetRegistration
 		if(!$error)
 		{
 			$conn->commit();
+		}
+	}
+	
+	public function unregisterPersonFromDiscipline($personID,$meetID,$institutionID,$discipline)
+	{
+		global $conn;
+		$sql = "	
+			DELETE
+			FROM
+				Events_Routines
+			WHERE
+				PersonID = ? AND
+				CompetitionID IN (Select ID From Events_Competitions Where MeetID = ? AND Gender = ?)
+			;";
+		$stmt = $conn->prepare($sql);
+		
+		$stmt->bindParam(1, $personID, PDO::PARAM_INT,10);
+		$stmt->bindParam(2, $meetID, PDO::PARAM_INT, 5);	
+		$stmt->bindParam(3, $discipline, PDO::PARAM_INT, 5);	
+		
+		$stmt->execute();
+		$this->addToRegistrationLog($meetID,$personID,"","Person Unregistered from Meet for Discipline",$discipline,""); //todo: add teamid
+		
+		$sql = "SELECT
+					ID
+				FROM
+					Events_Competitions
+				WHERE
+					MeetID = ?
+				";
+		$stmt = $conn->prepare($sql);
+		$stmt->bindParam(1, $meetID, PDO::PARAM_INT,10);
+		$stmt->execute();
+		
+		while($row = $stmt->fetch(PDO::FETCH_ASSOC))
+		{
+			$competitionID = $row['ID'];
+			$this->autoProcessTeamStuff($institutionID,$competitionID,"A");
+			$this->autoProcessTeamStuff($institutionID,$competitionID,"B");
+			$this->autoProcessTeamStuff($institutionID,$competitionID,"C");
+			$this->autoProcessTeamStuff($institutionID,$competitionID,"D");
+			$this->autoProcessTeamStuff($institutionID,$competitionID,"E");
+			$this->autoProcessTeamStuff($institutionID,$competitionID,"F");
+			$this->autoProcessTeamStuff($institutionID,$competitionID,"G");
 		}
 	}
 	
@@ -1143,7 +1252,137 @@ class meetRegistration
 		}
 		//return json_encode($return_arr); //ah crap now Im returning duplicate arrays
 	}
-
+	
+	private function getEventLevelCompID($iMeet,$iPerson,$iApparatus)
+	{
+		global $conn;
+		$sql = "SELECT
+					CompetitionID
+				FROM
+					Events_Routines
+				WHERE
+					Apparatus = ? AND
+					PersonID = ? AND
+					CompetitionID IN (Select ID From Events_Competitions Where MeetID = ?)
+				";
+		$stmt = $conn->prepare($sql);
+		$stmt->bindParam(1, $iApparatus, PDO::PARAM_INT, 5);	
+		$stmt->bindParam(2, $iPerson, PDO::PARAM_INT, 8);	
+		$stmt->bindParam(3, $iMeet, PDO::PARAM_INT, 8);	
+		
+		$stmt->execute();
+		while($row = $stmt->fetch(PDO::FETCH_ASSOC))
+		{
+			return $row['CompetitionID'];
+		}
+	}
+	
+	private function getEventLevelCompName($iMeet,$iPerson,$iApparatus)
+	{
+		global $conn;
+		$sql = "SELECT
+					concat(
+							Constraints_MeetDivisions.Name, ' ',
+							Constraints_MeetLevels.DisplayName, ' ',
+							Constraints_Genders.GenderName
+						 ) AS CompetitionName
+				FROM
+					Events_Routines,
+					Constraints_MeetDivisions,
+					Constraints_MeetLevels,
+					Constraints_Genders,
+					Events_Competitions
+				WHERE
+					Apparatus = ? AND
+					PersonID = ? AND
+					CompetitionID IN (Select ID From Events_Competitions Where MeetID = ?) AND
+					Events_Routines.CompetitionID = Events_Competitions.ID AND
+					Events_Competitions.Division = Constraints_MeetDivisions.ID AND
+					Events_Competitions.Level = Constraints_MeetLevels.ID AND
+					Events_Competitions.Gender = Constraints_Genders.ID
+				";
+		$stmt = $conn->prepare($sql);
+		$stmt->bindParam(1, $iApparatus, PDO::PARAM_INT, 5);	
+		$stmt->bindParam(2, $iPerson, PDO::PARAM_INT, 8);	
+		$stmt->bindParam(3, $iMeet, PDO::PARAM_INT, 8);	
+		
+		$stmt->execute();
+		while($row = $stmt->fetch(PDO::FETCH_ASSOC))
+		{
+			return $row['CompetitionName'];
+		}
+	}
+	
+	public function getEventLevelPeopleInTeam($iMeet, $iInstitution, $iGender)
+	{
+		global $conn;
+		$theArray = array();
+		
+		$sql = "SELECT
+					DISTINCT Events_Routines.PersonID,
+					Minor,
+					Concat(LastName, ', ', FirstName) AS PersonName,
+					Identifiers_Institutions.Name AS Institution,
+					Identifiers_Institutions.ID AS InstitutionID
+				FROM
+					Events_Routines,
+					Identifiers_People,
+					Identifiers_Institutions
+				WHERE
+					Identifiers_Institutions.ID = Events_Routines.ClubID AND
+					Events_Routines.PersonID = Identifiers_People.ID AND
+					Events_Routines.CompetitionID IN (Select ID From Events_Competitions Where MeetID = ?) AND
+					Events_Routines.ClubID = ?
+			";
+			
+		$stmt = $conn->prepare($sql);
+		$stmt->bindParam(1, $iMeet, PDO::PARAM_INT, 8);	
+		$stmt->bindParam(2, $iInstitution, PDO::PARAM_INT, 8);	
+		
+		$stmt->execute();
+		
+		$count = 0;
+		while($row = $stmt->fetch(PDO::FETCH_ASSOC))
+		{
+			//echo "in the loop";
+			$person = $row['PersonID'];
+			$TRCompID = $this->getEventLevelCompID($iMeet,$person,17);
+			$DMCompID = $this->getEventLevelCompID($iMeet,$person,18);
+			$STCompID = $this->getEventLevelCompID($iMeet,$person,19);
+			$RFCompID = $this->getEventLevelCompID($iMeet,$person,20);
+			
+			$TR = $this->isPersonRegisteredForEvent($person,17,$TRCompID);
+			$DM = $this->isPersonRegisteredForEvent($person,18,$DMCompID);
+			$ST = $this->isPersonRegisteredForEvent($person,19,$STCompID);
+			$RF = $this->isPersonRegisteredForEvent($person,20,$RFCompID);
+			
+			if($TR == false) {$TR = "Not Registered";} else {$TR = $this->getEventLevelCompName($iMeet,$person,17);}
+			if($DM == false) {$DM = "Not Registered";} else {$DM = $this->getEventLevelCompName($iMeet,$person,18);}
+			if($ST == false) {$ST = "Not Registered";} else {$ST = $this->getEventLevelCompName($iMeet,$person,19);}
+			if($RF == false) {$RF = "Not Registered";} else {$RF = $this->getEventLevelCompName($iMeet,$person,20);}
+			
+			$theArray[$count] = array(
+									'ID'=>$person,
+									'MeetID'=>$iMeet,
+									'Minor'=>$row['Minor'],
+									'Name'=>$row['PersonName'],
+									'Institution'=>$row['Institution'],
+									'InstitutionID'=>$row['InstitutionID'],
+									'TRCompID'=>$TRCompID,
+									'TR'=>$TR,
+									'DMCompID'=>$DMCompID,
+									'DM'=>$DM,
+									'STCompID'=>$STCompID,
+									'ST'=>$ST,
+									'RFCompID'=>$RFCompID,
+									'RF'=>$RF
+									);
+			
+			$count++;
+		}
+		return $theArray;
+	}
+	
 	public function getPeopleInTeam($meetID, $institutionID, $gender)
 	{
 		

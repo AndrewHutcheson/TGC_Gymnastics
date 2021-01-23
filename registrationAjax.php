@@ -35,7 +35,7 @@ if(userIsLoggedIn()) //quick way of parsing input to prevent sql injections sinc
 		
 		//need to add team back in here later
 		//updatePersonCompetition($person,$oldCompetition,$newCompetition,$institution);
-		$Reg = new meetRegistration("byComp",$_REQUEST['oldCompetitionID']); //old and new will always be the same meetID here.
+		$Reg = new meetRegistration("byComp",$oldCompetition); //old and new will always be the same meetID here.
 		$Reg->changePersonCompetitionInMeet($person,$oldCompetition,$newCompetition,$institution,$designation);
 	}
 
@@ -113,6 +113,27 @@ if(userIsLoggedIn()) //quick way of parsing input to prevent sql injections sinc
 		}
 	}
 
+	if(isset($_REQUEST['unregisterPersonFromDiscipline']))
+	{
+		$personID = $_REQUEST['person'];
+		$meetID = $_REQUEST['meetID'];
+		$institutionID = $_REQUEST['institution'];
+		$discipline = $_REQUEST['discipline'];
+		$Reg = new meetRegistration("byMeet",$meetID);
+		
+		$dates = $Reg->getRegFeeAndDates($meetID);
+		
+		$lateDate = date("Y-m-d",strtotime($dates['lateDeadline']));
+		$now = date("Y-m-d");
+		
+		if(($now <= $lateDate) || userIsExecutiveAdministrator())
+		{
+			$Reg->unregisterPersonFromDiscipline($personID,$meetID,$institutionID,$discipline);
+			//echo "Now is " . $now . " late is " . $lateDate;
+		}
+	}
+
+
 	if(isset($_REQUEST['getTeamHeaderData']))
 	{
 		$iInstitution = $_REQUEST['institutionID'];
@@ -125,12 +146,25 @@ if(userIsLoggedIn()) //quick way of parsing input to prevent sql injections sinc
 	 
 	if(isset($_REQUEST['updateTeamOptions']))
 	{
-		//why the fuck am I doing this I can just use TeamID............
 		$institution = $_REQUEST['institutionID'];
 		$competition = $_REQUEST['competitionID'];
 		$designation = $_REQUEST['teamDesignation'];
 		$rotation = $_REQUEST['rotationID'];
 		echo json_encode(updateRotation($institution,$competition,$designation,$rotation));
+	}	
+	
+	if(isset($_REQUEST['updateEventCompetitionLevel']))
+	{
+		$person = $_REQUEST['person'];
+		$oldCompetition = $_REQUEST['oldCompetition'];
+		$newCompetition = $_REQUEST['newCompetition'];
+		$institution = $_REQUEST['institution'];
+		$apparatus = $_REQUEST['apparatus'];
+		
+		//need to add team back in here later
+		//updatePersonCompetition($person,$oldCompetition,$newCompetition,$institution);
+		$Reg = new meetRegistration("byComp",$oldCompetition); //old and new will always be the same meetID here.
+		$Reg->updatePersonEventCompetition($person, $oldCompetition, $newCompetition, $institution, $apparatus);
 	}
 
 	if(isset($_REQUEST['addNewPersonToDatabase']))
@@ -169,8 +203,12 @@ if(userIsLoggedIn()) //quick way of parsing input to prevent sql injections sinc
 		$iGender = $_REQUEST['genderID'];
 		
 		//$return_arr = getPeopleInTeam($iMeet, $iInstitution, $iGender);
-		$return_arr = $Reg->getPeopleInTeam($iMeet, $iInstitution, $iGender);
-		
+		if($iGender < 4)
+			$return_arr = $Reg->getPeopleInTeam($iMeet, $iInstitution, $iGender);
+		else
+		{
+			$return_arr = $Reg->getEventLevelPeopleInTeam($iMeet, $iInstitution, $iGender);
+		}
 		echo json_encode($return_arr);
 	}
 
