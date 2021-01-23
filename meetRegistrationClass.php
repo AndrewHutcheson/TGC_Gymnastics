@@ -1533,7 +1533,7 @@ class meetRegistration
 				SET
 					Registered = ?,
 					RegisteredBy = ?,
-					$teamID = ?
+					TeamDesignation = ?
 				WHERE
 					PersonID = ? AND
 					CompetitionID = ? AND
