@@ -1522,7 +1522,7 @@ class meetRegistration
 
 	
 ///////to be replaced///////////////
-	function updatePersonEvents($personID,$institutionID,$competitionID,$events,$teamID) //this stays and I utilize the registerPersonForEvent and unRegisterPersonForEvent functions in the class are for.
+	function updatePersonEvents($personID,$institutionID,$competitionID,$events,$designation) //this stays and I utilize the registerPersonForEvent and unRegisterPersonForEvent functions in the class are for.
 	{
 		global $conn;
 		$eventID = 0;
@@ -1532,8 +1532,7 @@ class meetRegistration
 					Events_Routines
 				SET
 					Registered = ?,
-					RegisteredBy = ?,
-					TeamDesignation = ?
+					RegisteredBy = ?
 				WHERE
 					PersonID = ? AND
 					CompetitionID = ? AND
@@ -1543,10 +1542,9 @@ class meetRegistration
 		
 		$stmt->bindParam(1, $registered, PDO::PARAM_INT,10);
 		$stmt->bindParam(2, $_SESSION['userID'], PDO::PARAM_INT, 6);
-		$stmt->bindParam(3, $teamID, PDO::PARAM_INT, 5);
-		$stmt->bindParam(4, $personID, PDO::PARAM_INT, 5);
-		$stmt->bindParam(5, $competitionID, PDO::PARAM_INT, 5);	
-		$stmt->bindParam(6, $eventID, PDO::PARAM_INT, 3);	
+		$stmt->bindParam(3, $personID, PDO::PARAM_INT, 5);
+		$stmt->bindParam(4, $competitionID, PDO::PARAM_INT, 5);	
+		$stmt->bindParam(5, $eventID, PDO::PARAM_INT, 3);	
 		
 		foreach ($events AS $eventID => $tregistered) //check how this handles the events array
 		{
@@ -1562,7 +1560,7 @@ class meetRegistration
 				if($numCurrentlyRegistered < $max)
 				{
 					$stmt->execute();
-					$this->addToRegistrationLog($competitionID,$personID,$teamID,"Register Person for Event",$eventID,"");
+					$this->addToRegistrationLog($competitionID,$personID,$designation,"Register Person for Event",$eventID,"");
 				}
 			}
 		}
