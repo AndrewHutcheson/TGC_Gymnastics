@@ -748,6 +748,12 @@ function userLoggedInNameParts(){
 		if(cell.getField()=="DM") {compIdField = "DMCompID";}
 		if(cell.getField()=="ST") {compIdField = "STCompID";}
 		if(cell.getField()=="RF") {compIdField = "RFCompID";}
+		
+		
+		var currentSelectionIsNotRegistered = false;
+		if(cell.getValue() == "Not Registered")
+			currentSelectionIsNotRegistered = true;
+		
 		//create and style editor
 		var editor = document.createElement("select");
 		
@@ -769,7 +775,15 @@ function userLoggedInNameParts(){
 		editor.style.boxSizing = "border-box";
 
 		//Set value of editor to the current value of the cell when the editor opens
-		var curVal = cell.getRow().getCell(compIdField).getValue();
+		var curVal = "";
+		if(currentSelectionIsNotRegistered)
+		{
+			curVal = 0;
+		}
+		else
+		{
+			curVal = cell.getRow().getCell(compIdField).getValue();
+		}
 		editor.value = curVal; //need to change per keyval
 
 		//set focus on the select box when the editor is selected (timeout allows for editor to be added to DOM)
@@ -2049,7 +2063,7 @@ function userLoggedInNameParts(){
 										{title:"TR", 				field:"TR",				editor:TnTEditor		},
 										{title:"DMCompID", 			field:"DMCompID",		visible:false			},
 										{title:"DM", 				field:"DM",				editor:TnTEditor		},
-										{title:"STCompID", 			field:"STCompID",		visible:true			},
+										{title:"STCompID", 			field:"STCompID",		visible:false			},
 										{title:"ST", 				field:"ST",				editor:TnTEditor		},
 										{title:"RFCompID", 			field:"RFCompID",		visible:false			},
 										{title:"RF", 				field:"RF",				editor:TnTEditor		},
