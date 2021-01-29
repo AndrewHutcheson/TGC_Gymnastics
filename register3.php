@@ -2075,8 +2075,16 @@ function userLoggedInNameParts(){
 										if(cell.getField()=="STCompID") {apparatus = 19;}
 										if(cell.getField()=="RFCompID") {apparatus = 20;}
 										
-										if(apparatus != "")
-											updateEventCompetitionLevel(data.ID,cell.getOldValue(),cell.getValue(),data.InstitutionID,apparatus);
+										if(cell.getValue() != 0)
+										{											
+											if(apparatus != "")
+												updateEventCompetitionLevel(data.ID,cell.getOldValue(),cell.getValue(),data.InstitutionID,apparatus);
+										}
+										else
+										{
+											savePersonRegistrationSingleEvent(data.ID,data.InstitutionID,cell.getOldValue(),apparatus,false,4,true,cell);
+											loadRegData(4);
+										}
 									}
 								});
 
