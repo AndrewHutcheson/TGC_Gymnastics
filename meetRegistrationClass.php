@@ -144,23 +144,23 @@ class meetRegistration
 				Constraints_Leauges.ShortName AS Leauge,
 				Constraints_MeetDivisions.Name AS Division,
 				Constraints_MeetLevels.DisplayName AS Level,
-				Constraints_Genders.GenderName AS Gender,
-				Events_Competitions.Gender AS GenderID
+				Constraints_Disciplines.DisciplineShortName AS Discipline,
+				Events_Competitions.Discipline AS DisciplineID
 			FROM
 				Events_Competitions, 
 				Constraints_Leauges,
-				Constraints_Genders,
+				Constraints_Disciplines,
 				Constraints_MeetDivisions,
 				Constraints_MeetLevels
 			WHERE
 				Events_Competitions.Leauge = Constraints_Leauges.ID AND
 				Events_Competitions.Division = Constraints_MeetDivisions.ID AND
 				Events_Competitions.Level = Constraints_MeetLevels.ID AND
-				Events_Competitions.Gender = Constraints_Genders.ID AND
+				Events_Competitions.Discipline = Constraints_Disciplines.ID AND
 				Events_Competitions.MeetID = ?
 			ORDER BY
 				Events_Competitions.Division,
-				Events_Competitions.Gender,
+				Events_Competitions.Discipline,
 				Events_Competitions.Level
 			;");
 		
@@ -175,7 +175,7 @@ class meetRegistration
 										"ID" => $row['ID'],
 										"Division" => $row['Division'],
 										"Level" => $row['Level'],
-										"Gender" => $row['Gender']
+										"Discipline" => $row['Discipline']
 										);
 			$count++;
 		}
@@ -185,7 +185,7 @@ class meetRegistration
 	
 	public function getCompetitionDetails()
 	{
-		//return level, gender, division, etc as array of key value pairs for displayname and ID
+		//return level, Discipline, division, etc as array of key value pairs for displayname and ID
 		
 	}
 	
@@ -414,7 +414,7 @@ class meetRegistration
 		return $count;
 	}
 	
-	public function registerPersonForCompetition($competitionID, $institutionID, $personID, $teamID, $gender, $events, $eventCountFlags, $firstAdd, $minor, $designation)
+	public function registerPersonForCompetition($competitionID, $institutionID, $personID, $teamID, $Discipline, $events, $eventCountFlags, $firstAdd, $minor, $designation)
 	{
 		global $conn;
 		$error = false;
@@ -445,7 +445,7 @@ class meetRegistration
 			if(true)
 			{
 				//$alreadyRegistered = checkIfPersonAlreadyRegisteredForCompetition($personID,$competitionID);
-				$alreadyRegistered = $this->checkIfPersonAlreadyRegisteredForMeetGender($personID,$competitionID,$gender);
+				$alreadyRegistered = $this->checkIfPersonAlreadyRegisteredForMeetDiscipline($personID,$competitionID,$Discipline);
 				//if($alreadyRegistered == 1)
 					//$alreadyRegistered = true;
 				//echo "forcompetitioncalled";
@@ -454,7 +454,7 @@ class meetRegistration
 			{
 				//I want it false, it'll just update the events and not add them.
 				//although I need to do this for event-specific last updated timestamps.
-				//echo "formeetgendercalled";
+				//echo "formeetDisciplinecalled";
 			}
 			
 			//echo "alreadyregistered".$firstAdd;
@@ -490,7 +490,7 @@ class meetRegistration
 						FROM
 							Constraints_Apparatus
 						WHERE
-							Gender = ?
+							Discipline = ?
 					;";
 					
 			$stmtRegister = $conn->prepare($sql);
@@ -503,7 +503,7 @@ class meetRegistration
 			$stmtRegister->bindParam(6, $fee, PDO::PARAM_STR, 6);				//fee
 			$stmtRegister->bindParam(7, $minor, PDO::PARAM_BOOL);				//under18
 			///whereclause
-			$stmtRegister->bindParam(8, $gender, PDO::PARAM_INT, 5);			//gender
+			$stmtRegister->bindParam(8, $Discipline, PDO::PARAM_INT, 5);			//Discipline
 			
 			
 			if(!$alreadyRegistered)
@@ -567,7 +567,7 @@ class meetRegistration
 		echo json_encode($return_arr);
 	}
 	
-	public function checkIfPersonAlreadyRegisteredForMeetGender($personID,$competitionID,$gender)
+	public function checkIfPersonAlreadyRegisteredForMeetDiscipline($personID,$competitionID,$Discipline)
 	{
 		global $conn;
 
@@ -583,13 +583,13 @@ class meetRegistration
 									FROM 
 										Events_Competitions 
 									WHERE 
-										Events_Competitions.Gender = ? AND 
+										Events_Competitions.Discipline = ? AND 
 										Events_Competitions.MeetID IN (Select MeetID From Events_Competitions Where ID = ?))
 			;";
 		$stmtRegister = $conn->prepare($sql);
 		
 		$stmtRegister->bindParam(1, $personID, PDO::PARAM_INT, 5);		//person
-		$stmtRegister->bindParam(2, $gender, PDO::PARAM_INT, 1);		//gender
+		$stmtRegister->bindParam(2, $Discipline, PDO::PARAM_INT, 1);		//Discipline
 		$stmtRegister->bindParam(3, $competitionID, PDO::PARAM_INT, 5);	
 		
 		$stmtRegister->execute();
@@ -690,7 +690,7 @@ class meetRegistration
 		
 		//return a few things:
 		//are they registered for the specific competition
-		//are they registered for that discipline (aka meet-gender pair)
+		//are they registered for that discipline (aka meet-Discipline pair)
 	}
 	
 	public function registerPersonForEvent($personID,$competitionID,$event)
@@ -958,7 +958,7 @@ class meetRegistration
 				Events_Routines
 			WHERE
 				PersonID = ? AND
-				CompetitionID IN (Select ID From Events_Competitions Where MeetID = ? AND Gender = ?)
+				CompetitionID IN (Select ID From Events_Competitions Where MeetID = ? AND Discipline = ?)
 			;";
 		$stmt = $conn->prepare($sql);
 		
@@ -1184,17 +1184,17 @@ class meetRegistration
 						(?,?,?, (SELECT CONCAT(
 												Constraints_MeetDivisions.Name, ' ',
 												Constraints_MeetLevels.DisplayName, ' ',
-												Constraints_Genders.GenderName
+												Constraints_Disciplines.DisciplineShortName
 											 ) 
 								FROM 
 									Events_Competitions,
-									Constraints_Genders,
+									Constraints_Disciplines,
 									Constraints_MeetDivisions,
 									Constraints_MeetLevels
 								WHERE
 									Events_Competitions.Division = Constraints_MeetDivisions.ID AND
 									Events_Competitions.Level = Constraints_MeetLevels.ID AND
-									Events_Competitions.Gender = Constraints_Genders.ID AND
+									Events_Competitions.Discipline = Constraints_Disciplines.ID AND
 									Events_Competitions.ID = ?
 								)
 						)
@@ -1284,13 +1284,13 @@ class meetRegistration
 					concat(
 							Constraints_MeetDivisions.Name, ' ',
 							Constraints_MeetLevels.DisplayName, ' ',
-							Constraints_Genders.GenderName
+							Constraints_Disciplines.DisciplineShortName
 						 ) AS CompetitionName
 				FROM
 					Events_Routines,
 					Constraints_MeetDivisions,
 					Constraints_MeetLevels,
-					Constraints_Genders,
+					Constraints_Disciplines,
 					Events_Competitions
 				WHERE
 					Apparatus = ? AND
@@ -1299,7 +1299,7 @@ class meetRegistration
 					Events_Routines.CompetitionID = Events_Competitions.ID AND
 					Events_Competitions.Division = Constraints_MeetDivisions.ID AND
 					Events_Competitions.Level = Constraints_MeetLevels.ID AND
-					Events_Competitions.Gender = Constraints_Genders.ID
+					Events_Competitions.Discipline = Constraints_Disciplines.ID
 				";
 		$stmt = $conn->prepare($sql);
 		$stmt->bindParam(1, $iApparatus, PDO::PARAM_INT, 5);	
@@ -1313,7 +1313,7 @@ class meetRegistration
 		}
 	}
 	
-	public function getEventLevelPeopleInTeam($iMeet, $iInstitution, $iGender)
+	public function getEventLevelPeopleInTeam($iMeet, $iInstitution, $iDiscipline)
 	{
 		global $conn;
 		$theArray = array();
@@ -1383,7 +1383,7 @@ class meetRegistration
 		return $theArray;
 	}
 	
-	public function getPeopleInTeam($meetID, $institutionID, $gender)
+	public function getPeopleInTeam($meetID, $institutionID, $Discipline)
 	{
 		
 		$theArray = array();
@@ -1405,7 +1405,7 @@ class meetRegistration
 						concat(
 							Constraints_MeetDivisions.Name, ' ',
 							Constraints_MeetLevels.DisplayName, ' ',
-							Constraints_Genders.GenderName
+							Constraints_Disciplines.DisciplineShortName
 						 ) AS CompetitionName,
 						LatestDateRegistered,
 						RegPersonName,
@@ -1419,7 +1419,7 @@ class meetRegistration
 						Events_Competitions,
 						Constraints_MeetDivisions,
 						Constraints_MeetLevels,
-						Constraints_Genders,
+						Constraints_Disciplines,
 						(Select MAX(RegDate) AS LatestDateRegistered, PersonID, CompetitionID FROM Events_Routines GROUP BY PersonID, CompetitionID) alias,
 						(Select ID, Concat(LastName, ', ', FirstName) AS RegPersonName FROM Identifiers_People) alias2
 					WHERE
@@ -1436,8 +1436,8 @@ class meetRegistration
 				$sql .=	"Events_Routines.CompetitionID = Events_Competitions.ID AND
 						Events_Competitions.Division = Constraints_MeetDivisions.ID AND
 						Events_Competitions.Level = Constraints_MeetLevels.ID AND
-						Events_Competitions.Gender = Constraints_Genders.ID AND
-						Events_Routines.CompetitionID IN (Select ID From Events_Competitions WHERE MeetID = ? AND Gender = ?) AND
+						Events_Competitions.Discipline = Constraints_Disciplines.ID AND
+						Events_Routines.CompetitionID IN (Select ID From Events_Competitions WHERE MeetID = ? AND Discipline = ?) AND
 						Events_Routines.RegisteredBy = alias2.ID
 					GROUP BY
 						Events_Routines.PersonID,
@@ -1454,12 +1454,12 @@ class meetRegistration
 			{
 				$stmt->bindParam(1, $institutionID, PDO::PARAM_INT, 5);	
 				$stmt->bindParam(2, $meetID, PDO::PARAM_INT, 5);
-				$stmt->bindParam(3, $gender, PDO::PARAM_INT, 1);
+				$stmt->bindParam(3, $Discipline, PDO::PARAM_INT, 1);
 			}
 			else
 			{
 				$stmt->bindParam(1, $meetID, PDO::PARAM_INT, 5);
-				$stmt->bindParam(2, $gender, PDO::PARAM_INT, 1);
+				$stmt->bindParam(2, $Discipline, PDO::PARAM_INT, 1);
 			}
 			
 			
@@ -1473,7 +1473,7 @@ class meetRegistration
 				$person = $row['PersonID'];
 				$minor = $row['Minor'];
 				
-				if($gender == 3)
+				if($Discipline == 3)
 				{
 					$menLecture = $this->isPersonRegisteredForEvent($person,12,$competitionID);
 					$womenLecture = $this->isPersonRegisteredForEvent($person,13,$competitionID);
@@ -1486,7 +1486,7 @@ class meetRegistration
 						'Name'=>$row['PersonName'],
 						'Minor'=>$minor,
 						'CompetitionID'=>$competitionID,
-						'GenderID'=>$gender,
+						'DisciplineID'=>$Discipline,
 						'Team'=>$row['CompetitionName'],
 						'MenLecture'=>$menLecture,
 						'WomenLecture'=>$womenLecture,
@@ -1501,7 +1501,7 @@ class meetRegistration
 					);
 				}		
 				
-				if($gender == 2)
+				if($Discipline == 2)
 				{
 					$FXCount = $this->doesPersonCountForEvent($person,1,$competitionID);
 					$PHCount = $this->doesPersonCountForEvent($person,2,$competitionID);
@@ -1522,7 +1522,7 @@ class meetRegistration
 												'Name'=>$row['PersonName'],
 												'Minor'=>$minor,
 												'CompetitionID'=>$competitionID,
-												'GenderID'=>$gender,
+												'DisciplineID'=>$Discipline,
 												'Team'=>$row['CompetitionName'],
 												'MFX'=>$FX,
 												'MPH'=>$PH,
@@ -1544,7 +1544,7 @@ class meetRegistration
 												'Designation'=>$row['TeamDesignation']
 											);
 				}
-				if($gender == 1)
+				if($Discipline == 1)
 				{
 					$VTCount = $this->doesPersonCountForEvent($person,8,$competitionID);
 					$UBCount = $this->doesPersonCountForEvent($person,9,$competitionID);
@@ -1562,7 +1562,7 @@ class meetRegistration
 												'Name'=>$row['PersonName'],
 												'Minor'=>$minor,
 												'CompetitionID'=>$competitionID,
-												'GenderID'=>$gender,
+												'DisciplineID'=>$Discipline,
 												'Team'=>$row['CompetitionName'],
 												'WVT'=>$VT,
 												'WUB'=>$UB,
@@ -1609,7 +1609,7 @@ class meetRegistration
 						concat(
 							Constraints_MeetDivisions.Name, ' ',
 							Constraints_MeetLevels.DisplayName, ' ',
-							Constraints_Genders.GenderName
+							Constraints_Disciplines.DisciplineShortName
 						 ) AS Name,
 						Events_Teams.TeamDesignation,
 						Events_Teams.TeamScore,
@@ -1619,7 +1619,7 @@ class meetRegistration
 					FROM
 						Events_Competitions,
 						Identifiers_Institutions,
-						Constraints_Genders,
+						Constraints_Disciplines,
 						Constraints_MeetDivisions,
 						Constraints_MeetLevels,
 						Events_Teams
@@ -1631,7 +1631,7 @@ class meetRegistration
 						Events_Teams.CompetitionID = Events_Competitions.ID AND
 						Events_Competitions.Division = Constraints_MeetDivisions.ID AND
 						Events_Competitions.Level = Constraints_MeetLevels.ID AND
-						Events_Competitions.Gender = Constraints_Genders.ID AND
+						Events_Competitions.Discipline = Constraints_Disciplines.ID AND
 						Identifiers_Institutions.ID = Events_Teams.InstitutionID AND
 					
 						Events_Teams.CompetitionID IN (SELECT ID From Events_Competitions WHERE MeetID = ?) AND ";
@@ -1686,7 +1686,7 @@ class meetRegistration
 												'TeamFee'=>$teamfee*$row['TeamScore'],
 												'LastModifiedDate'=>$row['LastModified'],
 												'LastModifiedPerson'=>$row['personLastModified'],
-												//this should be replaced by foreach getEventsForGender($gender)??
+												//this should be replaced by foreach getEventsForDiscipline($Discipline)??
 												'FX'=>$floorTotal,
 												'MFX'=>$this->getTeamCountForEvent($currentInst,$currentComp,1),
 												'WFX'=>$this->getTeamCountForEvent($currentInst,$currentComp,11),

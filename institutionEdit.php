@@ -159,7 +159,7 @@
 										});
 									}
 								
-									var genderMutator = function(value, data, type, params, component){
+									var DisciplineMutator = function(value, data, type, params, component){
 										//value - original value of the cell
 										//data - the data for the row
 										//type - the type of mutation occurring  (data|edit)
@@ -251,7 +251,7 @@
 											{title:"Alt Name",				field:"Name" 				},
 											{title:"Type",					field:"ClubTypeID" ,		visible:false	},
 											{title:"Type",					field:"ClubTypeName" ,		editor:typeEditor	},
-											{title:"M/W", 					field:"Gender",			mutator:genderMutator, 	formatter:"plaintext",	sorter:"string", editor:"select", editorParams:{values:{"2":"M","1":"W"}}},
+											{title:"M/W", 					field:"Discipline",			mutator:DisciplineMutator, 	formatter:"plaintext",	sorter:"string", editor:"select", editorParams:{values:{"2":"M","1":"W"}}},
 											{title:"Division",				field:"Division" 			},
 											{title:"Phone",					field:"Phone",			editor:"input"		},
 											{title:"Email",					field:"Email",			editor:"input",	formatter:"plaintext",	sorter:"string",  				},

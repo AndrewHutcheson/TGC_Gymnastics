@@ -76,14 +76,14 @@ function getValidClubs()
 		var teamDesignation = (document.getElementById("newPersonWDesignation").value != "");
 		
 		//then add it
-		var gender = "X";
+		var Discipline = "X";
 		if(document.getElementById("newPersonWTeam").options[document.getElementById("newPersonWTeam").selectedIndex].text.indexOf("Women") >= 0 )
 		{
-			gender = "Women";
+			Discipline = "Women";
 		}
 		if(document.getElementById("newPersonWTeam").options[document.getElementById("newPersonWTeam").selectedIndex].text.indexOf("Men") >= 0 )
 		{
-			gender = "Men";
+			Discipline = "Men";
 		}
 		if(firstnameEntered && lastnameEntered && teamSelected && IDLoaded && teamDesignation)
 		{
@@ -94,11 +94,11 @@ function getValidClubs()
 			var iCompetition = document.getElementById("newPersonWTeam").value;
 			var iDesignation = document.getElementById("newPersonWDesignation").value;
 			var iTeam = 0;
-			var iGender = 1;
+			var iDiscipline = 1;
 			var iEvents;
-			if(gender == "Men")
+			if(Discipline == "Men")
 			{
-				iGender = 2;
+				iDiscipline = 2;
 				iEvents = {
 							/*ID from apparatus. Need to dynamically create when more disciplines added.*/
 							1: document.getElementById("newMFX").checked,
@@ -117,9 +117,9 @@ function getValidClubs()
 							6: !enablePerTeamCompetitionRegistration
 						};
 			}
-			else if(gender == "Women")
+			else if(Discipline == "Women")
 			{
-				iGender = 1;
+				iDiscipline = 1;
 				iEvents = {
 							8: document.getElementById("newWVT").checked,
 							9: document.getElementById("newWUB").checked,
@@ -135,7 +135,7 @@ function getValidClubs()
 			}
 			else
 			{
-				iGender = 3;
+				iDiscipline = 3;
 				iEvents = {
 							12: document.getElementById("newMenLecture").checked,
 							13: document.getElementById("newWomenLecture").checked,
@@ -155,15 +155,15 @@ function getValidClubs()
 			var minor = document.getElementById("under18").checked;
 			
 			var saved;
-			saved = savePersonRegistration(iPerson,iInstitution,iCompetition,iTeam,iGender,iEvents,iEventCountFlags,true,minor,iDesignation);
+			saved = savePersonRegistration(iPerson,iInstitution,iCompetition,iTeam,iDiscipline,iEvents,iEventCountFlags,true,minor,iDesignation);
 			//alert(saved+"injustdrawrow");
 			if(saved) //if it comes back true, draw it on the table.
 			{
-				if(gender == "Women")
+				if(Discipline == "Women")
 				{
 					loadScoreData(1);
 				}
-				else if(gender == "Men")
+				else if(Discipline == "Men")
 				{
 					loadScoreData(2);
 				}
@@ -205,7 +205,7 @@ function getValidClubs()
 		var iMiddleName = document.getElementById("newWMiddle").value;
 		
 		var iPhone = "";
-		var iGender = "";
+		var iDiscipline = "";
 		var iEmail = "";
 		
 		var iInstitutionID;
@@ -261,7 +261,7 @@ function getValidClubs()
 									firstName: iFirstName,
 									middleName: iMiddleName,
 									institutionID: iInstitutionID,
-									gender: iGender,
+									Discipline: iDiscipline,
 									phone: iPhone,
 									email: iEmail,
 									season: season
@@ -284,7 +284,7 @@ function getValidClubs()
 						document.getElementById("newWLast").value = "";
 						document.getElementById("newWMiddle").value = "";
 						document.getElementById("newWId").value = "";
-						document.getElementById("newWGender").value = "";
+						document.getElementById("newWDiscipline").value = "";
 						document.getElementById("newWPhone").value = "";
 						document.getElementById("newWEmail").value = "";
 					}
@@ -315,7 +315,7 @@ function getValidClubs()
 									firstName: iFirstName,
 									middleName: iMiddleName,
 									institutionID: iInstitutionID,
-									gender: iGender,
+									Discipline: iDiscipline,
 									phone: iPhone,
 									email: iEmail
 								},
@@ -336,7 +336,7 @@ function getValidClubs()
 						document.getElementById("newWLast").value = "";
 						document.getElementById("newWMiddle").value = "";
 						document.getElementById("newWId").value = "";
-						document.getElementById("newWGender").value = "";
+						document.getElementById("newWDiscipline").value = "";
 						document.getElementById("newWPhone").value = "";
 						document.getElementById("newWEmail").value = "";
 					}
@@ -350,7 +350,7 @@ function getValidClubs()
 		}		
 	}
 
-	function updatePersonDesignation(iPerson,iCompetition,iDesignation,iGender,iOldDesignation)
+	function updatePersonDesignation(iPerson,iCompetition,iDesignation,iDiscipline,iOldDesignation)
 	{
 		//i should maybe add some data validation here, or on the postscript
 		
@@ -375,11 +375,11 @@ function getValidClubs()
 				}
 			});
 		}
-		loadScoreData(iGender); //sync problems
-		loadTeamData(iGender);
+		loadScoreData(iDiscipline); //sync problems
+		loadTeamData(iDiscipline);
 	}
 
-	function updatePersonCompetition(iPerson,iCompetition,iOldCompetition,iGender)
+	function updatePersonCompetition(iPerson,iCompetition,iOldCompetition,iDiscipline)
 	{
 		{
 			$.ajax({
@@ -401,11 +401,11 @@ function getValidClubs()
 				}
 			});
 		}
-		loadScoreData(iGender); //sync problems
-		loadTeamData(iGender);
+		loadScoreData(iDiscipline); //sync problems
+		loadTeamData(iDiscipline);
 	}
 
-	function savePersonRegistration(iPerson,iInstitution,iCompetition,iTeam,iGender,iEvents,iEventCountFlags,iFirstAdd,iUnder18,iDesignation)
+	function savePersonRegistration(iPerson,iInstitution,iCompetition,iTeam,iDiscipline,iEvents,iEventCountFlags,iFirstAdd,iUnder18,iDesignation)
 	{
 		if(iUnder18 === undefined)
 			iUnder18=false;
@@ -422,7 +422,7 @@ function getValidClubs()
 				institution: iInstitution,
 				competition: iCompetition,
 				team: iTeam,
-				gender: iGender,
+				Discipline: iDiscipline,
 				events: iEvents,
 				eventCountFlags: iEventCountFlags,
 				firstAdd: iFirstAdd,
@@ -450,7 +450,7 @@ function getValidClubs()
 				returnVal = true;
             }
 		});
-		loadScoreData(iGender);
+		loadScoreData(iDiscipline);
 		return returnVal;
 	}
 	
@@ -508,7 +508,7 @@ function getValidClubs()
 		}
 	}
 	
-	function loadScoreData(iGender)
+	function loadScoreData(iDiscipline)
 	{
 		//run only if a valid meet and club have been selected.
 		//if((document.getElementById("clubBeingRegistered").value != "")&&(document.getElementById("meetSelectMenu").value != ""))
@@ -519,26 +519,26 @@ function getValidClubs()
 				url: "scoreAjax.php",
 				async: false,
 				data: {
-					getAllScoresForMeetGender: 1,
+					getAllScoresForMeetDiscipline: 1,
 					institutionID: false,
 					meetID: document.getElementById("meetSelectMenu").value,
-					genderID: iGender
+					DisciplineID: iDiscipline
 				},
 				dataType: 'json',
 				success: function (data) {
-					if(iGender == 2)
+					if(iDiscipline == 2)
 						$("#menScoreTable").tabulator("setData", data);
-					if(iGender == 1)
+					if(iDiscipline == 1)
 						$("#womenScoreTable").tabulator("setData", data);
 				},
 				error: function (textStatus, errorThrown) {
 					//console.log(errorThrown);
-					alert("error downloading "+iGender+" person data");
+					alert("error downloading "+iDiscipline+" person data");
 				}
 			});
 		}
 	}
-	function loadTeamData(iGender)
+	function loadTeamData(iDiscipline)
 	{
 		//run only if a valid meet and club have been selected.
 		//if((document.getElementById("clubBeingRegistered").value != "")&&(document.getElementById("meetSelectMenu").value != ""))
@@ -551,18 +551,18 @@ function getValidClubs()
 				data: {
 					getTeamScoreResults: 1,
 					meetID: document.getElementById("meetSelectMenu").value,
-					genderID: iGender
+					DisciplineID: iDiscipline
 				},
 				dataType: 'json',
 				success: function (data) {
-					if(iGender == 2)
+					if(iDiscipline == 2)
 						$("#menTeamScoreTable").tabulator("setData", data);
-					if(iGender == 1)
+					if(iDiscipline == 1)
 						$("#womenTeamScoreTable").tabulator("setData", data);
 				},
 				error: function (textStatus, errorThrown) {
 					//console.log(errorThrown);
-					alert("error downloading "+iGender+" team data");
+					alert("error downloading "+iDiscipline+" team data");
 				}
 			});
 		}
@@ -600,21 +600,21 @@ function getValidClubs()
 	function updateEventSelectMenu()
 	{
 		
-		var gender = "men";
+		var Discipline = "men";
 		var val = document.getElementById("newPersonWTeam").options[document.getElementById("newPersonWTeam").selectedIndex].text;
 		if(val.indexOf("Women") >= 0)
-			gender = "women";
+			Discipline = "women";
 		
 		//store the old/initial value in a global var then the checkmarks won't disappear
-		if(previousEventSelectMenuGender == gender)
+		if(previousEventSelectMenuDiscipline == Discipline)
 			return false;
 		else
-			previousEventSelectMenuGender = gender;
+			previousEventSelectMenuDiscipline = Discipline;
 		
 		//ok update it		
 		if(!eventOnly)
 		{
-			if(gender == "men")
+			if(Discipline == "men")
 			{
 				document.getElementById("eventSelectMenu").innerHTML = ""+
 										'FX:<input type = "checkbox" onchange = "addPersonEventAACheck(\'men\')" id = "newMFX"/>' +
@@ -625,7 +625,7 @@ function getValidClubs()
 										'HB:<input type = "checkbox" onchange = "addPersonEventAACheck(\'men\')" id = "newMHB"/>' +
 										'AA:<input type = "checkbox" onchange = "addPersonAACheck(\'men\')" id = "newMAA"/>';
 			}
-			else if(gender == "women")
+			else if(Discipline == "women")
 			{
 				document.getElementById("eventSelectMenu").innerHTML = ""+
 										'VT:<input type = "checkbox" onchange = "addPersonEventAACheck(\'women\')" id = "newWVT"/>' +
@@ -678,16 +678,16 @@ function getValidClubs()
 					opt.selected = true;
 					document.getElementById('newPersonWTeam').appendChild(opt);
 					for (var key in data){
-						displayName = data[key].Division + " " + data[key].Level + " " + data[key].Gender;
+						displayName = data[key].Division + " " + data[key].Level + " " + data[key].Discipline;
 						ID = data[key].ID;
 						opt = document.createElement('option');
 						opt.value = ID;
 						opt.innerHTML = displayName;
 						document.getElementById('newPersonWTeam').appendChild(opt);
 						optsLookup[ID] = displayName;
-						if(data[key].Gender.indexOf("Men") >= 0) //cant use .includes b/c IE11
+						if(data[key].Discipline.indexOf("Men") >= 0) //cant use .includes b/c IE11
 							mOpts[ID] = displayName;
-						else if(data[key].Gender.indexOf("Women") >= 0)
+						else if(data[key].Discipline.indexOf("Women") >= 0)
 							wOpts[ID] = displayName;
 						else
 						{	
@@ -699,7 +699,7 @@ function getValidClubs()
 			});
 			
 			document.getElementById("eventSelectMenu").innerHTML = "";
-			previousEventSelectMenuGender = "";
+			previousEventSelectMenuDiscipline = "";
 			
 			//load anyone already registered
 			//updateFeesAndDates();
@@ -719,16 +719,16 @@ function getValidClubs()
 		//success - function to call to pass the successfuly updated value to Tabulator
 		//cancel - function to call to abort the edit and return to a normal cell
 		//editorParams - params object passed into the editorParams column definition property
-		var gender = cell.getRow().getData().GenderID;
+		var Discipline = cell.getRow().getData().DisciplineID;
 		
 		//create and style editor
 		var editor = document.createElement("select");
 		
 		//populate it
 		var optionArray;
-		if(gender == 2)
+		if(Discipline == 2)
 			optionArray = mOpts;
-		else if(gender == 1)
+		else if(Discipline == 1)
 			optionArray = wOpts;
 		else
 			optionArray = xOpts;
@@ -760,13 +760,13 @@ function getValidClubs()
 		editor.onblur = function(e){
 			success(optsLookup[editor.value]);
 			cell.getRow().getCell("CompetitionID").setValue(editor.value);//update hidden row
-			loadScoreData(gender);
+			loadScoreData(Discipline);
 		};
 		
 		editor.onchange = function(e){
 			success(optsLookup[editor.value]);
 			cell.getRow().getCell("CompetitionID").setValue(editor.value);//update hidden row
-			loadScoreData(gender);
+			loadScoreData(Discipline);
 		};
 
 		//return the editor element
@@ -783,7 +783,7 @@ function getValidClubs()
 		//success - function to call to pass the successfuly updated value to Tabulator
 		//cancel - function to call to abort the edit and return to a normal cell
 		//editorParams - params object passed into the editorParams column definition property
-		var gender = cell.getRow().getData().GenderID;
+		var Discipline = cell.getRow().getData().DisciplineID;
 		//create and style editor
 		var editor = document.createElement("select");
 		
@@ -825,12 +825,12 @@ function getValidClubs()
 		//when the value has been set, trigger the cell to update
 		editor.onblur = function(e){
 			success(optionArray[editor.value]);
-			loadScoreData(gender);
+			loadScoreData(Discipline);
 		};
 		
 		editor.onchange = function(e){
 			success(optionArray[editor.value]);
-			loadScoreData(gender);
+			loadScoreData(Discipline);
 		};
 
 		//return the editor element
@@ -1012,7 +1012,7 @@ function getValidClubs()
 											{title:"ID", 			field:"ID", 		visible:false},
 											{title:"Name",	 		field:"Name",	 	sorter:"string"},
 											{title:"CompetitionID", field:"CompetitionID", 		visible:false},
-											{title:"GenderID", 		field:"GenderID", 	visible:false},
+											{title:"DisciplineID", 		field:"DisciplineID", 	visible:false},
 											{title:"Comp", 			field:"Team",	 	editor:teamEditor},
 											{title:"Team",	 		field:"Designation",editor:designationEditor},
 											{title:"Team", 			field:"Institution",	 	},
@@ -1068,13 +1068,13 @@ function getValidClubs()
 											
 											if(cell.getField()=="Designation")
 											{
-												updatePersonDesignation(data.ID,data.CompetitionID,data.Designation,data.GenderID,cell.getOldValue()); 
+												updatePersonDesignation(data.ID,data.CompetitionID,data.Designation,data.DisciplineID,cell.getOldValue()); 
 											}
 											else if(cell.getField()=="CompetitionID")
 											{
-												updatePersonCompetition(data.ID,data.CompetitionID,cell.getOldValue(),data.GenderID); //the competitionID is being updated on the onchange event. that comes first so I say if cell = competitionID. 
+												updatePersonCompetition(data.ID,data.CompetitionID,cell.getOldValue(),data.DisciplineID); //the competitionID is being updated on the onchange event. that comes first so I say if cell = competitionID. 
 											}
-											else if(cell.getField()!="")//all I need is person meet|competition|gender and event
+											else if(cell.getField()!="")//all I need is person meet|competition|Discipline and event
 											{ 
 												saveScore(data.ID, cell.getValue(), data.CompetitionID, changedEvent);
 											}
@@ -1089,7 +1089,7 @@ function getValidClubs()
 											{title:"ID", 			field:"ID", 		visible:false},
 											{title:"Name",	 		field:"Name",	 	sorter:"string"},
 											{title:"CompetitionID", field:"CompetitionID", 		visible:false},
-											{title:"GenderID", 		field:"GenderID", 	visible:false},
+											{title:"DisciplineID", 		field:"DisciplineID", 	visible:false},
 											{title:"Comp", 			field:"Team",	 	editor:teamEditor},
 											{title:"Team",	 		field:"Designation",editor:designationEditor},
 											{title:"Team", 			field:"Institution",	 	},
@@ -1139,13 +1139,13 @@ function getValidClubs()
 											
 											if(cell.getField()=="Designation")
 											{
-												updatePersonDesignation(data.ID,data.CompetitionID,data.Designation,data.GenderID,cell.getOldValue()); 
+												updatePersonDesignation(data.ID,data.CompetitionID,data.Designation,data.DisciplineID,cell.getOldValue()); 
 											}
 											else if(cell.getField()=="CompetitionID")
 											{
-												updatePersonCompetition(data.ID,data.CompetitionID,cell.getOldValue(),data.GenderID); //the competitionID is being updated on the onchange event. that comes first so I say if cell = competitionID. 
+												updatePersonCompetition(data.ID,data.CompetitionID,cell.getOldValue(),data.DisciplineID); //the competitionID is being updated on the onchange event. that comes first so I say if cell = competitionID. 
 											}
-											else if(cell.getField()!="")//all I need is person meet|competition|gender and event
+											else if(cell.getField()!="")//all I need is person meet|competition|Discipline and event
 											{ 
 												saveScore(data.ID, cell.getValue(), data.CompetitionID, changedEvent);
 											}

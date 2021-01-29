@@ -16,7 +16,7 @@ if(isset($_REQUEST['addNewCompetition']))
 	
 	$stmtCompetitions= $conn->prepare("
 		INSERT INTO
-			Events_Competitions(MeetID,Leauge,Division,Level,Gender,Part,Session,TeamMaxOnEvent)
+			Events_Competitions(MeetID,Leauge,Division,Level,Discipline,Part,Session,TeamMaxOnEvent)
 		VALUES(?,2,?,?,?,3,1,?)
 		;");
 	
@@ -107,15 +107,15 @@ function getLevels($discipline)
 	$stmtLevels= $conn->prepare("
 		SELECT
 			Constraints_MeetLevels.ID,
-			concat(Constraints_Genders.GenderName,' ',Constraints_MeetLevels.DisplayName)AS Name
+			concat(Constraints_Disciplines.DisciplineShortName,' ',Constraints_MeetLevels.DisplayName)AS Name
 		FROM
 			Constraints_MeetLevels,
-			Constraints_Genders
+			Constraints_Disciplines
 		WHERE
-			Constraints_Genders.ID = Constraints_MeetLevels.Gender AND
-			Constraints_MeetLevels.Gender = ?
+			Constraints_Disciplines.ID = Constraints_MeetLevels.Discipline AND
+			Constraints_MeetLevels.Discipline = ?
 		Order By 
-			concat(Constraints_Genders.GenderName,' ',Constraints_MeetLevels.DisplayName) ASC
+			concat(Constraints_Disciplines.DisciplineShortName,' ',Constraints_MeetLevels.DisplayName) ASC
 		;");
 		
 	$stmtLevels->bindParam(1, $discipline, PDO::PARAM_INT, 5);
@@ -154,9 +154,9 @@ function getDisciplines()
 	$stmtDisciplines = $conn->prepare("
 		SELECT
 			ID,
-			GenderName AS Name
+			DisciplineShortName AS Name
 		FROM
-			Constraints_Genders
+			Constraints_Disciplines
 		;");
 	$stmtDisciplines->execute();
 	
@@ -200,20 +200,20 @@ function getCompetitionsFor($meet) //FUNCTION DUPLICATED
 			Constraints_MeetDivisions.ID AS DivisionID,
 			Constraints_MeetLevels.DisplayName AS Level,
 			Constraints_MeetLevels.ID AS LevelID,
-			Constraints_Genders.GenderName AS Gender,
-			Constraints_Genders.ID AS GenderID,
+			Constraints_Disciplines.DisciplineShortName AS Discipline,
+			Constraints_Disciplines.ID AS DisciplineID,
 			Events_Competitions.TeamMaxOnEvent
 		FROM
 			Events_Competitions, 
 			Constraints_Leauges,
-			Constraints_Genders,
+			Constraints_Disciplines,
 			Constraints_MeetDivisions,
 			Constraints_MeetLevels
 		WHERE
 			Events_Competitions.Leauge = Constraints_Leauges.ID AND
 			Events_Competitions.Division = Constraints_MeetDivisions.ID AND
 			Events_Competitions.Level = Constraints_MeetLevels.ID AND
-			Events_Competitions.Gender = Constraints_Genders.ID AND
+			Events_Competitions.Discipline = Constraints_Disciplines.ID AND
 			Events_Competitions.MeetID = ?
 		;");
 	
@@ -233,8 +233,8 @@ function getCompetitionsFor($meet) //FUNCTION DUPLICATED
 										'DivisionID'=>$row['DivisionID'],
 										'Level'=>$row['Level'],
 										'LevelID'=>$row['LevelID'],
-										'Gender'=>$row['Gender'],
-										'GenderID'=>$row['GenderID'],
+										'Discipline'=>$row['Discipline'],
+										'DisciplineID'=>$row['DisciplineID'],
 										'TeamMaxOnEvent'=>$row['TeamMaxOnEvent']
 									);
 		$count++;

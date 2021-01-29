@@ -350,7 +350,7 @@ function getProgramDescription($InstitutionID)
 	
 	$sqlPrograms = "SELECT 
 				Constraints_ClubTypes.TypeOfClub as Type,
-				Identifiers_Programs.Gender, 
+				Identifiers_Programs.Discipline, 
 				Identifiers_Programs.Website, 
 				Identifiers_Programs.Facebook, 
 				Identifiers_Programs.Twitter,
@@ -378,18 +378,18 @@ function getProgramDescription($InstitutionID)
 			$stmtPrograms->store_result(); //allow us to get properties, e.g. stmt->num_rows;
 
 			if($stmtPrograms->num_rows >= 1){	
-				$stmtPrograms->bind_result($type, $gender, $website, $facebook, $twitter, $instagram, $youtube, $tumblr, $flickr, $snapchat, $phone, $email);
+				$stmtPrograms->bind_result($type, $Discipline, $website, $facebook, $twitter, $instagram, $youtube, $tumblr, $flickr, $snapchat, $phone, $email);
 
 				while($stmtPrograms->fetch()){
 					
 					//some conversion because a db table doesnt exist yet -- to be removed later
-					if($gender == 1)
-						$gender = "Women's";
-					elseif($gender == 2)
-						$gender = "Men's";
+					if($Discipline == 1)
+						$Discipline = "Women's";
+					elseif($Discipline == 2)
+						$Discipline = "Men's";
 					
 					if($type != "Potential College"){
-						$ProgramDescription .= "<b>Program Type: " . $gender . " " . $type . "</b>
+						$ProgramDescription .= "<b>Program Type: " . $Discipline . " " . $type . "</b>
 													<ul>";
 														if($website != ""){$ProgramDescription .= "<li>Program Website: <a href = '".$website."' >".$website."</a></li>";}
 														if($facebook != ""){$ProgramDescription .= "<li>Program Facebook: <a href = '".$facebook."' >".$facebook."</a></li>";}

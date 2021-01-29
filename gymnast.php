@@ -67,7 +67,7 @@ function getMeets()
 		
 	});
 	
-	function loadScoreData(iGender)
+	function loadScoreData(iDiscipline)
 	{
 		//run only if a valid meet and club have been selected.
 		//if((document.getElementById("clubBeingRegistered").value != "")&&(document.getElementById("meetSelectMenu").value != ""))
@@ -80,18 +80,18 @@ function getMeets()
 				data: {
 					getScoreHistoryForGymnast: 1,
 					personID: document.getElementById("newWId").value,
-					gender: iGender
+					Discipline: iDiscipline
 				},
 				dataType: 'json',
 				success: function (data) {
-					if(iGender == 2)
+					if(iDiscipline == 2)
 						$("#menScoreTable").tabulator("setData", data);
-					if(iGender == 1)
+					if(iDiscipline == 1)
 						$("#womenScoreTable").tabulator("setData", data);
 				},
 				error: function (textStatus, errorThrown) {
 					//console.log(errorThrown);
-					alert("error downloading "+iGender+" person data");
+					alert("error downloading "+iDiscipline+" person data");
 				}
 			});
 		}
@@ -144,7 +144,7 @@ function getMeets()
 											{title:"ID", 			field:"ID", 		visible:false},
 											{title:"Meet",	 		field:"Meet",	 	sorter:"string"},
 											{title:"CompetitionID", field:"CompetitionID", 		visible:false},
-											{title:"GenderID", 		field:"GenderID", 	visible:false},
+											{title:"DisciplineID", 		field:"DisciplineID", 	visible:false},
 											{title:"Competition",	field:"Team",	 	},
 											{title:"Team", 			field:"Institution",	 	},
 											{title:"FX", 			field:"MFX",	 	sorter:"number",	formatter:"money",	formatterParams:{precision:3}},
@@ -173,7 +173,7 @@ function getMeets()
 											{title:"ID", 			field:"ID", 		visible:false},
 											{title:"Meet",	 		field:"Meet",	 	sorter:"string"},
 											{title:"CompetitionID", field:"CompetitionID", 		visible:false},
-											{title:"GenderID", 		field:"GenderID", 	visible:false},
+											{title:"DisciplineID", 		field:"DisciplineID", 	visible:false},
 											{title:"Competition", 	field:"Team",	 	},
 											{title:"Team", 			field:"Institution",	 	},
 											{title:"VT", 			field:"WVT",	 	sorter:"number",	formatter:"money",	formatterParams:{precision:3}},

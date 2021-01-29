@@ -83,16 +83,16 @@ function getMeets()
 		}
 		return returnVal;
 	}
-	function loadScoreData(iGender)
+	function loadScoreData(iDiscipline)
 	{
 		//run only if a valid meet and event have been selected.		
 		if((document.getElementById("eventSelection").value != "")&&(document.getElementById("meetSelectMenu").value != ""))
 		{
 			var event = document.getElementById("eventSelection");
 			var iEvent = event.selectedIndex;
-			var iGender = 1
+			var iDiscipline = 1
 			if(iEvent < 7)
-				iGender = 2
+				iDiscipline = 2
 			
 			$.ajax({
 				type: 'POST',
@@ -101,7 +101,7 @@ function getMeets()
 				data: {
 					getAllScoresForMeetEvent: 1,
 					eventID: iEvent,
-					genderID: iGender,
+					DisciplineID: iDiscipline,
 					institutionID: false,
 					meetID: document.getElementById("meetSelectMenu").value
 				},
@@ -210,7 +210,7 @@ function getMeets()
 											{title:"ID", 			field:"ID", 		visible:false},
 											{title:"Name",	 		field:"Name",	 	sorter:"string", headerVertical:true},
 											{title:"CompetitionID", field:"CompetitionID", 		visible:false},
-											{title:"GenderID", 		field:"GenderID", 	visible:false},
+											{title:"DisciplineID", 		field:"DisciplineID", 	visible:false},
 											{title:"Competition",	field:"Team",	 	visible:false, headerVertical:true},
 											{title:"Team", 			field:"Institution", width:50, headerVertical:true	 	},
 											{title:"SV", 	field:"SV",	 	sorter:"number",	formatter:"money",	formatterParams:{precision:1},	editor:"number", width:50, headerVertical:true},
@@ -229,7 +229,7 @@ function getMeets()
 												/*AND UPDATE STUFF in DB*/
 												///////////////////////////
 												
-												//all I need is person meet|competition|gender and event
+												//all I need is person meet|competition|Discipline and event
 												if(cell.getField()!="")
 												{ 
 													var editingEvent = document.getElementById("eventSelection");

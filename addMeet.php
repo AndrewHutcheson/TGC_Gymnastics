@@ -50,7 +50,7 @@ function getCompetitionsInMeet()
 				},
 				error: function (textStatus, errorThrown) {
 					//console.log(errorThrown);
-					alert("error downloading "+iGender+" team data");
+					alert("error downloading "+iDiscipline+" team data");
 				}
 			});
 }
@@ -351,7 +351,7 @@ $(document).ready(function() {
 											columns:[
 												{title:"CompetitionID", field:"ID", 	visible:false},
 												{title:"Leauge", 		field:"LeaugeID",			mutator:LeaugeMutator, 		formatter:"plaintext",	sorter:"string", editor:"select", editorParams:{values:{"2":"TGC"}}},
-												{title:"Discipline", 	field:"GenderID",		mutator:DisciplineMutator, 	formatter:"plaintext",	sorter:"string", editor:"select", editorParams:{values:{"2":"M","1":"F"}}},
+												{title:"Discipline", 	field:"DisciplineID",		mutator:DisciplineMutator, 	formatter:"plaintext",	sorter:"string", editor:"select", editorParams:{values:{"2":"M","1":"F"}}},
 												{title:"Division", 		field:"DivisionID",			mutator:DivisionMutator,	formatter:"plaintext",	sorter:"string", editor:"select", editorParams:{values:{"1":"College","3":"Open"}}},
 												{title:"Level", 		field:"LevelID",			mutator:LevelMutator, 		formatter:"plaintext",	sorter:"string", editor:"select", editorParams:{values:levelArray}},
 												{title:"Max Registered Per Team on Event", 	field:"TeamMaxOnEvent", editor:"number"}

@@ -46,7 +46,7 @@ function getMeets()
 		loadTeamData(1);
 		loadTeamData(2);
 	}
-	function loadScoreData(iGender)
+	function loadScoreData(iDiscipline)
 	{
 		//run only if a valid meet and club have been selected.
 		//if((document.getElementById("clubBeingRegistered").value != "")&&(document.getElementById("meetSelectMenu").value != ""))
@@ -57,26 +57,26 @@ function getMeets()
 				url: "scoreAjax.php",
 				async: false,
 				data: {
-					getAllScoresForMeetGender: 1,
+					getAllScoresForMeetDiscipline: 1,
 					institutionID: false,
 					meetID: document.getElementById("meetSelectMenu").value,
-					genderID: iGender
+					DisciplineID: iDiscipline
 				},
 				dataType: 'json',
 				success: function (data) {
-					if(iGender == 2)
+					if(iDiscipline == 2)
 						$("#menScoreTable").tabulator("setData", data);
-					if(iGender == 1)
+					if(iDiscipline == 1)
 						$("#womenScoreTable").tabulator("setData", data);
 				},
 				error: function (textStatus, errorThrown) {
 					//console.log(errorThrown);
-					alert("error downloading "+iGender+" person data");
+					alert("error downloading "+iDiscipline+" person data");
 				}
 			});
 		}
 	}
-	function loadTeamData(iGender)
+	function loadTeamData(iDiscipline)
 	{
 		//run only if a valid meet and club have been selected.
 		//if((document.getElementById("clubBeingRegistered").value != "")&&(document.getElementById("meetSelectMenu").value != ""))
@@ -89,18 +89,18 @@ function getMeets()
 				data: {
 					getTeamScoreResults: 1,
 					meetID: document.getElementById("meetSelectMenu").value,
-					genderID: iGender
+					DisciplineID: iDiscipline
 				},
 				dataType: 'json',
 				success: function (data) {
-					if(iGender == 2)
+					if(iDiscipline == 2)
 						$("#menTeamScoreTable").tabulator("setData", data);
-					if(iGender == 1)
+					if(iDiscipline == 1)
 						$("#womenTeamScoreTable").tabulator("setData", data);
 				},
 				error: function (textStatus, errorThrown) {
 					//console.log(errorThrown);
-					alert("error downloading "+iGender+" team data");
+					alert("error downloading "+iDiscipline+" team data");
 				}
 			});
 		}
@@ -163,7 +163,7 @@ function getMeets()
 											{title:"ID", 			field:"ID", 		visible:false},
 											{title:"Name",	 		field:"Name",	 	sorter:"string"},
 											{title:"CompetitionID", field:"CompetitionID", 		visible:false},
-											{title:"GenderID", 		field:"GenderID", 	visible:false},
+											{title:"DisciplineID", 		field:"DisciplineID", 	visible:false},
 											{title:"Competition",	field:"Team",	 	},
 											{title:"Team", 			field:"Institution",	 	},
 											{title:"Designation", 	field:"Designation",	 	},
@@ -187,7 +187,7 @@ function getMeets()
 											{title:"ID", 			field:"ID", 		visible:false},
 											{title:"Name",	 		field:"Name",	 	sorter:"string"},
 											{title:"CompetitionID", field:"CompetitionID", 		visible:false},
-											{title:"GenderID", 		field:"GenderID", 	visible:false},
+											{title:"DisciplineID", 		field:"DisciplineID", 	visible:false},
 											{title:"Competition", 	field:"Team",	 	},
 											{title:"Team", 			field:"Institution",	},
 											{title:"Designation", 	field:"Designation",	},

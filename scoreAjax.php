@@ -37,19 +37,19 @@ if(userIsLoggedIn()) //quick way of parsing input to prevent sql injections sinc
 	{
 		$meet = $_REQUEST['meet'];
 		$numLimit = $_REQUEST['numberLimit'];
-		$gender = $_REQUEST['gender'];
+		$Discipline = $_REQUEST['Discipline'];
 		//$numWomen = $_REQUEST['numPerWomen'];
 		//$numMen = $_REQUEST['numPerMen'];
 		//$womenEvents = $_REQUEST['womenEvents'];
 		//$menEvents = $_REQUEST['menEvents'];
 		
 		//return getliveScores($competitions,$numWomen,$numMen,$womenEvents,$menEvents);
-		echo json_encode(getliveScores($meet,$numLimit,$gender));
+		echo json_encode(getliveScores($meet,$numLimit,$Discipline));
 	}
 }
 
 //function getliveScores($competitions,$numWomen,$numMen,$womenEvents,$menEvents)
-function getliveScores($meet,$numLimit,$gender)
+function getliveScores($meet,$numLimit,$Discipline)
 {
 	global $conn;
 	
@@ -72,7 +72,7 @@ function getliveScores($meet,$numLimit,$gender)
 								Identifiers_People,
 								Constraints_MeetDivisions,
 								Constraints_MeetLevels,
-								Constraints_Genders,
+								Constraints_Disciplines,
 								Events_Competitions
 							WHERE
 								Events_Routines.CompetitionID IN (Select ID From Events_Competitions Where MeetID = " . $meet . ") AND
@@ -83,8 +83,8 @@ function getliveScores($meet,$numLimit,$gender)
 								Events_Routines.CompetitionID = Events_Competitions.ID AND
 								Events_Competitions.Division = Constraints_MeetDivisions.ID AND
 								Events_Competitions.Level = Constraints_MeetLevels.ID AND
-								Events_Competitions.Gender = Constraints_Genders.ID AND
-								Events_Competitions.Gender IN (" . $gender . ") AND
+								Events_Competitions.Discipline = Constraints_Disciplines.ID AND
+								Events_Competitions.Discipline IN (" . $Discipline . ") AND
 								Events_Routines.Score > 0
 							Order BY
 								lastScoreChange Desc
@@ -237,11 +237,11 @@ function updatePersonStartValue($personID, $startValue, $competition, $event)
 if(isset($_REQUEST['getTeamScoreResults']))
 {
 	$meetID = $_REQUEST['meetID'];
-	$genderID = $_REQUEST['genderID'];
-	echo json_encode(getTeamScoreSummary($meetID,$genderID));
+	$DisciplineID = $_REQUEST['DisciplineID'];
+	echo json_encode(getTeamScoreSummary($meetID,$DisciplineID));
 }
 
-function getTeamScoreSummary($meetID,$genderID)
+function getTeamScoreSummary($meetID,$DisciplineID)
 {
 	global $conn;
 	$error = false;
@@ -266,14 +266,14 @@ function getTeamScoreSummary($meetID,$genderID)
 					CompetitionID IN (Select ID From Events_Competitions Where MeetID = ?) AND
 					Events_Teams.InstitutionID = Identifiers_Institutions.ID AND
 					Events_Competitions.ID = Events_Teams.CompetitionID AND
-					Events_Competitions.Gender = ? AND
+					Events_Competitions.Discipline = ? AND
 					Events_Teams.TeamScore = 1
 				;";
 				
 		$stmt = $conn->prepare($sql);
 		
 		$stmt->bindParam(1, $meetID, PDO::PARAM_INT, 5);
-		$stmt->bindParam(2, $genderID, PDO::PARAM_INT, 5);
+		$stmt->bindParam(2, $DisciplineID, PDO::PARAM_INT, 5);
 		
 		$stmt->execute();
 		
@@ -389,18 +389,18 @@ function getTeamScoreForEvent($institutionID, $designation, $competitionID, $eve
 	return $score;
 }
 
-if(isset($_REQUEST['getAllScoresForMeetGender']))
+if(isset($_REQUEST['getAllScoresForMeetDiscipline']))
 {
 	$iInstitution = $_REQUEST['institutionID'];
 	$iMeet = $_REQUEST['meetID'];
-	$iGender = $_REQUEST['genderID'];
+	$iDiscipline = $_REQUEST['DisciplineID'];
 	
-	$return_arr = getScores($iMeet, $iInstitution, $iGender);
+	$return_arr = getScores($iMeet, $iInstitution, $iDiscipline);
 	
 	echo json_encode($return_arr);
 }
 
-function getScores($meetID, $institutionID, $gender)
+function getScores($meetID, $institutionID, $Discipline)
 {
 	
 	$theArray = array();
@@ -422,7 +422,7 @@ function getScores($meetID, $institutionID, $gender)
 					concat(
 						Constraints_MeetDivisions.Name, ' ',
 						Constraints_MeetLevels.DisplayName, ' ',
-						Constraints_Genders.GenderName
+						Constraints_Disciplines.DisciplineShortName
 					 ) AS CompetitionName,
 					LatestDateRegistered,
 					Events_Routines.TeamDesignation,
@@ -436,7 +436,7 @@ function getScores($meetID, $institutionID, $gender)
 					Events_Competitions,
 					Constraints_MeetDivisions,
 					Constraints_MeetLevels,
-					Constraints_Genders,
+					Constraints_Disciplines,
 					(Select MAX(RegDate) AS LatestDateRegistered, PersonID, CompetitionID FROM Events_Routines GROUP BY PersonID, CompetitionID) alias,
 					(Select ID, Concat(LastName, ', ', FirstName) AS RegPersonName FROM Identifiers_People) alias2
 				WHERE
@@ -453,8 +453,8 @@ function getScores($meetID, $institutionID, $gender)
 			$sql .=	"Events_Routines.CompetitionID = Events_Competitions.ID AND
 					Events_Competitions.Division = Constraints_MeetDivisions.ID AND
 					Events_Competitions.Level = Constraints_MeetLevels.ID AND
-					Events_Competitions.Gender = Constraints_Genders.ID AND
-					Events_Routines.CompetitionID IN (Select ID From Events_Competitions WHERE MeetID = ? AND Gender = ?) AND
+					Events_Competitions.Discipline = Constraints_Disciplines.ID AND
+					Events_Routines.CompetitionID IN (Select ID From Events_Competitions WHERE MeetID = ? AND Discipline = ?) AND
 					Events_Routines.RegisteredBy = alias2.ID
 				GROUP BY
 					Events_Routines.PersonID,
@@ -467,12 +467,12 @@ function getScores($meetID, $institutionID, $gender)
 		{
 			$stmt->bindParam(1, $institutionID, PDO::PARAM_INT, 5);	
 			$stmt->bindParam(2, $meetID, PDO::PARAM_INT, 5);
-			$stmt->bindParam(3, $gender, PDO::PARAM_INT, 1);
+			$stmt->bindParam(3, $Discipline, PDO::PARAM_INT, 1);
 		}
 		else
 		{
 			$stmt->bindParam(1, $meetID, PDO::PARAM_INT, 5);
-			$stmt->bindParam(2, $gender, PDO::PARAM_INT, 1);
+			$stmt->bindParam(2, $Discipline, PDO::PARAM_INT, 1);
 		}
 		
 		
@@ -484,7 +484,7 @@ function getScores($meetID, $institutionID, $gender)
 		{
 			$competitionID = $row['CompetitionID'];
 			$person = $row['PersonID'];
-			if($gender == 2)
+			if($Discipline == 2)
 			{
 				$FX = getPersonScoreForEvent($person,1,$competitionID);
 				$PH = getPersonScoreForEvent($person,2,$competitionID);
@@ -508,7 +508,7 @@ function getScores($meetID, $institutionID, $gender)
 											'LastName'=>$row['LastName'],
 											'Phonetic'=>$row['Phonetic'],
 											'CompetitionID'=>$row['CompetitionID'],
-											'GenderID'=>$gender,
+											'DisciplineID'=>$Discipline,
 											'Team'=>$row['CompetitionName'],
 											'Designation'=>$row['TeamDesignation'],
 											'MFX'=>$FX,
@@ -528,7 +528,7 @@ function getScores($meetID, $institutionID, $gender)
 											'Institution'=>$row['Institution']
 										);
 			}
-			elseif($gender == 1)
+			elseif($Discipline == 1)
 			{
 				$VT = getPersonScoreForEvent($person,8,$competitionID);
 				$UB = getPersonScoreForEvent($person,9,$competitionID);
@@ -547,7 +547,7 @@ function getScores($meetID, $institutionID, $gender)
 											'LastName'=>$row['LastName'],
 											'Phonetic'=>$row['Phonetic'],
 											'CompetitionID'=>$row['CompetitionID'],
-											'GenderID'=>$gender,
+											'DisciplineID'=>$Discipline,
 											'Team'=>$row['CompetitionName'],
 											'Designation'=>$row['TeamDesignation'],
 											'WVT'=>$VT,
@@ -605,18 +605,18 @@ function getPersonScoreForEvent($personID,$eventID,$competitionID)
 	return $score;
 }
 
-if(isset($_REQUEST['getRegistrationMetricsForMeetGender']))
+if(isset($_REQUEST['getRegistrationMetricsForMeetDiscipline']))
 {
 	$iInstitution = $_REQUEST['institutionID'];
 	$iMeet = $_REQUEST['meetID'];
-	$iGender = $_REQUEST['genderID'];
+	$iDiscipline = $_REQUEST['DisciplineID'];
 	
-	$return_arr = getScoreMetrics($iMeet, $iInstitution, $iGender);
+	$return_arr = getScoreMetrics($iMeet, $iInstitution, $iDiscipline);
 	
 	echo json_encode($return_arr);
 }
 
-function getScoreMetrics($meetID, $institutionID, $gender)
+function getScoreMetrics($meetID, $institutionID, $Discipline)
 {
 	
 	$theArray = array();
@@ -637,7 +637,7 @@ function getScoreMetrics($meetID, $institutionID, $gender)
 					concat(
 						Constraints_MeetDivisions.Name, ' ',
 						Constraints_MeetLevels.DisplayName, ' ',
-						Constraints_Genders.GenderName
+						Constraints_Disciplines.DisciplineShortName
 					 ) AS CompetitionName,
 					LatestDateRegistered,
 					RegPersonName,
@@ -650,7 +650,7 @@ function getScoreMetrics($meetID, $institutionID, $gender)
 					Events_Competitions,
 					Constraints_MeetDivisions,
 					Constraints_MeetLevels,
-					Constraints_Genders,
+					Constraints_Disciplines,
 					(Select MAX(RegDate) AS LatestDateRegistered, PersonID, CompetitionID FROM Events_Routines GROUP BY PersonID, CompetitionID) alias,
 					(Select ID, Concat(LastName, ', ', FirstName) AS RegPersonName FROM Identifiers_People) alias2
 				WHERE
@@ -667,8 +667,8 @@ function getScoreMetrics($meetID, $institutionID, $gender)
 			$sql .=	"Events_Routines.CompetitionID = Events_Competitions.ID AND
 					Events_Competitions.Division = Constraints_MeetDivisions.ID AND
 					Events_Competitions.Level = Constraints_MeetLevels.ID AND
-					Events_Competitions.Gender = Constraints_Genders.ID AND
-					Events_Routines.CompetitionID IN (Select ID From Events_Competitions WHERE MeetID = ? AND Gender = ?) AND
+					Events_Competitions.Discipline = Constraints_Disciplines.ID AND
+					Events_Routines.CompetitionID IN (Select ID From Events_Competitions WHERE MeetID = ? AND Discipline = ?) AND
 					Events_Routines.RegisteredBy = alias2.ID
 				GROUP BY
 					Events_Routines.PersonID,
@@ -681,12 +681,12 @@ function getScoreMetrics($meetID, $institutionID, $gender)
 		{
 			$stmt->bindParam(1, $institutionID, PDO::PARAM_INT, 5);	
 			$stmt->bindParam(2, $meetID, PDO::PARAM_INT, 5);
-			$stmt->bindParam(3, $gender, PDO::PARAM_INT, 1);
+			$stmt->bindParam(3, $Discipline, PDO::PARAM_INT, 1);
 		}
 		else
 		{
 			$stmt->bindParam(1, $meetID, PDO::PARAM_INT, 5);
-			$stmt->bindParam(2, $gender, PDO::PARAM_INT, 1);
+			$stmt->bindParam(2, $Discipline, PDO::PARAM_INT, 1);
 		}
 		
 		
@@ -698,7 +698,7 @@ function getScoreMetrics($meetID, $institutionID, $gender)
 		{
 			$competitionID = $row['CompetitionID'];
 			$person = $row['PersonID'];
-			if($gender == 2)
+			if($Discipline == 2)
 			{
 				$FX = getPersonCompetitionVsRegistration($person,1,$competitionID);
 				$PH = getPersonCompetitionVsRegistration($person,2,$competitionID);
@@ -712,7 +712,7 @@ function getScoreMetrics($meetID, $institutionID, $gender)
 											'ID'=>$person,
 											'Name'=>$row['PersonName'],
 											'CompetitionID'=>$row['CompetitionID'],
-											'GenderID'=>$gender,
+											'DisciplineID'=>$Discipline,
 											'Team'=>$row['CompetitionName'],
 											'MFX'=>$FX,
 											'MPH'=>$PH,
@@ -725,7 +725,7 @@ function getScoreMetrics($meetID, $institutionID, $gender)
 											'Institution'=>$row['Institution']
 										);
 			}
-			elseif($gender == 1)
+			elseif($Discipline == 1)
 			{
 				$VT = getPersonCompetitionVsRegistration($person,8,$competitionID);
 				$UB = getPersonCompetitionVsRegistration($person,9,$competitionID);
@@ -736,7 +736,7 @@ function getScoreMetrics($meetID, $institutionID, $gender)
 											'ID'=>$person,
 											'Name'=>$row['PersonName'],
 											'CompetitionID'=>$row['CompetitionID'],
-											'GenderID'=>$gender,
+											'DisciplineID'=>$Discipline,
 											'Team'=>$row['CompetitionName'],
 											'WVT'=>$VT,
 											'WUB'=>$UB,
@@ -845,14 +845,14 @@ if(isset($_REQUEST['getAllScoresForMeetEvent']))
 	$iInstitution = $_REQUEST['institutionID'];
 	$iMeet = $_REQUEST['meetID'];
 	$iEvent = $_REQUEST['eventID'];
-	$iGender = $_REQUEST['genderID'];
+	$iDiscipline = $_REQUEST['DisciplineID'];
 	
-	$return_arr = getEventScores($iMeet, $iInstitution, $iEvent, $iGender);
+	$return_arr = getEventScores($iMeet, $iInstitution, $iEvent, $iDiscipline);
 	
 	echo json_encode($return_arr);
 }
 
-function getEventScores($meetID, $institutionID, $event, $gender)
+function getEventScores($meetID, $institutionID, $event, $Discipline)
 {
 	
 	$theArray = array();
@@ -873,7 +873,7 @@ function getEventScores($meetID, $institutionID, $event, $gender)
 					concat(
 						Constraints_MeetDivisions.Name, ' ',
 						Constraints_MeetLevels.DisplayName, ' ',
-						Constraints_Genders.GenderName
+						Constraints_Disciplines.DisciplineShortName
 					 ) AS CompetitionName,
 					LatestDateRegistered,
 					RegPersonName,
@@ -886,7 +886,7 @@ function getEventScores($meetID, $institutionID, $event, $gender)
 					Events_Competitions,
 					Constraints_MeetDivisions,
 					Constraints_MeetLevels,
-					Constraints_Genders,
+					Constraints_Disciplines,
 					(Select MAX(RegDate) AS LatestDateRegistered, PersonID, CompetitionID FROM Events_Routines GROUP BY PersonID, CompetitionID) alias,
 					(Select ID, Concat(LastName, ', ', FirstName) AS RegPersonName FROM Identifiers_People) alias2
 				WHERE
@@ -905,8 +905,8 @@ function getEventScores($meetID, $institutionID, $event, $gender)
 			$sql .=	"Events_Routines.CompetitionID = Events_Competitions.ID AND
 					Events_Competitions.Division = Constraints_MeetDivisions.ID AND
 					Events_Competitions.Level = Constraints_MeetLevels.ID AND
-					Events_Competitions.Gender = Constraints_Genders.ID AND
-					Events_Routines.CompetitionID IN (Select ID From Events_Competitions WHERE MeetID = ? AND Gender = ?) AND
+					Events_Competitions.Discipline = Constraints_Disciplines.ID AND
+					Events_Routines.CompetitionID IN (Select ID From Events_Competitions WHERE MeetID = ? AND Discipline = ?) AND
 					Events_Routines.RegisteredBy = alias2.ID
 				GROUP BY
 					Events_Routines.PersonID,
@@ -920,13 +920,13 @@ function getEventScores($meetID, $institutionID, $event, $gender)
 			$stmt->bindParam(1, $event, PDO::PARAM_INT, 5);	
 			$stmt->bindParam(2, $institutionID, PDO::PARAM_INT, 5);	
 			$stmt->bindParam(3, $meetID, PDO::PARAM_INT, 5);
-			$stmt->bindParam(4, $gender, PDO::PARAM_INT, 1);
+			$stmt->bindParam(4, $Discipline, PDO::PARAM_INT, 1);
 		}
 		else
 		{
 			$stmt->bindParam(1, $event, PDO::PARAM_INT, 5);
 			$stmt->bindParam(2, $meetID, PDO::PARAM_INT, 5);
-			$stmt->bindParam(3, $gender, PDO::PARAM_INT, 1);
+			$stmt->bindParam(3, $Discipline, PDO::PARAM_INT, 1);
 		}
 		
 		
@@ -964,12 +964,12 @@ function getEventScores($meetID, $institutionID, $event, $gender)
 if(isset($_REQUEST['getScoreHistoryForGymnast']))
 {
 	$personID = $_REQUEST['personID'];
-	$gender = $_REQUEST['gender'];
+	$Discipline = $_REQUEST['Discipline'];
 	
-	echo json_encode(getPersonalScoreHistory($personID, $gender));
+	echo json_encode(getPersonalScoreHistory($personID, $Discipline));
 }
 
-function getPersonalScoreHistory($personID, $gender)
+function getPersonalScoreHistory($personID, $Discipline)
 {
 	
 	$theArray = array();
@@ -983,7 +983,7 @@ function getPersonalScoreHistory($personID, $gender)
 				concat(
 					Constraints_MeetDivisions.Name, ' ',
 					Constraints_MeetLevels.DisplayName, ' ',
-					Constraints_Genders.GenderName
+					Constraints_Disciplines.DisciplineShortName
 				 ) AS CompetitionName,
 				LatestDateRegistered,
 				concat(Events_Meets.Date, ' ', Events_Meets.MeetName) AS theMeetName,
@@ -998,7 +998,7 @@ function getPersonalScoreHistory($personID, $gender)
 				Events_Competitions,
 				Constraints_MeetDivisions,
 				Constraints_MeetLevels,
-				Constraints_Genders,
+				Constraints_Disciplines,
 				(Select MAX(RegDate) AS LatestDateRegistered, PersonID, CompetitionID FROM Events_Routines GROUP BY PersonID, CompetitionID) alias,
 				(Select ID, Concat(LastName, ', ', FirstName) AS RegPersonName FROM Identifiers_People) alias2
 			WHERE
@@ -1010,8 +1010,8 @@ function getPersonalScoreHistory($personID, $gender)
 				Events_Routines.CompetitionID = Events_Competitions.ID AND
 				Events_Competitions.Division = Constraints_MeetDivisions.ID AND
 				Events_Competitions.Level = Constraints_MeetLevels.ID AND
-				Events_Competitions.Gender = Constraints_Genders.ID AND
-				Events_Routines.CompetitionID IN (Select ID From Events_Competitions WHERE Events_Routines.PersonID = ? AND Gender = ?) AND
+				Events_Competitions.Discipline = Constraints_Disciplines.ID AND
+				Events_Routines.CompetitionID IN (Select ID From Events_Competitions WHERE Events_Routines.PersonID = ? AND Discipline = ?) AND
 				Events_Routines.RegisteredBy = alias2.ID
 			GROUP BY
 				Events_Routines.PersonID,
@@ -1023,7 +1023,7 @@ function getPersonalScoreHistory($personID, $gender)
 	$stmt = $conn->prepare($sql);
 	
 	$stmt->bindParam(1, $personID, PDO::PARAM_INT, 5);
-	$stmt->bindParam(2, $gender, PDO::PARAM_INT, 1);	
+	$stmt->bindParam(2, $Discipline, PDO::PARAM_INT, 1);	
 	
 	$stmt->execute();
 	
@@ -1033,7 +1033,7 @@ function getPersonalScoreHistory($personID, $gender)
 	{
 		$competitionID = $row['CompetitionID'];
 		$person = $row['PersonID'];
-		if($gender == 2)
+		if($Discipline == 2)
 		{
 			$FX = getPersonScoreForEvent($person,1,$competitionID);
 			$PH = getPersonScoreForEvent($person,2,$competitionID);
@@ -1055,7 +1055,7 @@ function getPersonalScoreHistory($personID, $gender)
 										'ID'=>$person,
 										'Name'=>$row['PersonName'],
 										'CompetitionID'=>$row['CompetitionID'],
-										'GenderID'=>$gender,
+										'DisciplineID'=>$Discipline,
 										'Team'=>$row['CompetitionName'],
 										'Meet'=>$row['theMeetName'],
 										'MFX'=>$FX,
@@ -1075,7 +1075,7 @@ function getPersonalScoreHistory($personID, $gender)
 										'Institution'=>$row['Institution']
 									);
 		}
-		elseif($gender == 1)
+		elseif($Discipline == 1)
 		{
 			$VT = getPersonScoreForEvent($person,8,$competitionID);
 			$UB = getPersonScoreForEvent($person,9,$competitionID);
@@ -1092,7 +1092,7 @@ function getPersonalScoreHistory($personID, $gender)
 										'ID'=>$person,
 										'Name'=>$row['PersonName'],
 										'CompetitionID'=>$row['CompetitionID'],
-										'GenderID'=>$gender,
+										'DisciplineID'=>$Discipline,
 										'Team'=>$row['CompetitionName'],
 										'Meet'=>$row['theMeetName'],
 										'WVT'=>$VT,
@@ -1142,7 +1142,7 @@ function getTop10ScoresOfAllTime($Apparatus,$Division,$Level)
 			Concat (Events_Meets.Season, ' ', Events_Meets.MeetName) As Meet,
 			Concat (Identifiers_People.Lastname, ', ', Identifiers_People.Firstname) as Gymnast,
 			Identifiers_Institutions.Name As Team,
-			Concat (Constraints_Genders.GenderName, ' ', Constraints_MeetDivisions.Name, ' ', Constraints_MeetLevels.DisplayName) as Competition,
+			Concat (Constraints_Disciplines.DisciplineShortName, ' ', Constraints_MeetDivisions.Name, ' ', Constraints_MeetLevels.DisplayName) as Competition,
 			Constraints_Apparatus.Name as Event,
 			Events_Routines.Score
 		FROM 
@@ -1152,7 +1152,7 @@ function getTop10ScoresOfAllTime($Apparatus,$Division,$Level)
 			Constraints_Apparatus,
 			Constraints_MeetDivisions,
 			Constraints_MeetLevels,
-			Constraints_Genders,
+			Constraints_Disciplines,
 			Identifiers_People,
 			Identifiers_Institutions,
 			(Select Distinct Score From Events_Routines Where Apparatus = ? AND CompetitionID IN (Select ID From Events_Competitions Where Division = ? And Level = ?) Order By Score Desc Limit ".$limit.") derivedTable
@@ -1162,7 +1162,7 @@ function getTop10ScoresOfAllTime($Apparatus,$Division,$Level)
 			Events_Routines.Apparatus = Constraints_Apparatus.ID AND
 			Events_Competitions.Division = Constraints_MeetDivisions.ID AND
 			Events_Competitions.Level = Constraints_MeetLevels.ID AND
-			Events_Competitions.Gender = Constraints_Genders.ID AND
+			Events_Competitions.Discipline = Constraints_Disciplines.ID AND
 			Events_Routines.PersonID = Identifiers_People.ID AND
 			Events_Routines.ClubID = Identifiers_Institutions.ID AND
 			Events_Routines.Score = derivedTable.Score AND
@@ -1229,7 +1229,7 @@ function getTop10AAScoresOfAllTime($Division,$Level)
 				Concat (Events_Meets.Season, ' ', Events_Meets.MeetName) As Meet,
 				Concat (Identifiers_People.Lastname, ', ', Identifiers_People.Firstname) as Gymnast,
 				Identifiers_Institutions.Name As Team,
-				Concat (Constraints_Genders.GenderName, ' ', Constraints_MeetDivisions.Name, ' ', Constraints_MeetLevels.DisplayName) as Competition,
+				Concat (Constraints_Disciplines.DisciplineShortName, ' ', Constraints_MeetDivisions.Name, ' ', Constraints_MeetLevels.DisplayName) as Competition,
 				'AA' as Event,
 				round(sum(Events_Routines.Score),3) As Score
 			FROM 
@@ -1238,7 +1238,7 @@ function getTop10AAScoresOfAllTime($Division,$Level)
 				Events_Meets,
 				Constraints_MeetDivisions,
 				Constraints_MeetLevels,
-				Constraints_Genders,
+				Constraints_Disciplines,
 				Identifiers_People,
 				Identifiers_Institutions
 			WHERE
@@ -1246,7 +1246,7 @@ function getTop10AAScoresOfAllTime($Division,$Level)
 				Events_Competitions.MeetID = Events_Meets.ID AND
 				Events_Competitions.Division = Constraints_MeetDivisions.ID AND
 				Events_Competitions.Level = Constraints_MeetLevels.ID AND
-				Events_Competitions.Gender = Constraints_Genders.ID AND
+				Events_Competitions.Discipline = Constraints_Disciplines.ID AND
 				Events_Routines.PersonID = Identifiers_People.ID AND
 				Events_Routines.ClubID = Identifiers_Institutions.ID AND
 				Events_Competitions.Division = ? AND

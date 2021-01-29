@@ -119,8 +119,8 @@ if(userIsLoggedIn())
 
 	//So I want to minimize the number of dots and datapoints. Well, the question of "does this institution have both mens and womens programs?" is most important for high schools (type3) and NCAA (type5)
 		//anything else we are simply creating a duplicate data point and people aren't really ever going to want to know how many USAG gyms have mens equipment as often (besides, we dont have the data for them)
-	//there are a few single-gender college clubs but these can be counted on one hand, and are usually NCAA school conflicts. OU is the only one I know and they recently are warming up to a women's club....
-	//There are even fewer single-gender adult clubs. While you could count these on one hand... Some of them are tied to a parent institution (their usag club they work out at). So I stuck them in here so 
+	//there are a few single-Discipline college clubs but these can be counted on one hand, and are usually NCAA school conflicts. OU is the only one I know and they recently are warming up to a women's club....
+	//There are even fewer single-Discipline adult clubs. While you could count these on one hand... Some of them are tied to a parent institution (their usag club they work out at). So I stuck them in here so 
 		//that they wouldn't ge overwritten by the group by clause with that USAG club. Although I pulled out he 
 	
 	//So the GROUP BY eliminates unneccesary map markers for those types. The description function of an institution contains all the program information on an institution, not program wide basis.
@@ -128,7 +128,7 @@ if(userIsLoggedIn())
 	
 	//The second group by - on the program ID - prevents an institution with multiple types from overwriting each other (e.g. a usag, usaigc, adult &... all at the same gym.)
 	
-	//The last two add layers and info for the Dual Program (dual gender) ncaa and high schools.
+	//The last two add layers and info for the Dual Program (dual Discipline) ncaa and high schools.
 	$sqlClubs = "
 				SELECT 
 					Identifiers_Institutions.ID,

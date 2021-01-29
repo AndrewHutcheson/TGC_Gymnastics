@@ -13,7 +13,7 @@ error_reporting(E_ALL);
 		echo "PDO object error: " . $e->getMessage();
 	}
 
-function getScoresForPerson($personID,$genderID)
+function getScoresForPerson($personID,$DisciplineID)
 {
 	global $conn;
 	$sql = "
@@ -25,7 +25,7 @@ function getScoresForPerson($personID,$genderID)
 				concat(
 									Constraints_MeetDivisions.Name, ' ',
 									Constraints_MeetLevels.DisplayName, ' ',
-									Constraints_Genders.GenderName
+									Constraints_Disciplines.DisciplineShortName
 								 ) AS CompetitionName,
 				Constraints_Apparatus.Initials,
 				Events_Routines.Score
@@ -35,7 +35,7 @@ function getScoresForPerson($personID,$genderID)
 				Constraints_Apparatus,
 				Constraints_MeetDivisions,
 				Constraints_MeetLevels,
-				Constraints_Genders,
+				Constraints_Disciplines,
 				Identifiers_Institutions,
 				Identifiers_Institutions i,
 				Events_Competitions,
@@ -48,9 +48,9 @@ function getScoresForPerson($personID,$genderID)
 				Events_Competitions.MeetID = Events_Meets.ID AND
 				Events_Competitions.Division = Constraints_MeetDivisions.ID AND
 				Events_Competitions.Level = Constraints_MeetLevels.ID AND
-				Events_Competitions.Gender = Constraints_Genders.ID AND
+				Events_Competitions.Discipline = Constraints_Disciplines.ID AND
 				Events_Meets.HostClub = i.ID AND
-				Events_Competitions.Gender = ?
+				Events_Competitions.Discipline = ?
 				PersonID = ?
 			Order BY
 				CompetitionID, Apparatus

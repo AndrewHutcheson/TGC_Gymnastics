@@ -44,39 +44,39 @@ $sqlgetEventsForCompetition = "
 		From
 			Constraints_Apparatus
 		Where
-			Gender = (Select Gender From Events_Competitions Where ID = ?)
+			Discipline = (Select Discipline From Events_Competitions Where ID = ?)
 		Order By 
 			CompOrder
 		;";
 $stmtgetEventsForCompetition = $conn->prepare($sqlgetEventsForCompetition);
 
-$sqlgetGenderForCompetition = "
+$sqlgetDisciplineForCompetition = "
 		Select 
-			Gender
+			Discipline
 		From
 			Events_Competitions
 		Where
 			ID = ?
 		;";
-$stmtgetGenderForCompetition = $conn->prepare($sqlgetGenderForCompetition);
+$stmtgetDisciplineForCompetition = $conn->prepare($sqlgetDisciplineForCompetition);
 
 
 $sqlGetCompetitions = "
 		Select 
 			Events_Competitions.ID,
-			Concat(Constraints_Genders.GenderName,'s ', Constraints_MeetDivisions.Name,' ', Constraints_MeetLevels.DisplayName) as DisplayName
+			Concat(Constraints_Disciplines.DisciplineShortName,'s ', Constraints_MeetDivisions.Name,' ', Constraints_MeetLevels.DisplayName) as DisplayName
 		From
 			Events_Competitions,
 			Constraints_MeetDivisions,
 			Constraints_MeetLevels,
-			Constraints_Genders
+			Constraints_Disciplines
 		Where
 			Events_Competitions.MeetID = ? AND
 			Events_Competitions.Level = Constraints_MeetLevels.ID AND
 			Events_Competitions.Division = Constraints_MeetDivisions.ID AND
-			Events_Competitions.Gender = Constraints_Genders.ID
+			Events_Competitions.Discipline = Constraints_Disciplines.ID
 		Order By
-			Events_Competitions.Gender ASC,
+			Events_Competitions.Discipline ASC,
 			Events_Competitions.Division DESC,
 			Events_Competitions.Level DESC
 		;";
@@ -431,7 +431,7 @@ function getTopXScoresOnEvent($competitionID,$eventID,$X)
 	return $returnArray;
 }
 
-function findWomenWithEventScore($competitionID,$event,$score)	//now this follows an implicit constraint of one event registration per person-meet-gender
+function findWomenWithEventScore($competitionID,$event,$score)	//now this follows an implicit constraint of one event registration per person-meet-Discipline
 {
 	global $globalWAG;
 	
@@ -449,7 +449,7 @@ function findWomenWithEventScore($competitionID,$event,$score)	//now this follow
 	return $returnArray;
 }
 
-function findMenWithEventScore($competitionID,$event,$score)	//now this follows an implicit constraint of one event registration per person-meet-gender
+function findMenWithEventScore($competitionID,$event,$score)	//now this follows an implicit constraint of one event registration per person-meet-Discipline
 {
 	global $globalMAG;
 	
@@ -735,22 +735,22 @@ function getCompetitions($meet)
 	return $returnArray;	
 }
 
-function getGenderForCompetition($competitionID)
+function getDisciplineForCompetition($competitionID)
 {
 	global $conn;
-	global $stmtgetGenderForCompetition;
+	global $stmtgetDisciplineForCompetition;
 	
-	$stmtgetGenderForCompetition->bindParam(1, $competitionID, PDO::PARAM_INT, 6);		
-	$stmtgetGenderForCompetition->execute();
+	$stmtgetDisciplineForCompetition->bindParam(1, $competitionID, PDO::PARAM_INT, 6);		
+	$stmtgetDisciplineForCompetition->execute();
 	
-	if ($stmtgetGenderForCompetition->rowCount() > 0)
+	if ($stmtgetDisciplineForCompetition->rowCount() > 0)
 	{
-		while($row = $stmtgetGenderForCompetition->fetch(PDO::FETCH_ASSOC))
+		while($row = $stmtgetDisciplineForCompetition->fetch(PDO::FETCH_ASSOC))
 		{
-			$gender = $row['Gender'];
+			$Discipline = $row['Discipline'];
 		}
 	}
-	return $gender;
+	return $Discipline;
 }
 
 function sortPeopleOnAnEvent($event,$EventName,$competitionID,$placesToGo)
@@ -760,24 +760,24 @@ function sortPeopleOnAnEvent($event,$EventName,$competitionID,$placesToGo)
 	
 	$scores = array_unique(getTopXScoresOnEvent($competitionID,$event,$placesToGo));
 	
-	$gender = getGenderForCompetition($competitionID);
+	$Discipline = getDisciplineForCompetition($competitionID);
 	
 	foreach($scores as $index=>$score)
 	{		
 		//get the people.
-		if($gender == 1) //men
+		if($Discipline == 1) //men
 			$people[$score] = findWomenWithEventScore($competitionID,$event,$score);
-		elseif($gender == 2) //women
+		elseif($Discipline == 2) //women
 			$people[$score] = findMenWithEventScore($competitionID,$event,$score);
 		$n = sizeof($people[$score]);
 		$scoresForTieArray[$score] = $n;
 		$tempArray = array();
 		
-		if(($n > 1) && ($gender == 2))
+		if(($n > 1) && ($Discipline == 2))
 		{
 			usort($people[$score],"sortMagTies");
 		}
-		elseif(($n > 1) && ($gender == 1))
+		elseif(($n > 1) && ($Discipline == 1))
 		{
 			usort($people[$score],"sortWagTies");
 		}

@@ -80,16 +80,16 @@ if(userIsLoggedIn()) //quick way of parsing input to prevent sql injections sinc
 		$institution = $_REQUEST['institution'];
 		$competition = $_REQUEST['competition'];
 		$team = $_REQUEST['team'];
-		$gender = $_REQUEST['gender'];
+		$Discipline = $_REQUEST['Discipline'];
 		$first = $_REQUEST['firstAdd'];
 		$events = $_REQUEST['events']; //maybe this should be optional
 		$eventCountFlags = $_REQUEST['eventCountFlags'];
 		$minor = $_REQUEST['minor'];
 		$designation = $_REQUEST['designation'];
 		//echo "minor is " . $minor;
-		//registerPersonForCompetition($competition, $institution, $person, $team, $gender, $events, $eventCountFlags, $first);
+		//registerPersonForCompetition($competition, $institution, $person, $team, $Discipline, $events, $eventCountFlags, $first);
 		$Reg = new meetRegistration("byComp",$_REQUEST['competition']);
-		$Reg->registerPersonForCompetition($competition, $institution, $person, $team, $gender, $events, $eventCountFlags, $first, $minor, $designation);
+		$Reg->registerPersonForCompetition($competition, $institution, $person, $team, $Discipline, $events, $eventCountFlags, $first, $minor, $designation);
 	}
 
 	if(isset($_REQUEST['unregisterPersonFromCompetition']))
@@ -174,12 +174,12 @@ if(userIsLoggedIn()) //quick way of parsing input to prevent sql injections sinc
 		$middleName = $_REQUEST['middleName'];
 		$institutionID = $_REQUEST['institutionID'];
 		
-		$gender = ""; 
+		$Discipline = ""; 
 		$phone = ""; 
 		$email = "";
 		
-		if(isset($_REQUEST['gender']))
-			$gender = $_REQUEST['gender'];
+		if(isset($_REQUEST['Discipline']))
+			$Discipline = $_REQUEST['Discipline'];
 		if(isset($_REQUEST['phone']))
 			$phone = $_REQUEST['phone'];
 		if(isset($_REQUEST['email']))
@@ -193,21 +193,21 @@ if(userIsLoggedIn()) //quick way of parsing input to prevent sql injections sinc
 		if(isset($_REQUEST['season']))
 			$season = $_REQUEST['season'];
 		
-		echo addNewPerson($firstName,$lastName,$middleName,$season,$institutionID,$gender,$phone,$email);
+		echo addNewPerson($firstName,$lastName,$middleName,$season,$institutionID,$Discipline,$phone,$email);
 	}
 
 	if(isset($_REQUEST['getTeamRegistrationForCompetition']))
 	{
 		$iInstitution = $_REQUEST['institutionID'];
 		$iMeet = $_REQUEST['meetID'];
-		$iGender = $_REQUEST['genderID'];
+		$iDiscipline = $_REQUEST['DisciplineID'];
 		
-		//$return_arr = getPeopleInTeam($iMeet, $iInstitution, $iGender);
-		if($iGender < 4)
-			$return_arr = $Reg->getPeopleInTeam($iMeet, $iInstitution, $iGender);
+		//$return_arr = getPeopleInTeam($iMeet, $iInstitution, $iDiscipline);
+		if($iDiscipline < 4)
+			$return_arr = $Reg->getPeopleInTeam($iMeet, $iInstitution, $iDiscipline);
 		else
 		{
-			$return_arr = $Reg->getEventLevelPeopleInTeam($iMeet, $iInstitution, $iGender);
+			$return_arr = $Reg->getEventLevelPeopleInTeam($iMeet, $iInstitution, $iDiscipline);
 		}
 		echo json_encode($return_arr);
 	}
@@ -254,7 +254,7 @@ if(userIsLoggedIn()) //quick way of parsing input to prevent sql injections sinc
 	}
 }
 
-function addNewPerson($firstName,$lastName,$middleName,$season,$institutionID,$gender,$phone,$email)
+function addNewPerson($firstName,$lastName,$middleName,$season,$institutionID,$Discipline,$phone,$email)
 {
 	global $conn;
 	$error = false;
@@ -270,7 +270,7 @@ function addNewPerson($firstName,$lastName,$middleName,$season,$institutionID,$g
 		{
 			$sql = "
 				INSERT INTO
-					Identifiers_People(FirstName,LastName,MiddleName,UserName,Gender,Phone,Email)
+					Identifiers_People(FirstName,LastName,MiddleName,UserName,Discipline,Phone,Email)
 				VALUES
 					(?,?,?,?,?,?,?)
 				;";
@@ -285,7 +285,7 @@ function addNewPerson($firstName,$lastName,$middleName,$season,$institutionID,$g
 			$stmt->bindParam(2, $lastName, PDO::PARAM_STR, 150);
 			$stmt->bindParam(3, $middleName, PDO::PARAM_STR, 150);
 			$stmt->bindParam(4, $tempUserName, PDO::PARAM_STR, 150);
-			$stmt->bindParam(5, $gender, PDO::PARAM_INT, 2);
+			$stmt->bindParam(5, $Discipline, PDO::PARAM_INT, 2);
 			$stmt->bindParam(6, $phone, PDO::PARAM_STR, 150);
 			$stmt->bindParam(7, $email, PDO::PARAM_STR, 150);
 			$stmt->execute();

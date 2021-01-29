@@ -167,8 +167,8 @@ if(userIsLoggedIn())
 	
 	//So I want to minimize the number of dots and datapoints. Well, the question of "does this institution have both mens and womens programs?" is most important for high schools (type3) and NCAA (type5)
 		//anything else we are simply creating a duplicate data point and people aren't really ever going to want to know how many USAG gyms have mens equipment as often (besides, we dont have the data for them)
-	//there are a few single-gender college clubs but these can be counted on one hand, and are usually NCAA school conflicts. OU is the only one I know and they recently are warming up to a women's club....
-	//There are even fewer single-gender adult clubs. While you could count these on one hand... Some of them are tied to a parent institution (their usag club they work out at). So I stuck them in here so 
+	//there are a few single-Discipline college clubs but these can be counted on one hand, and are usually NCAA school conflicts. OU is the only one I know and they recently are warming up to a women's club....
+	//There are even fewer single-Discipline adult clubs. While you could count these on one hand... Some of them are tied to a parent institution (their usag club they work out at). So I stuck them in here so 
 		//that they wouldn't ge overwritten by the group by clause with that USAG club. Although I pulled out he 
 	
 	//So the GROUP BY eliminates unneccesary map markers for those types. The description function of an institution contains all the program information on an institution, not program wide basis.
@@ -176,17 +176,17 @@ if(userIsLoggedIn())
 	
 	//The second group by - on the program ID - prevents an institution with multiple types from overwriting each other (e.g. a usag, usaigc, adult &... all at the same gym.)
 	
-	//The last two add layers and info for the Dual Program (dual gender) ncaa and high schools.
+	//The last two add layers and info for the Dual Program (dual Discipline) ncaa and high schools.
 	
-	//gets high school, ncaa and adult, gender together
+	//gets high school, ncaa and adult, Discipline together
 	//union
-	//everything but high school, ncaa and adult, combine all gender.
+	//everything but high school, ncaa and adult, combine all Discipline.
 	//union
 	//combine HS
 	//union
 	//combine NCAA
 	
-	//TODO: check count = 2, tis possible I don't want this is a particular school has multiple programs for that clubtype-gender???
+	//TODO: check count = 2, tis possible I don't want this is a particular school has multiple programs for that clubtype-Discipline???
 	$sqlClubs = "
 				SELECT 
 					Identifiers_Institutions.ID,
@@ -197,7 +197,7 @@ if(userIsLoggedIn())
 					Constraints_ClubTypes.TypeOfClub, 
 					Identifiers_Institutions.Enrollment, 
 					Identifiers_Institutions.Exclusive, 
-					Identifiers_Programs.Gender,
+					Identifiers_Programs.Discipline,
 					Identifiers_Institutions.Division,
 					NCES_Summary.ClassificationCode AS Division2,
 					Identifiers_Institutions.State,
@@ -228,7 +228,7 @@ if(userIsLoggedIn())
 					Constraints_ClubTypes.TypeOfClub, 
 					Identifiers_Institutions.Enrollment, 
 					Identifiers_Institutions.Exclusive, 
-					Identifiers_Programs.Gender,
+					Identifiers_Programs.Discipline,
 					Identifiers_Institutions.Division,
 					NCES_Summary.ClassificationCode AS Division2,
 					Identifiers_Institutions.State,
@@ -262,7 +262,7 @@ if(userIsLoggedIn())
 					'Both Mens and Womens High School' AS TypeOfClub, 
 					Identifiers_Institutions.Enrollment, 
 					Identifiers_Institutions.Exclusive, 
-					Identifiers_Programs.Gender,
+					Identifiers_Programs.Discipline,
 					Identifiers_Institutions.Division,
 					0 as Division2,
 					Identifiers_Institutions.State,
@@ -292,7 +292,7 @@ if(userIsLoggedIn())
 					'Both Mens and Womens NCAA' AS TypeOfClub, 
 					Identifiers_Institutions.Enrollment, 
 					Identifiers_Institutions.Exclusive, 
-					Identifiers_Programs.Gender,
+					Identifiers_Programs.Discipline,
 					Identifiers_Institutions.Division,
 					0 as Division2,
 					Identifiers_Institutions.State,
@@ -327,7 +327,7 @@ if(userIsLoggedIn())
 						'TX Mens Judge' AS TypeOfClub, 
 						TEMP_TXJUDGE.Quantity AS Enrollment,
 						0 AS Exclusive, 
-						0 AS Gender,
+						0 AS Discipline,
 						0 AS Division,
 						0 as Division2,
 						'TX' AS State,
@@ -349,7 +349,7 @@ if(userIsLoggedIn())
 						'NAIGC BoD' AS TypeOfClub, 
 						1 AS Enrollment, 
 						0 AS Exclusive, 
-						0 AS Gender,
+						0 AS Discipline,
 						0 AS Division,
 						0 as Division2,
 						State AS State,
@@ -369,7 +369,7 @@ if(userIsLoggedIn())
 						'NAIGC BoD' AS TypeOfClub, 
 						1 AS Enrollment, 
 						0 AS Exclusive, 
-						0 AS Gender,
+						0 AS Discipline,
 						0 AS Division,
 						0 as Division2,
 						State AS State,
@@ -389,7 +389,7 @@ if(userIsLoggedIn())
 						'CC' AS TypeOfClub, 
 						1 AS Enrollment, 
 						0 AS Exclusive, 
-						0 AS Gender,
+						0 AS Discipline,
 						0 AS Division,
 						0 as Division2,
 						State,
@@ -413,7 +413,7 @@ if(userIsLoggedIn())
 		$stmtClubs->store_result(); //allow us to get properties, e.g. stmt->num_rows;
 
 		if($stmtClubs->num_rows >= 1){
-			$stmtClubs->bind_result($id, $name, $lat, $lng, $type, $namedType, $enrollment, $exclusive, $gender, $division, $classification, $State, $OnCampusGym);
+			$stmtClubs->bind_result($id, $name, $lat, $lng, $type, $namedType, $enrollment, $exclusive, $Discipline, $division, $classification, $State, $OnCampusGym);
 			
 			while($stmtClubs->fetch()){
 				$newClassification = $classification;
@@ -461,7 +461,7 @@ if(userIsLoggedIn())
 					"lng"=>$lng,
 					"type"=>$type,
 					"namedType"=>$namedType,
-					"gender"=>$gender,
+					"Discipline"=>$Discipline,
 					"hide"=>$hide,
 					"enrollment"=>$enrollment,
 					"exclusive"=>$exclusive,
@@ -582,7 +582,7 @@ if(userIsLoggedIn())
 					$lng = $map[$i]['lng'];
 					$type = $map[$i]['type'];
 					$namedType = $map[$i]['namedType'];
-					$gender = $map[$i]['gender'];
+					$Discipline = $map[$i]['Discipline'];
 					$hide = $map[$i]['hide'];
 					$enrollment = $map[$i]['enrollment'];
 					$exclusive = $map[$i]['exclusive'];
@@ -601,22 +601,22 @@ if(userIsLoggedIn())
 					$description = "";
 					
 					//temporary until I pull from db
-					if($gender == '2')
+					if($Discipline == '2')
 					{
-						$gender = 'm';
-						$genderName = "Men's";
+						$Discipline = 'm';
+						$DisciplineName = "Men's";
 					}
 					else
 					{
-						$gender = 'f';
-						$genderName = "Women's";
+						$Discipline = 'f';
+						$DisciplineName = "Women's";
 					}
 					
-					//if it's a type where I want separate gender controls then add that to the layer name.
+					//if it's a type where I want separate Discipline controls then add that to the layer name.
 					if(($type == '3')||($type == '5'))
 					{
-						echo "['" . addslashes($name) . "','" . $lat . "', '" . $lng . "', '" . $type.$gender . "', '" . $hide . "', '" . $enrollment . "', '" . $description . "', '" . $state . "', '" . $division . "', '" . $exclusive. "', '" . $onCampusGym . "', '" . $id . "', '" . $classification . "']";
-						$programCounts[$type. "-" .$genderName. " " .$namedType]++;
+						echo "['" . addslashes($name) . "','" . $lat . "', '" . $lng . "', '" . $type.$Discipline . "', '" . $hide . "', '" . $enrollment . "', '" . $description . "', '" . $state . "', '" . $division . "', '" . $exclusive. "', '" . $onCampusGym . "', '" . $id . "', '" . $classification . "']";
+						$programCounts[$type. "-" .$DisciplineName. " " .$namedType]++;
 					}
 					elseif(($type == 'MJ')||($type == 'naigcboard')||($type == 'naigcboardcontact'))
 					{
@@ -631,7 +631,7 @@ if(userIsLoggedIn())
 					else
 					{
 						echo "['" . addslashes($name) . "','" . $lat . "', '" . $lng . "', '" . $type . "', '" . $hide . "', '" . $enrollment . "', '" . $description . "', '" . $state . "', '" . $division . "', '" . $exclusive. "', '" . $onCampusGym . "', '" . $id . "', '" . $classification  . "']";
-						$programCounts[$type. "-" .$genderName. " " .$namedType]++;
+						$programCounts[$type. "-" .$DisciplineName. " " .$namedType]++;
 					}
 					
 					if($i != sizeof($map)-1)
@@ -1796,7 +1796,7 @@ if(userIsLoggedIn())
 			</tr>
 			<tr>
 				<td>
-					NCAA Artistic Both Genders: <img src = "MapIcons/ncaaboth.png"></img><br/>
+					NCAA Artistic Both Disciplines: <img src = "MapIcons/ncaaboth.png"></img><br/>
 				    <div class="onoffswitch">
 						<input onchange = "showHideLayer('5b');" type="checkbox" class="onoffswitch-checkbox" id="myonoffswitch_5b">
 						<label class="onoffswitch-label" for="myonoffswitch_5b">

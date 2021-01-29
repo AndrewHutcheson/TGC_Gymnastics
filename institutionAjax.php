@@ -105,7 +105,7 @@ function getProgramDetails($InstitutionID)
 									Identifiers_Programs.Name,
 									Identifiers_Programs.ClubType,
 									Constraints_ClubTypes.TypeOfClub,
-									Identifiers_Programs.Gender,
+									Identifiers_Programs.Discipline,
 									Identifiers_Programs.ClubDivision,
 									Identifiers_Programs.Phone,
 									Identifiers_Programs.Email,
@@ -124,7 +124,7 @@ function getProgramDetails($InstitutionID)
 									Identifiers_Programs.ClubType = Constraints_ClubTypes.ID
 								Order By 
 									ClubType, 
-									Gender, 
+									Discipline, 
 									ClubDivision
 							');
 		$stmt->bindParam(1, $InstitutionID, PDO::PARAM_INT, 5);
@@ -140,7 +140,7 @@ function getProgramDetails($InstitutionID)
 											"Name" => $row['Name'],
 											"ClubTypeID" => $row['ClubType'],
 											"ClubTypeName" => $row['TypeOfClub'],
-											"Gender" => $row['Gender'],
+											"Discipline" => $row['Discipline'],
 											"Division" => $row['ClubDivision'],
 											"Phone" => $row['Phone'],
 											"Email" => $row['Email'],

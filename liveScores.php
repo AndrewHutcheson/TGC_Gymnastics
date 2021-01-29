@@ -17,10 +17,10 @@
 		//loadScoreData(2); 
 		}, 15000);
 
-	function loadScoreData(iGender)
+	function loadScoreData(iDiscipline)
 	{
 		var myTable = '#womenTable tbody';
-		if(iGender == 2)
+		if(iDiscipline == 2)
 			myTable = '#menTable tbody';
 		$.ajax({
 				type: 'POST',
@@ -29,7 +29,7 @@
 				data: {
 					getLiveScores: 1,
 					meet: iMeet,
-					gender: iGender,
+					Discipline: iDiscipline,
 					numberLimit: numLimit
 				},
 				dataType: 'json',

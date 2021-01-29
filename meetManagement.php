@@ -76,7 +76,7 @@ function getMeets()
 		loadTeamData();
 		$("#teamTable").tabulator("setHeight", "800px");
 	}
-	function loadRegData(iGender)
+	function loadRegData(iDiscipline)
 	{
 		//run only if a valid meet and club have been selected.
 		//if((document.getElementById("clubBeingRegistered").value != "")&&(document.getElementById("meetSelectMenu").value != ""))
@@ -90,13 +90,13 @@ function getMeets()
 					getTeamRegistrationForCompetition: 1,
 					institutionID: false,
 					meetID: document.getElementById("meetSelectMenu").value,
-					genderID: iGender
+					DisciplineID: iDiscipline
 				},
 				dataType: 'json',
 				success: function (data) {
-					if(iGender == 2)
+					if(iDiscipline == 2)
 						$("#menRegTable").tabulator("setData", data);
-					else if(iGender == 1)
+					else if(iDiscipline == 1)
 						$("#womenRegTable").tabulator("setData", data);
 					else
 						$("#clinicEventTable").tabulator("setData", data);
@@ -104,7 +104,7 @@ function getMeets()
 				},
 				error: function (textStatus, errorThrown) {
 					//console.log(errorThrown);
-					alert("error downloading "+iGender+" team data");
+					alert("error downloading "+iDiscipline+" team data");
 				}
 			});
 		}
@@ -222,7 +222,7 @@ function getMeets()
 											{formatter: "rownum", width: 20},
 											{title:"Name",	 			field:"Name",	 	sorter:"string"},
 											{title:"Team",	 			field:"Institution",	 	sorter:"string"},
-											{title:"GenderID", 			field:"GenderID", 		visible:false},
+											{title:"DisciplineID", 			field:"DisciplineID", 		visible:false},
 											{title:"CompetitionID", 	field:"CompetitionID", 	visible:false},
 											{title:"InstitutionID", 	field:"InstitutionID", 	visible:false},
 											{title:"Men's Lecture", 	field:"MenLecture",	 	sorter:"boolean",	formatter:"tickCross", formatterParams:{crossElement:false,}, 	bottomCalc:"count", responsive: 5},
@@ -245,7 +245,7 @@ function getMeets()
 											{formatter: "rownum", width: 20},
 											{title:"Name",	 		field:"Name",	 	sorter:"string"},
 											{title:"CompetitionID", field:"CompetitionID", 		visible:false},
-											{title:"GenderID", 		field:"GenderID", 	visible:false},
+											{title:"DisciplineID", 		field:"DisciplineID", 	visible:false},
 											{title:"Competition",	field:"Team",	 	},
 											{title:"Club", 			field:"Institution",	sorter:"string" 	},
 											{title:"Team",			field:"Designation",	 	},
@@ -270,7 +270,7 @@ function getMeets()
 											{formatter: "rownum", width: 20},
 											{title:"Name",	 		field:"Name",	 	sorter:"string"},
 											{title:"CompetitionID", field:"CompetitionID", 		visible:false},
-											{title:"GenderID", 		field:"GenderID", 	visible:false},
+											{title:"DisciplineID", 		field:"DisciplineID", 	visible:false},
 											{title:"Competition", 	field:"Team",	 	},
 											{title:"Club", 			field:"Institution",	sorter:"string" 	},
 											{title:"Team",			field:"Designation",	 	},
