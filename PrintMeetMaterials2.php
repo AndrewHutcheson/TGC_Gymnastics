@@ -1,7 +1,7 @@
-<?php include("auth.php"); ?>
-<?php include("globals.php"); ?>
-<?php include("fpdf/fpdf.php"); ?>
-<?php include("registrationAjax.php"); ?>
+<?php require_once("auth.php"); ?>
+<?php require_once("globals.php"); ?>
+<?php require_once("fpdf/fpdf.php"); ?>
+<?php require_once("registrationAjax.php"); ?>
 
 <?php
 

@@ -1,8 +1,8 @@
 <?php
 session_start();
-include("auth.php"); 
-include("globals.php"); 
-include("scoreAjax.php");
+require_once("auth.php"); 
+require_once("globals.php"); 
+require_once("scoreAjax.php");
 
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
@@ -64,7 +64,7 @@ $stmtgetDisciplineForCompetition = $conn->prepare($sqlgetDisciplineForCompetitio
 $sqlGetCompetitions = "
 		Select 
 			Events_Competitions.ID,
-			Concat(Constraints_Disciplines.DisciplineShortName,'s ', Constraints_MeetDivisions.Name,' ', Constraints_MeetLevels.DisplayName) as DisplayName
+			Concat(Constraints_Disciplines.DisciplineShortName, ' ', Constraints_MeetDivisions.Name,' ', Constraints_MeetLevels.DisplayName) as DisplayName
 		From
 			Events_Competitions,
 			Constraints_MeetDivisions,

@@ -136,14 +136,14 @@ function getLevels()
 
 function addCompetition()
 {
-	if(($('#selectHost').value != "") && ($('#meetDate').value!="") && ($('#meetName').value!=""))
+	if(($('#meetSelectMenu').value != "") && ($('#addDivision').value!="") && ($('#addLevel').value!="") && ($('#addDiscipline').value!="") && ($('#eventMax').value!=""))
 	{
 		$.ajax({
 				type: 'POST',
 				url: "meetAjax.php",
 				async: false,
 				data: {
-					addNewCompetition: 1,
+					addNewCompetition:document.getElementById('meetSelectMenu').value,
 					addDivision:document.getElementById('addDivision').value,
 					addLevel:document.getElementById('addLevel').value,
 					addDiscipline:document.getElementById('addDiscipline').value,
@@ -155,7 +155,7 @@ function addCompetition()
 				},
 				error: function (textStatus, errorThrown) {
 					//console.log(errorThrown);
-					alert("error adding meet");
+					alert("error adding competition");
 				}
 			});
 	}
@@ -163,7 +163,7 @@ function addCompetition()
 
 function addMeet()
 {
-	if(($('#addDiscipline').value != "") && ($('#addDivision').value!="") && ($('#addLevel').value!=""))
+	if(($('#selectHost').value != "") && ($('#meetDate').value!="") && ($('#meetName').value!=""))
 	{
 		$.ajax({
 				type: 'POST',
@@ -250,7 +250,7 @@ $(document).ready(function() {
 									<select name = "addLevel" id = "addLevel">
 										<option selected disabled value = "">Select a level:</option>
 									</select><br/>
-									Max per event: <input name = "eventMax" type = "number" placeholder = "8" /><br/>
+									Max per event: <input name = "eventMax" id = "eventMax" type = "number" placeholder = "8" /><br/>
 									<button onclick = "addCompetition();">Submit</button>
 									<br/><br/>
 									The following competitions are a part of this meet:<br/>
@@ -284,6 +284,9 @@ $(document).ready(function() {
 											7:"NAIGC MAG Developmental",
 											8:"NAIGC WAG Developmental",
 											9:"NAIGC WAG Level 7",
+											10:"NAIGC New Fliers",
+											11:"NAIGC Intermediate Fliers",
+											12:"NAIGC High Fliers"
 										};
 										
 										//oof I need a select

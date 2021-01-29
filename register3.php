@@ -648,14 +648,15 @@ function userLoggedInNameParts(){
 			//dataType: 'json',
 			success: function () {
 				//alert("saved");
+				loadRegData(4);
+				loadTeamData();
 			},
 			error: function (textStatus, errorThrown) {
 				alert("error updating person");
+				loadRegData(4);
+				loadTeamData();
 			}
 		});
-		
-		loadRegData(4);
-		loadTeamData();
 	}
 	
 	function updatePersonDesignation(iPerson,iCompetition,iDesignation,iDiscipline,iOldDesignation)
@@ -2004,7 +2005,7 @@ function userLoggedInNameParts(){
 												else if(AAcontrol=="WAA")
 												{
 													
-													var errorLessInAA = false;
+													var errorLessInAA = true;
 													errorLessInAA = errorLessInAA & savePersonRegistrationSingleEvent(data.ID,institution,data.CompetitionID,8,data.WAA,1,false,row.getCell("WVT"));
 													errorLessInAA = errorLessInAA & savePersonRegistrationSingleEvent(data.ID,institution,data.CompetitionID,9,data.WAA,1,false,row.getCell("WUB"));
 													errorLessInAA = errorLessInAA & savePersonRegistrationSingleEvent(data.ID,institution,data.CompetitionID,10,data.WAA,1,false,row.getCell("WBB"));
@@ -2048,7 +2049,7 @@ function userLoggedInNameParts(){
 										{title:"TR", 				field:"TR",				editor:TnTEditor		},
 										{title:"DMCompID", 			field:"DMCompID",		visible:false			},
 										{title:"DM", 				field:"DM",				editor:TnTEditor		},
-										{title:"STCompID", 			field:"STCompID",		visible:false			},
+										{title:"STCompID", 			field:"STCompID",		visible:true			},
 										{title:"ST", 				field:"ST",				editor:TnTEditor		},
 										{title:"RFCompID", 			field:"RFCompID",		visible:false			},
 										{title:"RF", 				field:"RF",				editor:TnTEditor		},
@@ -2075,15 +2076,23 @@ function userLoggedInNameParts(){
 										if(cell.getField()=="STCompID") {apparatus = 19;}
 										if(cell.getField()=="RFCompID") {apparatus = 20;}
 										
-										if(cell.getValue() != 0)
-										{											
-											if(apparatus != "")
-												updateEventCompetitionLevel(data.ID,cell.getOldValue(),cell.getValue(),data.InstitutionID,apparatus);
-										}
-										else
+										if(apparatus != "")
 										{
-											savePersonRegistrationSingleEvent(data.ID,data.InstitutionID,cell.getOldValue(),apparatus,false,4,true,cell);
-											loadRegData(4);
+											if(cell.getValue() != 0)
+											{
+												//alert("update competition and register true");
+												//first make sure that we set registered to true, using the old id
+												savePersonRegistrationSingleEvent(data.ID,data.InstitutionID,cell.getOldValue(),apparatus,true,4,false,cell); 
+												//then change the competition
+												updateEventCompetitionLevel(data.ID,cell.getOldValue(),cell.getValue(),data.InstitutionID,apparatus)
+											}
+											else
+											{
+												//alert("register false");
+												savePersonRegistrationSingleEvent(data.ID,data.InstitutionID,cell.getOldValue(),apparatus,false,4,false,cell);
+												loadTeamData();
+												loadRegData(4);
+											}
 										}
 									}
 								});

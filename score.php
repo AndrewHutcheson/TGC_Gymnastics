@@ -17,8 +17,7 @@ function getMeets()
 			Events_Meets
 		WHERE
 			Season >= 2020 AND
-			ID NOT IN (96,98) AND
-			DATE >= Date(NOW())
+			ID NOT IN (96,98) 
 		ORDER BY
 			Date
 		");
@@ -167,7 +166,7 @@ function getMeets()
 								$stmtMeets = getMeets();
 								echo "<select id = 'meetSelectMenu'>
 									<option selected disabled value = ''>Select a meet:</option>";
-								if($stmtMeets->num_rows >= 1){
+								if($stmtMeets->rowCount() >= 1){
 									while($row = $stmtMeets->fetch(PDO::FETCH_ASSOC))
 									{
 										if(isset($temp[$row['Hostclub']]))
@@ -210,11 +209,11 @@ function getMeets()
 											{title:"ID", 			field:"ID", 		visible:false},
 											{title:"Name",	 		field:"Name",	 	sorter:"string", headerVertical:true},
 											{title:"CompetitionID", field:"CompetitionID", 		visible:false},
-											{title:"DisciplineID", 		field:"DisciplineID", 	visible:false},
-											{title:"Competition",	field:"Team",	 	visible:false, headerVertical:true},
+											{title:"DisciplineID", 	field:"DisciplineID", 	visible:false},
+											{title:"Competition",	field:"Team",	 	visible:false},
 											{title:"Team", 			field:"Institution", width:50, headerVertical:true	 	},
-											{title:"SV", 	field:"SV",	 	sorter:"number",	formatter:"money",	formatterParams:{precision:1},	editor:"number", width:50, headerVertical:true},
-											{title:"Score", 		field:"Score",	 	sorter:"number",	formatter:"money",	formatterParams:{precision:3},	editor:"number", width:53, headerVertical:true},
+											{title:"SV", 			field:"SV",	 	sorter:"number",	formatter:"money",	formatterParams:{precision:1},	editor:"number", width:60, headerVertical:true},
+											{title:"Score", 		field:"Score",	 	sorter:"number",	formatter:"money",	formatterParams:{precision:3},	editor:"number", width:63, headerVertical:true},
 										],
 										index:"ID",
 										groupHeader:function(value, count, data, group){return data[0].Team;},

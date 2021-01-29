@@ -174,12 +174,12 @@ if(userIsLoggedIn()) //quick way of parsing input to prevent sql injections sinc
 		$middleName = $_REQUEST['middleName'];
 		$institutionID = $_REQUEST['institutionID'];
 		
-		$Discipline = ""; 
+		$Gender = ""; 
 		$phone = ""; 
 		$email = "";
 		
-		if(isset($_REQUEST['Discipline']))
-			$Discipline = $_REQUEST['Discipline'];
+		if(isset($_REQUEST['gender']))
+			$Gender = $_REQUEST['gender'];
 		if(isset($_REQUEST['phone']))
 			$phone = $_REQUEST['phone'];
 		if(isset($_REQUEST['email']))
@@ -193,7 +193,7 @@ if(userIsLoggedIn()) //quick way of parsing input to prevent sql injections sinc
 		if(isset($_REQUEST['season']))
 			$season = $_REQUEST['season'];
 		
-		echo addNewPerson($firstName,$lastName,$middleName,$season,$institutionID,$Discipline,$phone,$email);
+		echo addNewPerson($firstName,$lastName,$middleName,$season,$institutionID,$Gender,$phone,$email);
 	}
 
 	if(isset($_REQUEST['getTeamRegistrationForCompetition']))
@@ -254,7 +254,7 @@ if(userIsLoggedIn()) //quick way of parsing input to prevent sql injections sinc
 	}
 }
 
-function addNewPerson($firstName,$lastName,$middleName,$season,$institutionID,$Discipline,$phone,$email)
+function addNewPerson($firstName,$lastName,$middleName,$season,$institutionID,$Gender,$phone,$email)
 {
 	global $conn;
 	$error = false;
@@ -270,7 +270,7 @@ function addNewPerson($firstName,$lastName,$middleName,$season,$institutionID,$D
 		{
 			$sql = "
 				INSERT INTO
-					Identifiers_People(FirstName,LastName,MiddleName,UserName,Discipline,Phone,Email)
+					Identifiers_People(FirstName,LastName,MiddleName,UserName,Gender,Phone,Email)
 				VALUES
 					(?,?,?,?,?,?,?)
 				;";
@@ -285,7 +285,7 @@ function addNewPerson($firstName,$lastName,$middleName,$season,$institutionID,$D
 			$stmt->bindParam(2, $lastName, PDO::PARAM_STR, 150);
 			$stmt->bindParam(3, $middleName, PDO::PARAM_STR, 150);
 			$stmt->bindParam(4, $tempUserName, PDO::PARAM_STR, 150);
-			$stmt->bindParam(5, $Discipline, PDO::PARAM_INT, 2);
+			$stmt->bindParam(5, $Gender, PDO::PARAM_INT, 2);
 			$stmt->bindParam(6, $phone, PDO::PARAM_STR, 150);
 			$stmt->bindParam(7, $email, PDO::PARAM_STR, 150);
 			$stmt->execute();

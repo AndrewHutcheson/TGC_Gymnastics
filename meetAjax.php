@@ -27,7 +27,8 @@ if(isset($_REQUEST['addNewCompetition']))
 	$stmtCompetitions->bindParam(5, $maxPerEvent, PDO::PARAM_INT, 5);
 	
 	$stmtCompetitions->execute();
-	
+	$returnArray = array();
+	echo json_encode($returnArray);
 }
 
 if(isset($_REQUEST['addNewMeet']))
