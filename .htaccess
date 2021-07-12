@@ -1,6 +1,6 @@
 RewriteEngine On 
 RewriteCond %{SERVER_PORT} 80 
-RewriteRule ^(.*)$ https://www.tgcgymnastics.com/$1 [R,L]
+RewriteRule ^(.*)$ https://www.ut-texasgymnastics.com/$1 [R,L]
 
 RewriteEngine On
 RewriteCond %{REQUEST_FILENAME} !-f
