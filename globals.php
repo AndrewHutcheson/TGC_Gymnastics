@@ -62,11 +62,11 @@
 	}
 
 	// db
-	Config::write('db.host', 'localhost');
+	Config::write('db.host', $sql_login_host);
 	Config::write('db.port', '3306');
-	Config::write('db.basename', 'texacpnq_TGC');
-	Config::write('db.user', 'texacpnq');
-	Config::write('db.password', 'eoikNcx2j18b');
+	Config::write('db.basename', $sql_login_db);
+	Config::write('db.user', $sql_login_user);
+	Config::write('db.password', $sql_login_pass);
 	
 	class Core
 	{

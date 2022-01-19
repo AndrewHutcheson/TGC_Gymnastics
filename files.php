@@ -1,6 +1,6 @@
-<?php include("headers.php"); ?>
-<?php include("auth.php"); ?>
-<?php include("globals.php"); ?>
+<?php require_once("headers.php"); ?>
+<?php require_once("auth.php"); ?>
+<?php require_once("globals.php"); ?>
 
 	<body class="left-sidebar">
 		<!-- Wrapper -->
@@ -15,12 +15,13 @@
 									</header>
 									<p>
 										<ol>
-											<li><a href = 'docs/constitution.docx'>Current Constitution</a></li>
+											<li><a href = 'docs/constitution.pdf'>Current Constitution</a></li>
 											<li><a href = 'docs/constitution2.docx'>2016-2019 Constitution</a></li>
 											<li><a href = 'docs/constitution1.docx'>Pre 2016 Constitution with Changes</a></li>
 											<br/>
 											<li>
 												<ol>Yearly Surveys:
+													<li><a href = 'docs/TGC_School_Survey_2021.docx'>2021 Survey</a></li>
 													<li><a href = 'docs/TGC_School_Survey_2020.docx'>2020 Survey</a></li>
 													<li><a href = 'docs/TGC_School_Survey_2019.docx'>2019 Survey</a></li>
 													<li><a href = 'docs/TGC_School_Survey_2018.docx'>2018 Survey</a></li>
@@ -34,6 +35,7 @@
 											</li>
 											<li>
 												<ol>Presentations:
+													<li><a href = 'docs/TGC2021.pptx'>2021 Annual Meeting Powerpoint</a></li>
 													<li><a href = 'docs/TGC2020.pptx'>2020 Annual Meeting Powerpoint</a></li>
 													<li><a href = 'docs/TGC2019.pptx'>2019 Annual Meeting Powerpoint</a></li>
 													<li><a href = 'docs/TGC2018.pptx'>2018 Annual Meeting Powerpoint</a></li>
@@ -43,7 +45,7 @@
 											<br/>
 											<li>
 												<ol>TGC Annual Meeting Minutes:
-													<li><a href = 'docs/2020AnnualMeetingMinutes.docx'>2020 Minutes</a></li>
+													<li><a href = 'docs/2020AnnualMeetingMinutes.pdf'>2020 Minutes</a></li>
 													<li><a href = 'docs/2019AnnualMeetingMinutes.docx'>2019 Minutes</a></li>
 													<li><a href = 'docs/2018AnnualMeetingMinutes.docx'>2018 Minutes</a></li>
 													<li><a href = 'docs/2017AnnualMeetingMinutes.docx'>2017 Minutes</a></li>

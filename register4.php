@@ -49,7 +49,7 @@ function getValidClubs()
 					WHERE 
 						(ID IN (Select InstitutionID From Identifiers_Programs Where ClubType IN (1,7,14)) OR
 						ID IN (78,6203,7023)) AND
-						Identifiers_Institutions.State IN ('TX','OK','LA','KS','AZ')
+						Identifiers_Institutions.State IN ('TX','OK','LA')
 					ORDER BY 
 						Name ASC
 				;");
@@ -167,7 +167,9 @@ function userLoggedInNameParts(){
 				},
 				dataType: 'json',
 				success: function (data) {
-					if(iDiscipline == 2)
+					if(iDiscipline == 4)
+						$("#TnTRegTable").tabulator("replaceData", data);
+					else if(iDiscipline == 2)
 						$("#menRegTable").tabulator("replaceData", data);
 					else if(iDiscipline == 1)
 						$("#womenRegTable").tabulator("replaceData", data);
@@ -348,6 +350,38 @@ function userLoggedInNameParts(){
 		$("#menRegTable").tabulator("showColumn","Remove");
 		$("#womenRegTable").tabulator("showColumn","Remove");
 		$("#clinicEventTable").tabulator("showColumn","Remove");
+	}
+	
+	function unregisterTnTCompetitor(iPerson, meetID, iDiscipline)
+	{
+		//console.log(iPerson + " " + iCompetition);
+		var canDo = true;
+		if((selfRegister) && (iPerson != <?php echo getUserID(); ?>))
+			canDo = false; //no more mr meeseeks
+		if(canDo)
+		{
+			$.ajax({
+				type: 'POST',
+				url: "registrationAjax.php",
+				async: false,
+				data: {
+					unregisterPersonFromDiscipline: 1,
+					person: iPerson,
+					meetID: meetID,
+					institution: document.getElementById("clubBeingRegistered").value,
+					discipline:iDiscipline
+				},
+				//dataType: 'json',
+				success: function () {
+					//alert("removed");
+					loadTeamData();
+				},
+				error: function (textStatus, errorThrown) {
+					//console.log(errorThrown);
+					alert("error unregistering person");
+				}
+			});
+		}
 	}
 	
 	function unregisterCompetitor(iPerson, iCompetition, iDesignation)
@@ -598,6 +632,33 @@ function userLoggedInNameParts(){
 		}
 	}
 	
+	function updateEventCompetitionLevel(iPerson,iOldCompetition,iNewCompetition,iInstitutionID,iApparatus)
+	{
+		$.ajax({
+			type: 'POST',
+			url: "registrationAjax.php",
+			data: {
+				updateEventCompetitionLevel: 1,
+				person: iPerson,
+				oldCompetition: iOldCompetition,
+				newCompetition: iNewCompetition,
+				institution: document.getElementById("clubBeingRegistered").value,
+				apparatus: iApparatus
+			},
+			//dataType: 'json',
+			success: function () {
+				//alert("saved");
+				loadRegData(4);
+				loadTeamData();
+			},
+			error: function (textStatus, errorThrown) {
+				alert("error updating person");
+				loadRegData(4);
+				loadTeamData();
+			}
+		});
+	}
+	
 	function updatePersonDesignation(iPerson,iCompetition,iDesignation,iDiscipline,iOldDesignation)
 	{
 		//i should maybe add some data validation here, or on the postscript
@@ -664,6 +725,7 @@ function userLoggedInNameParts(){
 	var mOpts;
 	var wOpts;
 	var xOpts;
+	var tOpts;
 	var optsLookup = [];
 	var eventOnly = false;
 	
@@ -673,6 +735,82 @@ function userLoggedInNameParts(){
 		else
 			return false;
 	};
+	
+	var TnTEditor = function(cell, onRendered, success, cancel){
+		//cell - the cell component for the editable cell
+		//onRendered - function to call when the editor has been rendered
+		//success - function to call to pass the successfuly updated value to Tabulator
+		//cancel - function to call to abort the edit and return to a normal cell
+		//editorParams - params object passed into the editorParams column definition property
+		
+		var compIdField;
+		if(cell.getField()=="TR") {compIdField = "TRCompID";}
+		if(cell.getField()=="DM") {compIdField = "DMCompID";}
+		if(cell.getField()=="ST") {compIdField = "STCompID";}
+		if(cell.getField()=="RF") {compIdField = "RFCompID";}
+		
+		
+		var currentSelectionIsNotRegistered = false;
+		if(cell.getValue() == "Not Registered")
+			currentSelectionIsNotRegistered = true;
+		
+		//create and style editor
+		var editor = document.createElement("select");
+		
+		//populate it
+		var optionArray;
+		optionArray = tOpts;
+		
+		var opt;
+		for (var ID in optionArray){
+			opt = document.createElement('option');
+			opt.value = ID;
+			opt.innerHTML = optionArray[ID];
+			editor.appendChild(opt);
+		}
+		
+		//create and style input
+		editor.style.padding = "3px";
+		editor.style.width = "100%";
+		editor.style.boxSizing = "border-box";
+
+		//Set value of editor to the current value of the cell when the editor opens
+		var curVal = "";
+		if(currentSelectionIsNotRegistered)
+		{
+			curVal = 0;
+		}
+		else
+		{
+			curVal = cell.getRow().getCell(compIdField).getValue();
+		}
+		editor.value = curVal; //need to change per keyval
+
+		//set focus on the select box when the editor is selected (timeout allows for editor to be added to DOM)
+		onRendered(function(){
+			editor.focus();
+			editor.style.height = "100%";
+		});
+
+		//when the value has been set, trigger the cell to update
+		editor.onblur = function(e){
+			success(optsLookup[editor.value]);
+			cell.getRow().getCell(compIdField).setValue(editor.value);//update hidden row
+			//loadRegData(4);
+		};
+		
+		editor.onchange = function(e){
+			success(optsLookup[editor.value]);
+			cell.getRow().getCell(compIdField).setValue(editor.value);//update hidden row
+			//loadRegData(4);
+		};
+
+		//return the editor element
+		//if(teamMenuEditable)
+			return editor;
+		//else
+			//return false;
+	}
 	
 	var teamEditor = function(cell, onRendered, success, cancel){
 		//cell - the cell component for the editable cell
@@ -800,54 +938,74 @@ function userLoggedInNameParts(){
 			return false;
 	}
 	
-	var teamEditorOld = function(cell, onRendered, success, cancel){
+	var shirtEditor = function(cell, onRendered, success, cancel){
 		//cell - the cell component for the editable cell
 		//onRendered - function to call when the editor has been rendered
-		//success - function to call to pass the succesfully updated value to Tabulator
+		//success - function to call to pass the successfuly updated value to Tabulator
 		//cancel - function to call to abort the edit and return to a normal cell
-
-		//create and style editor
+		//editorParams - params object passed into the editorParams column definition property
 		var Discipline = cell.getRow().getData().DisciplineID;
-		var editor;
-		if(Discipline == 2)
-			editor = $(mOpts);
-		else if(Discipline == 1)
-			editor = $(wOpts);
-		else
-			editor = $(xOpts);
+		//create and style editor
+		var editor = document.createElement("select");
 		
-		editor.css({
-			"padding":"3px",
-			"width":"100%",
-			"box-sizing":"border-box",
-		});
+		//populate it
+		optionArray = [];
+		optionArray['YS'] = "YS";
+		optionArray['YM'] = "YM";
+		optionArray['YL'] = "YL";
+		optionArray['YXL'] = "YXL";
+		optionArray['AXS'] = "AXS";
+		optionArray['AS'] = "AS";
+		optionArray['AM'] = "AM";
+		optionArray['AL'] = "AL";
+		optionArray['AXL'] = "AXL";
+		optionArray['AXXL'] = "AXXL";
+		optionArray['AXXXL'] = "AXXXL";
+		
+		var opt;
+		for (var ID in optionArray){
+			opt = document.createElement('option');
+			opt.value = ID;
+			opt.innerHTML = optionArray[ID];
+			editor.appendChild(opt);
+		}
+		
+		//create and style input
+		editor.style.padding = "3px";
+		editor.style.width = "100%";
+		editor.style.boxSizing = "border-box";
 
 		//Set value of editor to the current value of the cell when the editor opens
-		var curVal = cell.getRow().getData().CompetitionID;
-		editor.val(curVal); //need to change per keyval
+		var curVal = cell.getRow().getData().ShirtSize;
+		editor.value = curVal; //need to change per keyval
 
 		//set focus on the select box when the editor is selected (timeout allows for editor to be added to DOM)
 		onRendered(function(){
 			editor.focus();
-			editor.css("height","100%");
+			editor.style.height = "100%";
 		});
 
 		//when the value has been set, trigger the cell to update
-		editor.on("change blur", function(e){
-			success(optsLookup[editor.val()]);
-			cell.getRow().getCell("CompetitionID").setValue(editor.val());//update hidden row
+		editor.onblur = function(e){
+			success(optionArray[editor.value]);
 			loadRegData(Discipline);
-		});
+		};
+		
+		editor.onchange = function(e){
+			success(optionArray[editor.value]);
+			loadRegData(Discipline);
+		};
 
 		//return the editor element
 		if(teamMenuEditable)
 			return editor;
 		else
 			return false;
-	};
+	}
 	
 	function changeClubBeingRegistered()
 	{
+		loadClubNames();
 		if((document.getElementById("clubBeingRegistered").value != "")&&(document.getElementById("meetSelectMenu").value != ""))
 		{
 			//load anyone already registered
@@ -855,6 +1013,7 @@ function userLoggedInNameParts(){
 			loadRegData(1);
 			loadRegData(2);
 			loadRegData(3);
+			loadRegData(4);
 		}
 	}
 	
@@ -919,6 +1078,7 @@ function userLoggedInNameParts(){
 	
 	function updateAllowedTeams()
 	{
+		loadClubNames();
 		if((document.getElementById("clubBeingRegistered").value != "")&&(document.getElementById("meetSelectMenu").value != "")) //in case we add a select club disabled option.
 		{
 			optsLookup = []; //clear and repopulate.
@@ -927,6 +1087,8 @@ function userLoggedInNameParts(){
 			mOpts = [];
 			wOpts = [];
 			xOpts = [];
+			tOpts = [];
+			tOpts[0] = "Not Registered";
 			eventOnly = false;
 			
 			var meet = document.getElementById('meetSelectMenu').value;
@@ -959,6 +1121,8 @@ function userLoggedInNameParts(){
 							mOpts[ID] = displayName;
 						else if(data[key].Discipline.indexOf("Women") >= 0)
 							wOpts[ID] = displayName;
+						else if(data[key].Discipline.indexOf("T&T") >= 0)
+							tOpts[ID] = displayName;
 						else
 						{	
 							xOpts[ID] = displayName;
@@ -977,6 +1141,7 @@ function userLoggedInNameParts(){
 			loadRegData(1);
 			loadRegData(2);
 			loadRegData(3);
+			loadRegData(4);
 			
 		//	toggleEventOnlyTable("on"); //need to fix, see the keep note.
 		}
@@ -1051,12 +1216,146 @@ function userLoggedInNameParts(){
 		}
 	}
 	
+	function loadClubNames()
+	{
+		var iClub = document.getElementById("clubBeingRegistered").value;
+		$('#personMultiselect').empty()
+		$.ajax({
+				type: 'POST',
+				url: "nameAutocomplete.php",
+				data: {
+					club: iClub
+				},
+				dataType: 'json',
+				success: function (data) {
+					for (var key in data){
+						displayName = data[key].lastName + ", " + data[key].firstName;
+						ID = data[key].ID;
+						opt = document.createElement('option');
+						opt.value = ID;
+						opt.innerHTML = displayName;
+						document.getElementById('personMultiselect').appendChild(opt);
+					}
+				}
+			});
+	}
+	
+	function registerMultiplePeopleForMeet()
+	{
+		var values = $('#personMultiselect').val();
+		
+		var Discipline = "X";
+		if(document.getElementById("newPersonWTeam").options[document.getElementById("newPersonWTeam").selectedIndex].text.indexOf("Women") >= 0 )
+		{
+			Discipline = "Women";
+		}
+		if(document.getElementById("newPersonWTeam").options[document.getElementById("newPersonWTeam").selectedIndex].text.indexOf("Men") >= 0 )
+		{
+			Discipline = "Men";
+		}
+		
+		values.forEach(function(val){
+			var iPerson = val;
+			var iInstitution = document.getElementById("clubBeingRegistered").value;
+			var iCompetition = document.getElementById("newPersonWTeam").value;
+			var iDesignation = document.getElementById("newPersonWDesignation").value;
+			var iTeam = 0;
+			var iDiscipline = 1;
+			var iEvents;
+			if(Discipline == "Men")
+			{
+				iDiscipline = 2;
+				iEvents = {
+							/*ID from apparatus. Need to dynamically create when more disciplines added.*/
+							1: document.getElementById("newMFX").checked,
+							2: document.getElementById("newMPH").checked,
+							3: document.getElementById("newMSR").checked,
+							4: document.getElementById("newMVT").checked,
+							5: document.getElementById("newMPB").checked,
+							6: document.getElementById("newMHB").checked
+						};
+				iEventCountFlags = {
+							1: !enablePerTeamCompetitionRegistration,
+							2: !enablePerTeamCompetitionRegistration,
+							3: !enablePerTeamCompetitionRegistration,
+							4: !enablePerTeamCompetitionRegistration,
+							5: !enablePerTeamCompetitionRegistration,
+							6: !enablePerTeamCompetitionRegistration
+						};
+			}
+			else if(Discipline == "Women")
+			{
+				iDiscipline = 1;
+				iEvents = {
+							8: document.getElementById("newWVT").checked,
+							9: document.getElementById("newWUB").checked,
+							10: document.getElementById("newWBB").checked,
+							11: document.getElementById("newWFX").checked
+						};
+				iEventCountFlags = {
+							8: !enablePerTeamCompetitionRegistration,
+							9: !enablePerTeamCompetitionRegistration,
+							10: !enablePerTeamCompetitionRegistration,
+							11: !enablePerTeamCompetitionRegistration
+						};		
+			}
+			else
+			{
+				iDiscipline = 3;
+				iEvents = {
+							12: document.getElementById("newMenLecture").checked,
+							13: document.getElementById("newWomenLecture").checked,
+							14: document.getElementById("newSocial").checked,
+							15: document.getElementById("newClinicWorkout").checked,
+							16: document.getElementById("newMeetLecture").checked
+						};
+				iEventCountFlags = {
+							12: 0,
+							13: 0,
+							14: 0,
+							15: 0,
+							16: 0
+						};
+			}
+			
+			var minor = document.getElementById("under18").checked;
+			
+			var saved;
+			saved = savePersonRegistration(iPerson,iInstitution,iCompetition,iTeam,iDiscipline,iEvents,iEventCountFlags,true,minor,iDesignation);
+			//alert(saved+"injustdrawrow");
+			if(saved) //if it comes back true, draw it on the table.
+			{
+				if(Discipline == "Women")
+				{
+					loadRegData(1);
+				}
+				else if(Discipline == "Men")
+				{
+					loadRegData(2);
+				}
+				else
+				{
+					loadRegData(3);
+				}
+			}
+			else
+			{
+				;//nothing, an error should have already been displayed.
+			}
+		});
+	}
+	
 	$(document).ready(function(){
 		$("#newWLast").autocomplete({
 			delay:350,
-			source: "nameAutocomplete.php",
+			source: function(request, response) {
+				$.getJSON(
+					"nameAutocomplete.php",
+					{ term:request.term, selectedClub:document.getElementById("clubBeingRegistered").value }, 
+					response
+				);
+			},
 			dataType: "json",
-			//source: data,
 			minLength: 1,
 			select: function (event, ui) {
 											$('#newWId').val(ui.item.value); 
@@ -1077,7 +1376,6 @@ function userLoggedInNameParts(){
 		
 		if(selfRegister)
 			activateSelfRegister();
-		
 	});
 	
 	function toggleEventOnlyTable(toggle) //to fix or remove
@@ -1134,6 +1432,8 @@ function userLoggedInNameParts(){
 		var val = document.getElementById("newPersonWTeam").options[document.getElementById("newPersonWTeam").selectedIndex].text;
 		if(val.indexOf("Women") >= 0)
 			Discipline = "women";
+		else if (val.indexOf("T&T") >= 0)
+			Discipline = "TnT"
 		
 		//store the old/initial value in a global var then the checkmarks won't disappear
 		if(previousEventSelectMenuDiscipline == Discipline)
@@ -1163,6 +1463,14 @@ function userLoggedInNameParts(){
 										'BB:<input type = "checkbox" onchange = "addPersonEventAACheck(\'women\')" id = "newWBB"/>' +
 										'FX:<input type = "checkbox" onchange = "addPersonEventAACheck(\'women\')" id = "newWFX"/>' +
 										'AA:<input type = "checkbox" onchange = "addPersonAACheck(\'women\')" id = "newWAA"/>';
+			}
+			else if(Discipline == "TnT")
+			{
+				document.getElementById("eventSelectMenu").innerHTML = ""+
+										'TR:<input type = "checkbox" id = "newWTR"/>' +
+										'DM:<input type = "checkbox" id = "newWDM"/>' +
+										'ST:<input type = "checkbox" id = "newWST"/>' +
+										'RF:<input type = "checkbox" id = "newWRF"/>'
 			}
 		}
 		else
@@ -1312,9 +1620,10 @@ function userLoggedInNameParts(){
 						<button onclick = 'updateAllowedTeams();'>&#x21bb;</button><br/>
 						<br/>
 						<p id = "fees"></p>
-						<h2>Step 2: Register people for the meet:</h2>
-						<p>Instructions: Start typing someone's last name and then select then from the list. If you have a new member then you will need to click the add new person button.
-						Please make sure that it's actually a new person, as I have to manually go through and combine duplicate people.</p>
+						<h2>Step 2: Register people for the meet:</h2><button onclick = 'loadClubNames();'>&#x21bb;</button><br/>
+						<select id = "personMultiselect" name = "personMultiselect" multiple>
+						</select><br/>
+						<button onclick = "registerMultiplePeopleForMeet();">Register</button><br/>
 						<p><b>Be careful about removing someone and then adding them back. If it is past the late deadline you may trigger a late fee. If you need to change their team, just click the team in their row and select from that menu.</b></p>
 							<input size = "2" disabled id = "newWId"/>
 								<input size = "15" type = "text" id = "newWLast" placeholder = "Last Name"/>
@@ -1365,23 +1674,22 @@ function userLoggedInNameParts(){
 								<!--h2>Clinic Registration:</h2>
 								<div id="clinicEventTable"></div-->
 							
-							
-							
 								<h2>Womens Teams and Competitors:</h2>
-								<div id="womenRegTable"></div>
+								<div id="womenRegTable"></div><br/>
 							
-							
-							
-								<br/>
 								<h2>Mens Teams and Competitors:</h2>
 								<div id="menRegTable"></div> <br>
 							
+								<h2>T&T Teams and Competitors:</h2>
+								<div id="TnTRegTable"></div> <br>
 								
-							
-								<h2>Step 3: Team Options</h2>
 								<p>For each team, please indicate the following:
 									<div id="teamTable"></div> <br>
 								</p>
+								
+								<h2>Step 3: Nationals Specific Registration</h2>
+								<h2>Nationals Items:</h2>
+								<div id="nationalsTable"></div> <br>
 							
 							
 							<h2>Step 4: Print your invoice:</h2>
@@ -1778,7 +2086,7 @@ function userLoggedInNameParts(){
 												else if(AAcontrol=="WAA")
 												{
 													
-													var errorLessInAA = false;
+													var errorLessInAA = true;
 													errorLessInAA = errorLessInAA & savePersonRegistrationSingleEvent(data.ID,institution,data.CompetitionID,8,data.WAA,1,false,row.getCell("WVT"));
 													errorLessInAA = errorLessInAA & savePersonRegistrationSingleEvent(data.ID,institution,data.CompetitionID,9,data.WAA,1,false,row.getCell("WUB"));
 													errorLessInAA = errorLessInAA & savePersonRegistrationSingleEvent(data.ID,institution,data.CompetitionID,10,data.WAA,1,false,row.getCell("WBB"));
@@ -1791,6 +2099,82 @@ function userLoggedInNameParts(){
 										/////////////////////
 										/*AND UPDATE TEAM*///
 										/////////////////////
+									}
+								});
+
+								$("#TnTRegTable").tabulator({
+									layout: "fitDataFill",
+									responsiveLayout:false,
+									columns:[
+										{title:"",		 		field:"Remove", 	formatter:"buttonCross", cellClick:function(e,cell){cell.getRow().delete();}, visible: removeVisible	},
+										{title:"ID",				field:"ID",	 			visible:false},
+										{title:"MeetID",			field:"MeetID",	 		visible:false},
+										{title:"Name",	 			field:"Name",	 	sorter:"string", formatter:function(cell, formatterParams)
+																											{
+																											   var row = cell.getRow();
+																											   var data = row.getData();
+																											   var isMinor = data.Minor;
+																												if(isMinor > 0)
+																												{
+																													return "<span style='color:red; font-weight:bold;'>" + data.Name + "</span>";
+																												}
+																												else
+																												{
+																													return data.Name;
+																												}
+																											}
+										},
+										{title:"DisciplineID", 			field:"DisciplineID", 		visible:false			},
+										{title:"InstitutionID", 	field:"InstitutionID", 	visible:false			},
+										{title:"TRCompID", 			field:"TRCompID",		visible:false			},
+										{title:"TR", 				field:"TR",				editor:TnTEditor		},
+										{title:"DMCompID", 			field:"DMCompID",		visible:false			},
+										{title:"DM", 				field:"DM",				editor:TnTEditor		},
+										{title:"STCompID", 			field:"STCompID",		visible:false			},
+										{title:"ST", 				field:"ST",				editor:TnTEditor		},
+										{title:"RFCompID", 			field:"RFCompID",		visible:false			},
+										{title:"RF", 				field:"RF",				editor:TnTEditor		},
+										{title:"Fee", 				field:"Fee",	 	formatter:"money", 	formatterParams:{symbol:"$", precision:2}, bottomCalc:"sum", bottomCalcFormatterParams :{symbol:"$", precision:2}},
+										{title:"Last Registered", 	field:"RegDate", responsive: 6},
+										{title:"Registered By", field:"RegBy", responsive: 6}
+									],
+									index:"ID",
+									rowDeleted:function(row){
+										var data = row.getData();
+										//console.log(data.ID + " " + data.CompetitionID);
+										unregisterTnTCompetitor(data.ID,data.MeetID,4);
+										loadRegData(4); //because groupBy is broken.
+									},
+									cellEdited:function(cell){
+										//This callback is called any time a cell is edited
+										var row = cell.getRow();
+										var data = row.getData();
+										var col = cell.getColumn();
+										
+										var apparatus = "";
+										if(cell.getField()=="TRCompID") {apparatus = 17;}
+										if(cell.getField()=="DMCompID") {apparatus = 18;}
+										if(cell.getField()=="STCompID") {apparatus = 19;}
+										if(cell.getField()=="RFCompID") {apparatus = 20;}
+										
+										if(apparatus != "")
+										{
+											if(cell.getValue() != 0)
+											{
+												//alert("update competition and register true");
+												//first make sure that we set registered to true, using the old id
+												savePersonRegistrationSingleEvent(data.ID,data.InstitutionID,cell.getOldValue(),apparatus,true,4,false,cell); 
+												//then change the competition
+												updateEventCompetitionLevel(data.ID,cell.getOldValue(),cell.getValue(),data.InstitutionID,apparatus)
+											}
+											else
+											{
+												//alert("register false");
+												savePersonRegistrationSingleEvent(data.ID,data.InstitutionID,cell.getOldValue(),apparatus,false,4,false,cell);
+												loadTeamData();
+												loadRegData(4);
+											}
+										}
 									}
 								});
 
@@ -1822,6 +2206,31 @@ function userLoggedInNameParts(){
 										}
 									}
 								});
+								
+								$("#nationalsTable").tabulator({
+									responsiveLayout:false,
+									layout: "fitDataFill",
+									virtualDom:false,
+									data:[
+											{id:1, PersonName:"Billy Bob", WaiverSigned:true},
+											{id:2, PersonName:"Mary May", WaiverSigned:false},
+										],
+									columns:[
+										{title:"ID",				field:"ID",	 				visible:false},
+										{title:"MeetID",			field:"MeetID",	 			visible:false},
+										{title:"Name",	 			field:"PersonName", 		sorter:"string"},
+										{title:"Shirt",	 			field:"ShirtSize", 			editor:shirtEditor,	sorter:"string"},
+										{title:"Waiver",	 		field:"WaiverSigned",		formatter:"tickCross", sorter:"string"},
+										{title:"Banquet",			field:"AttendingBanquet",	formatter:"tickCross",	bottomCalc:"count", cellClick:function(e, cell){cell.setValue(!cell.getValue());}},										
+										{title:"Annual Meeting",	field:"AttendingEvent1",	formatter:"tickCross",	bottomCalc:"count", cellClick:function(e, cell){cell.setValue(!cell.getValue());}},
+										{title:"Clinic 1",	 		field:"AttendingEvent2",	formatter:"tickCross",	bottomCalc:"count", cellClick:function(e, cell){cell.setValue(!cell.getValue());}},
+										{title:"Clinic 2",	 		field:"AttendingEvent3",	formatter:"tickCross",	bottomCalc:"count", cellClick:function(e, cell){cell.setValue(!cell.getValue());}}
+									],
+									index:"ID",
+									cellEdited: function(cell){
+										
+									}
+								});
 
 								$("#addPerson").click(function(){
 									//first validate that the fields are filled out
@@ -1840,6 +2249,10 @@ function userLoggedInNameParts(){
 									if(document.getElementById("newPersonWTeam").options[document.getElementById("newPersonWTeam").selectedIndex].text.indexOf("Men") >= 0 )
 									{
 										Discipline = "Men";
+									}
+									if(document.getElementById("newPersonWTeam").options[document.getElementById("newPersonWTeam").selectedIndex].text.indexOf("T&T") >= 0 )
+									{
+										Discipline = "TnT";
 									}
 									if(firstnameEntered && lastnameEntered && teamSelected && IDLoaded && teamDesignation)
 									{
@@ -1888,7 +2301,7 @@ function userLoggedInNameParts(){
 														11: !enablePerTeamCompetitionRegistration
 													};		
 										}
-										else
+										else if(Discipline == "X")
 										{
 											iDiscipline = 3;
 											iEvents = {
@@ -1907,6 +2320,23 @@ function userLoggedInNameParts(){
 													};
 										}
 										
+										else if(Discipline == "TnT")
+										{
+											iDiscipline = 4;
+											iEvents = {
+														17: document.getElementById("newWTR").checked,
+														18: document.getElementById("newWDM").checked,
+														19: document.getElementById("newWST").checked,
+														20: document.getElementById("newWRF").checked
+													};
+											iEventCountFlags = {
+														17: 0,
+														18: 0,
+														19: 0,
+														20: 0,
+													};
+										}
+										
 										var minor = document.getElementById("under18").checked;
 										
 										var saved;
@@ -1922,9 +2352,13 @@ function userLoggedInNameParts(){
 											{
 												loadRegData(2);
 											}
-											else
+											else if(Discipline == "X")
 											{
 												loadRegData(3);
+											}
+											else if(Discipline == "TnT")
+											{
+												loadRegData(4);
 											}
 										}
 										else

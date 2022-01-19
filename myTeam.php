@@ -17,7 +17,7 @@ function getValidClubs()
 					WHERE 
 						(ID IN (Select InstitutionID From Identifiers_Programs Where ClubType IN (1,7,14)) OR
 						ID IN (78,6203,7023)) AND
-						Identifiers_Institutions.State IN ('TX','OK','LA','KS')
+						Identifiers_Institutions.State IN ('TX','OK','LA','KS','AZ')
 					ORDER BY 
 						Name ASC
 				;");

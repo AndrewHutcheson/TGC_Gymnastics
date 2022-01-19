@@ -1,3 +1,9 @@
+<?php
+
+
+
+?>
+
 <?php require_once("headers.php"); ?>
 <?php require_once("auth.php"); ?>
 <?php require_once("globals.php"); ?>

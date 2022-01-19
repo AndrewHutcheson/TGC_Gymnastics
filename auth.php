@@ -99,8 +99,7 @@
 						people.ID = affiliations.PersonID AND
 						
 						people.Username = ? AND
-						people.PasswordHash = ? AND
-						affiliations.Season = ? 
+						people.PasswordHash = ?
 					";
 					
 		if($stmt = $conn->prepare($query))
@@ -108,7 +107,7 @@
 			//$stmt->bind_param("sss",$username,$passwordhash,$currentSeason);
 			$stmt->bindParam(1, $username, PDO::PARAM_STR, 250);
 			$stmt->bindParam(2, $passwordhash, PDO::PARAM_STR, 250);
-			$stmt->bindParam(3, $currentSeason, PDO::PARAM_STR, 250);
+			//$stmt->bindParam(3, $currentSeason, PDO::PARAM_STR, 250);
 			
 			$stmt->execute();
 			//$stmt->store_result(); //allow us to get properties, e.g. stmt->num_rows;
@@ -334,7 +333,7 @@
 					WHERE 
 						(ID IN (Select InstitutionID From Identifiers_Programs Where ClubType IN (1,7,14)) OR
 						ID IN (78,6203,7023)) AND
-						Identifiers_Institutions.State IN ('TX','OK','LA','KS')
+						Identifiers_Institutions.State IN ('TX','OK','LA','KS','AZ')
 					ORDER BY Name ASC
 						";
 			if($stmt = $conn->prepare($query)){

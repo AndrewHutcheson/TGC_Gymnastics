@@ -1,4 +1,45 @@
 <?php
+
+/*
+
+function constructor takes two variables.
+	-The first tells us what type of item the second variable is, a meetID or a competitionID. 
+	-The second is the actual ID
+
+========PRIVATE FUNCTIONS=======
+private function doesUserHaveRegistrationAccessForInstitution($institutionID)
+	- returns a boolean if the logged in user has a permission that allows then to access the institution's registration
+private function addToRegistrationLog($competitionID,$personID,$teamID,$action,$key,$value)
+	- this adds an entry to the registration log every time something is changed
+private function
+private function
+
+
+========PUBLIC FUNCTIONS=======
+public function getMeetIDFromCompetitionID($competitionID)
+	- returns the meetID from a competitionID
+public function getInstitutionsInMeet($meet)
+	- returns a list of institutions who have someone registered for the meet
+public function getCompetitionsInMeet($meet)
+	- returns a list of the competitions in a meet
+public function getRegFeeAndDates($meetID)
+	- returns the registration fees and deadlines
+public function maxNumberOfCompetitorsPerEvent($competitionID)
+	- returns the maximum allowed competitors per event
+public function howManyRegisteredOnEvent($competitionID,$institutionID,$eventID)
+	- returns how many people this institutions has registered already on an event
+public function registerPersonForCompetition($competitionID, $institutionID, $personID, $teamID, $Discipline, $events, $eventCountFlags, $firstAdd, $minor, $designation)
+	- used for INITIAL registration to add someone to a competition
+	- this function adds somebody to every apparatus within that competition, with the registered flag set to false. Then, it calls two other functions to set the teamFlag and registeredFlag
+checkIfPersonAlreadyRegisteredForMeetDiscipline($personID,$competitionID,$Discipline)
+	- returns true if they have been registered for this discipline for this meet
+isPersonRegisteredForEvent($personID,$eventID,$competitionID)
+	- returns true if a person is registered for an event for a *competition*
+
+	
+
+*/
+
 require_once("auth.php");
 class meetRegistration
 {
