@@ -39,7 +39,6 @@ isPersonRegisteredForEvent($personID,$eventID,$competitionID)
 	
 
 */
-
 require_once("auth.php");
 class meetRegistration
 {
@@ -1456,17 +1455,19 @@ class meetRegistration
 					FROM
 						Identifiers_People,
 						Identifiers_Institutions,
-						Events_Routines,
 						Events_Competitions,
 						Constraints_MeetDivisions,
 						Constraints_MeetLevels,
 						Constraints_Disciplines,
-						(Select MAX(RegDate) AS LatestDateRegistered, PersonID, CompetitionID FROM Events_Routines GROUP BY PersonID, CompetitionID) alias,
-						(Select ID, Concat(LastName, ', ', FirstName) AS RegPersonName FROM Identifiers_People) alias2
+						(Select ID, Concat(LastName, ', ', FirstName) AS RegPersonName FROM Identifiers_People) alias2,
+						Events_Routines
+					LEFT JOIN
+						(Select MAX(RegDate) AS LatestDateRegistered, PersonID, CompetitionID FROM Events_Routines GROUP BY PersonID, CompetitionID) alias
+					ON
+						Events_Routines.CompetitionID = alias.CompetitionID AND
+						Events_Routines.PersonID = alias.PersonID
 					WHERE
 						Identifiers_Institutions.ID = Events_Routines.ClubID AND
-						Events_Routines.CompetitionID = alias.CompetitionID AND
-						Events_Routines.PersonID = alias.PersonID AND
 						Events_Routines.PersonID = Identifiers_People.ID AND ";
 				
 			if($institutionID == "false")
@@ -1490,6 +1491,7 @@ class meetRegistration
 					;";			
 
 			$stmt = $conn->prepare($sql);
+			
 			
 			if($institutionID != "false")
 			{
@@ -1710,9 +1712,10 @@ class meetRegistration
 				//I'm not sure that the pointer isnt moving to the next row
 				$currentInst = $row['InstitutionID'];
 				$currentComp = $row['CompetitionID'];
+				$currentDesignation = $row['TeamDesignation'];
 				
-				$floorTotal = ($this->getTeamCountForEvent($currentInst,$currentComp,1) + $this->getTeamCountForEvent($currentInst,$currentComp,11));
-				$vaultTotal = ($this->getTeamCountForEvent($currentInst,$currentComp,4) + $this->getTeamCountForEvent($currentInst,$currentComp,8));
+				$floorTotal = ($this->getTeamCountForEvent($currentInst,$currentComp,1,$currentDesignation) + $this->getTeamCountForEvent($currentInst,$currentComp,11,$currentDesignation));
+				$vaultTotal = ($this->getTeamCountForEvent($currentInst,$currentComp,4,$currentDesignation) + $this->getTeamCountForEvent($currentInst,$currentComp,8,$currentDesignation));
 				
 				$theArray[$count] = array(
 												'ID'=>$row['ID'],
@@ -1729,22 +1732,22 @@ class meetRegistration
 												'LastModifiedPerson'=>$row['personLastModified'],
 												//this should be replaced by foreach getEventsForDiscipline($Discipline)??
 												'FX'=>$floorTotal,
-												'MFX'=>$this->getTeamCountForEvent($currentInst,$currentComp,1),
-												'WFX'=>$this->getTeamCountForEvent($currentInst,$currentComp,11),
-												'PH'=>$this->getTeamCountForEvent($currentInst,$currentComp,2),
-												'SR'=>$this->getTeamCountForEvent($currentInst,$currentComp,3),
+												'MFX'=>$this->getTeamCountForEvent($currentInst,$currentComp,1,$currentDesignation),
+												'WFX'=>$this->getTeamCountForEvent($currentInst,$currentComp,11,$currentDesignation),
+												'PH'=>$this->getTeamCountForEvent($currentInst,$currentComp,2,$currentDesignation),
+												'SR'=>$this->getTeamCountForEvent($currentInst,$currentComp,3,$currentDesignation),
 												'VT'=>$vaultTotal,
-												'MVT'=>$this->getTeamCountForEvent($currentInst,$currentComp,4),
-												'WVT'=>$this->getTeamCountForEvent($currentInst,$currentComp,8),
-												'PB'=>$this->getTeamCountForEvent($currentInst,$currentComp,5),
-												'HB'=>$this->getTeamCountForEvent($currentInst,$currentComp,6),
-												'UB'=>$this->getTeamCountForEvent($currentInst,$currentComp,9),
-												'BB'=>$this->getTeamCountForEvent($currentInst,$currentComp,10),
-												'MenLecture'=>$this->getTeamCountForEvent($currentInst,$currentComp,12),
-												'WomenLecture'=>$this->getTeamCountForEvent($currentInst,$currentComp,13),
-												'Social'=>$this->getTeamCountForEvent($currentInst,$currentComp,14),
-												'Workout'=>$this->getTeamCountForEvent($currentInst,$currentComp,15),
-												'MeetLecture'=>$this->getTeamCountForEvent($currentInst,$currentComp,16)
+												'MVT'=>$this->getTeamCountForEvent($currentInst,$currentComp,4,$currentDesignation),
+												'WVT'=>$this->getTeamCountForEvent($currentInst,$currentComp,8,$currentDesignation),
+												'PB'=>$this->getTeamCountForEvent($currentInst,$currentComp,5,$currentDesignation),
+												'HB'=>$this->getTeamCountForEvent($currentInst,$currentComp,6,$currentDesignation),
+												'UB'=>$this->getTeamCountForEvent($currentInst,$currentComp,9,$currentDesignation),
+												'BB'=>$this->getTeamCountForEvent($currentInst,$currentComp,10,$currentDesignation),
+												'MenLecture'=>$this->getTeamCountForEvent($currentInst,$currentComp,12,$currentDesignation),
+												'WomenLecture'=>$this->getTeamCountForEvent($currentInst,$currentComp,13,$currentDesignation),
+												'Social'=>$this->getTeamCountForEvent($currentInst,$currentComp,14,$currentDesignation),
+												'Workout'=>$this->getTeamCountForEvent($currentInst,$currentComp,15,$currentDesignation),
+												'MeetLecture'=>$this->getTeamCountForEvent($currentInst,$currentComp,16,$currentDesignation)
 											);
 				$count++;
 			}
@@ -1752,7 +1755,7 @@ class meetRegistration
 		return $theArray;
 	}
 	
-	public function getTeamCountForEvent($institutionID,$competitionID,$event)
+	public function getTeamCountForEvent($institutionID,$competitionID,$event,$designation)
 	{
 		global $conn;
 		$error = false;
@@ -1769,7 +1772,8 @@ class meetRegistration
 					WHERE
 						ClubID = ? AND
 						CompetitionID = ? AND
-						Apparatus = ?
+						Apparatus = ? AND
+						TeamDesignation = ?
 					;";
 					
 			$stmt2 = $conn->prepare($sql2);
@@ -1777,6 +1781,7 @@ class meetRegistration
 			$stmt2->bindParam(1, $institutionID, PDO::PARAM_INT, 5);
 			$stmt2->bindParam(2, $competitionID, PDO::PARAM_INT, 5);
 			$stmt2->bindParam(3, $event, PDO::PARAM_INT, 5);
+			$stmt2->bindParam(4, $designation, PDO::PARAM_STR);
 			
 			$stmt2->execute();
 			

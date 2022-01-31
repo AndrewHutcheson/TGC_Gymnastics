@@ -88,10 +88,10 @@ function getMeets()
 		if((document.getElementById("eventSelection").value != "")&&(document.getElementById("meetSelectMenu").value != ""))
 		{
 			var event = document.getElementById("eventSelection");
-			var iEvent = event.selectedIndex;
-			var iDiscipline = 1
+			var iEvent = event.value;
+			var iDiscipline = 1;
 			if(iEvent < 7)
-				iDiscipline = 2
+				iDiscipline = 2;
 			
 			$.ajax({
 				type: 'POST',
@@ -106,7 +106,7 @@ function getMeets()
 				},
 				dataType: 'json',
 				success: function (data) {
-					$("#ScoreTable").tabulator("setData", data);
+					ScoreTable.setData(data);
 				},
 				error: function (textStatus, errorThrown) {
 					//console.log(errorThrown);
@@ -127,7 +127,7 @@ function getMeets()
 		//and populate it with that event's data.
 		if((eventID <= 11)&&(eventID >7))
 			loadScoreData(1);
-		else
+		else if(eventID <7)
 			loadScoreData(2);
 	}
 	
@@ -179,7 +179,7 @@ function getMeets()
 								
 							?>
 								<p>Which event are you scoring?</p>
-								<select id = "eventSelection">
+								<select onchange = "buttonClicked();" id = "eventSelection">
 									<option selected disabled value = "">Select an event to score</option>
 									<option value = "1">Men's Floor</option>
 									<option value = "2">Men's Pommels</option>
@@ -194,17 +194,15 @@ function getMeets()
 									<option value = "11">Women's Floor</option>
 								</select>
 								
-								<button name = "selectEvent" id = "selectEvent" onclick = "buttonClicked();">Submit</button><br/><br/>
+								<br/>
 								
 								<h2>Competitors:</h2>
 								<div id="ScoreTable"></div>
 								<br/>
 								<script type = "text/javascript">
-									$("#ScoreTable").tabulator({
+									var ScoreTable = new Tabulator("#ScoreTable", {
 										layout: "fitDataFill",
 										groupBy: "CompetitionID",
-										resizableColumns:false,
-										autoResize:false,
 										columns:[
 											{title:"ID", 			field:"ID", 		visible:false},
 											{title:"Name",	 		field:"Name",	 	sorter:"string", headerVertical:true},
@@ -217,7 +215,6 @@ function getMeets()
 										],
 										index:"ID",
 										groupHeader:function(value, count, data, group){return data[0].Team;},
-										//takes too long to reload everything. Just save it and update AA.
 										cellEdited:function(cell){
 												//This callback is called any time a cell is edited
 												var row = cell.getRow();
@@ -232,7 +229,7 @@ function getMeets()
 												if(cell.getField()!="")
 												{ 
 													var editingEvent = document.getElementById("eventSelection");
-													var editedEventID = editingEvent.selectedIndex;
+													var editedEventID = editingEvent.value;
 													if(saveScore(data.ID, data.Score, data.CompetitionID, editedEventID, data.SV))
 														; //yay
 													else
