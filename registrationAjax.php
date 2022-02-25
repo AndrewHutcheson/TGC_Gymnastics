@@ -232,9 +232,10 @@ if(userIsLoggedIn()) //quick way of parsing input to prevent sql injections sinc
 		$institutionID = $_REQUEST['institution'];
 		$event = $_REQUEST['theevent'];
 		$registered = $_REQUEST['registered'];
+		$designation = $_REQUEST['designation'];
 		$Reg = new meetRegistration("byComp",$competitionID);
 		
-		$return_arr = $Reg->updateEventForPerson($personID,$institutionID,$competitionID,$event,$registered);
+		$return_arr = $Reg->updateEventForPerson($personID,$institutionID,$competitionID,$event,$registered,$designation);
 		
 		echo $return_arr;
 	}
@@ -246,9 +247,10 @@ if(userIsLoggedIn()) //quick way of parsing input to prevent sql injections sinc
 		$institutionID = $_REQUEST['institution'];
 		$event = $_REQUEST['theevent'];
 		$counts = $_REQUEST['counts'];
+		$designation = $_REQUEST['designation'];
 		
 		$Reg = new meetRegistration("byComp",$competitionID);
-		$return_arr = $Reg->updateEventCountsForPerson($personID,$institutionID,$competitionID,$event,$counts);
+		$return_arr = $Reg->updateEventCountsForPerson($personID,$institutionID,$competitionID,$event,$counts,$designation);
 		
 		echo $return_arr;
 	}

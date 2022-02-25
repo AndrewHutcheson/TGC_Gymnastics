@@ -31,13 +31,14 @@ function getInstitutionsInMeet($meet)
 	return implode(",", $insts);
 }
 
-if(userIsLoggedIn()) //quick way of parsing input to prevent sql injections since we control who has login permissions
+//if(userIsLoggedIn()) //quick way of parsing input to prevent sql injections since we control who has login permissions
+if(true)
 {
 	if(isset($_REQUEST['getLiveScores']))
 	{
 		$meet = $_REQUEST['meet'];
 		$numLimit = $_REQUEST['numberLimit'];
-		$Discipline = $_REQUEST['Discipline'];
+		$Discipline = html_entity_decode($_REQUEST['Discipline']);
 		//$numWomen = $_REQUEST['numPerWomen'];
 		//$numMen = $_REQUEST['numPerMen'];
 		//$womenEvents = $_REQUEST['womenEvents'];

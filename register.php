@@ -450,7 +450,8 @@ function userLoggedInNameParts(){
 					competition: iCompetition,
 					institution: iInstitution,
 					theevent: iEvent,
-					registered: iEventRegistered
+					registered: iEventRegistered,
+					designation: cell.getRow().getData().Designation
 				},
 				//dataType: 'json',
 				success: function (data) {
@@ -501,7 +502,8 @@ function userLoggedInNameParts(){
 					competition: iCompetition,
 					institution: iInstitution,
 					theevent: iEvent,
-					counts: iEventCount
+					counts: iEventCount,
+					designation: cell.getRow().getData().Designation
 				},
 				//dataType: 'json',
 				success: function (data) {

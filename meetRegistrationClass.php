@@ -422,7 +422,7 @@ class meetRegistration
 		return $returnStuff; //should be int type
 	}
 	
-	public function howManyRegisteredOnEvent($competitionID,$institutionID,$eventID)
+	public function howManyRegisteredOnEvent($competitionID,$institutionID,$eventID,$designation)
 	{
 		//NEED CHECK BOTH ON INITIAL ADD AND ON EVENT UPDATE
 		global $conn;
@@ -436,14 +436,16 @@ class meetRegistration
 					ClubID = ? AND
 					Apparatus = ? AND
 					CompetitionID = ? AND
+					TeamDesignation = ? AND
 					Registered = 1
 				;";
 		
 		$stmt = $conn->prepare($sql);
 		
-		$stmt->bindParam(1, $institutionID, PDO::PARAM_INT, 5);
-		$stmt->bindParam(2, $eventID, PDO::PARAM_INT, 3);	
-		$stmt->bindParam(3, $competitionID, PDO::PARAM_INT, 5);	
+		$stmt->bindParam(1, $institutionID, PDO::PARAM_INT);
+		$stmt->bindParam(2, $eventID, PDO::PARAM_INT);	
+		$stmt->bindParam(3, $competitionID, PDO::PARAM_INT);	
+		$stmt->bindParam(4, $designation, PDO::PARAM_STR);
 		$stmt->execute();
 		
 		while($row = $stmt->fetch(PDO::FETCH_ASSOC))
@@ -1840,7 +1842,7 @@ class meetRegistration
 				$registered = 1;
 				
 				$max = $this->maxNumberOfCompetitorsPerEvent($competitionID);
-				$numCurrentlyRegistered = $this->howManyRegisteredOnEvent($competitionID,$institutionID,$eventID);
+				$numCurrentlyRegistered = $this->howManyRegisteredOnEvent($competitionID,$institutionID,$eventID,$designation);
 				
 				if($numCurrentlyRegistered < $max)
 				{
@@ -1924,7 +1926,7 @@ class meetRegistration
 		return $counting;
 	}
 	
-	public function updateEventForPerson($personID,$institutionID,$competitionID,$eventID,$registered)
+	public function updateEventForPerson($personID,$institutionID,$competitionID,$eventID,$registered,$designation)
 	{
 		global $conn;
 		$error = false;
@@ -1972,7 +1974,7 @@ class meetRegistration
 				$stmt->bindParam(5, $eventID, PDO::PARAM_INT, 3);	
 				
 				$max = $this->maxNumberOfCompetitorsPerEvent($competitionID);
-				$numCurrentlyRegistered = $this->howManyRegisteredOnEvent($competitionID,$institutionID,$eventID);
+				$numCurrentlyRegistered = $this->howManyRegisteredOnEvent($competitionID,$institutionID,$eventID,$designation);
 				//echo "max is: " . $max . " and num is: " . $numCurrentlyRegistered;
 				
 				if((($numCurrentlyRegistered < $max) && ($registered == 1)) || ($registered == 0))
@@ -2018,7 +2020,7 @@ class meetRegistration
 		return json_encode($return_arr);
 	}
 	
-	public function updateEventCountsForPerson($personID,$institutionID,$competitionID,$eventID,$counts)
+	public function updateEventCountsForPerson($personID,$institutionID,$competitionID,$eventID,$counts,$designation)
 	{
 		global $conn;
 		$error = false;
@@ -2066,7 +2068,7 @@ class meetRegistration
 				$stmt->bindParam(5, $eventID, PDO::PARAM_INT, 3);	
 				
 				$max = $this->maxNumberOfCompetitorsPerEvent($competitionID); //TODO: eh this is different than how may count. Need a new function.
-				$numCurrentlyRegistered = $this->howManyRegisteredOnEvent($competitionID,$institutionID,$eventID);
+				$numCurrentlyRegistered = $this->howManyRegisteredOnEvent($competitionID,$institutionID,$eventID,$designation);
 				//echo "max is: " . $max . " and num is: " . $numCurrentlyRegistered;
 				if((($numCurrentlyRegistered < $max) && ($counts == 1)) || ($counts == 0))
 				{
@@ -2087,7 +2089,7 @@ class meetRegistration
 			 
 			$return_arr = array(
 					'Error' => $error,
-					'Message'=>"Error in updateEventForPerson",
+					'Message'=>"Error in updateEventCountsForPerson",
 					'Details'=>$details
 					);
 		}
