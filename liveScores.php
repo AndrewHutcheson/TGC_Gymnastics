@@ -77,6 +77,9 @@
 	  return columnSet;
 	}
 	
+	$( document ).ready(function() {
+		loadScoreData("1,2");
+	});
 </script>
 
 <style>
