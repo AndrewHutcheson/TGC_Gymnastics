@@ -519,7 +519,7 @@ function populatePeople($meetID)
 		$woman->BBSV = $person['WBBSV'];
 		$woman->FXSV = $person['WFXSV'];
 		
-		if(((double)$person['WVTSV'] * (double)$person['WUBSV'] * (double)$person['WBBSV'] * (double)$person['WFXSV']) > 0)
+		if(((double)$person['WVT'] * (double)$person['WUB'] * (double)$person['WBB'] * (double)$person['WFX']) > 0)
 		//if(($person['WVTSV'] > 0) && ($person['WUBSV'] > 0) && ($person['WBBSV'] > 0) && ($person['WFXSV'] > 0))	
 		{
 			$woman->AA = $person['WAA'];
@@ -568,7 +568,7 @@ function populatePeople($meetID)
 		$man->PBSV = $person['MPBSV'];
 		$man->HBSV = $person['MHBSV'];
 		
-		if(((double)$person['MFXSV'] * (double)$person['MPHSV'] * (double)$person['MSRSV'] * (double)$person['MVTSV'] * (double)$person['MPBSV'] * (double)$person['MHBSV']) > 0)
+		if(((double)$person['MFX'] * (double)$person['MPH'] * (double)$person['MSR'] * (double)$person['MVT'] * (double)$person['MPB'] * (double)$person['MHB']) > 0)
 		{
 			$man->AA = $person['MAA'];
 		}
@@ -675,14 +675,14 @@ function displayScript($meetID,$places)
 				{
 					echo "<h2>On " . $event['DisplayName'] . ": </h2>";
 					sortPeopleOnAnEvent($event['ID'],$event['DisplayName'],$competition['ID'],$places);
-					echo "These are your " . $event['DisplayName'] . " champions!<br/>";
+					echo "Gymnasts, please salute!";
 					echo "<span style = 'color:red'>----pause, and let a picture be taken.----</span><br/>";
 				}
 			}
 			
 			echo "<h1>In the All-Around competition:</h1>";
 			sortPeopleOnAnEvent(0,"All-Around",$competition['ID'],$places);
-			echo "These are your All Around champions!<br/>";
+			echo "Gymnasts, please salute!<br/>";
 			echo "<span style = 'color:red'>----pause, and let a picture be taken.----</span><br/>";
 		}
 	}
