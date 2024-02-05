@@ -273,6 +273,8 @@ $(document).ready(function() {
 												return "College";
 											if(value == 3)
 												return "Open";
+											if(value == 2)
+												return "Community";
 										}
 										var levelArray = { //to be made dynamic drom DB
 											1:"TGC WAG Level 9",
@@ -286,7 +288,10 @@ $(document).ready(function() {
 											9:"NAIGC WAG Level 7",
 											10:"NAIGC New Fliers",
 											11:"NAIGC Intermediate Fliers",
-											12:"NAIGC High Fliers"
+											12:"NAIGC High Fliers",
+											13:"NAIGC MAG Level 7",
+											14:"TGC WAG Xcel Silver",
+											15:"TGC WAG Xcel Platinum"
 										};
 										
 										//oof I need a select

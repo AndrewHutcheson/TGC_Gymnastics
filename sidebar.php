@@ -1,5 +1,14 @@
-				<!-- Sidebar -->
-					<div id="sidebar">
+<?php require_once("auth.php"); ?>
+				<div id = "alerts">
+					<?php
+						if(isUserCurrentlyEmulating())
+						{
+							echo "YOU ARE ACTUALLY USER " . getemulatorUserID() . "-" . userIdToUserName(getemulatorUserID()) . " BUT YOU ARE CURRENTLY EMULATING USER " . getUserID() . "-" . userIdToUserName(getUserID()) ;
+						}
+					?>
+				</div>
+				<!-- Sidebar -->	
+				<div id="sidebar">
 					
 						<!-- Logo -->
 							<h1 id="logo"><a href="https://tgcgymnastics.com">TGC</a></h1>
@@ -31,7 +40,13 @@
 												?>
 													<li <? if(basename($_SERVER['PHP_SELF'])=="myTeam.php"){echo 'class="current"'; } ?> ><a href="myTeam.php">Team Management</a></li>
 													<li <? if(basename($_SERVER['PHP_SELF'])=="meetManagement.php"){echo 'class="current"'; } ?> ><a href="meetManagement.php">Meet Management</a></li>
-													<li <? if(basename($_SERVER['PHP_SELF'])=="score.php"){echo 'class="current"'; } ?> ><a href="score.php">Meet Scoring</a></li>
+												<?php
+												}
+												if(sizeOf(getClubsThatUserCanScore()) > 0)
+												{
+												?>
+													<li <?php if(basename($_SERVER['PHP_SELF'])=="score.php"){echo 'class="current"'; } ?> ><a href="score">Meet Scoring</a></li>
+													<li <?php if(basename($_SERVER['PHP_SELF'])=="verifyScore.php"){echo 'class="current"'; } ?> ><a href="verifyScore">Score Verification</a></li>
 												<?
 												}
 												?>
@@ -51,6 +66,20 @@
 													<!--li <? if(basename($_SERVER['PHP_SELF'])=="CollegeClubFeeds.php"){echo 'class="current"'; } ?> ><a href="CollegeClubFeeds.php">Social Stream (national)</a></li-->
 													<li><a href="https://tgcgymnastics.com/mailman/admin/clubreps_tgcgymnastics.com">TGC Email List</a></li>
 													<li><a href="https://tgcgymnastics.com/mailman/admin/alumni_tgcgymnastics.com">Alumni Email List</a></li>
+													<?php 
+													if(userCanEmulate())
+													{
+													?>
+													<li <?php if(basename($_SERVER['PHP_SELF'])=="emulate.php"){echo 'class="current"'; } ?> ><a href="emulate">Emulate User</a></li>
+													<?php
+													}
+													if(userIsSuperAdministrator())
+													{
+													?>
+													<li <?php if(basename($_SERVER['PHP_SELF'])=="myOrg.php"){echo 'class="current"'; } ?> ><a href="myOrg">TGC Users</a></li>
+													<?php
+													}
+													?>
 												</ul>
 											</li>
 										<?
@@ -127,8 +156,8 @@
 						<!-- Text -->
 							<section class="box text-style1">
 									<!--div class="fb-like" data-href="https://www.facebook.com/TexasGymnasticsConference" data-layout="box_count" data-action="like" data-show-faces="false" data-share="false"></div-->
-									<a href="https://twitter.com/TgcGymnastics" class="twitter-follow-button" data-show-count="false" data-size="large" data-show-screen-name="false">Follow @TgcGymnastics</a>
-									<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+									<!--a href="https://twitter.com/TgcGymnastics" class="twitter-follow-button" data-show-count="false" data-size="large" data-show-screen-name="false">Follow @TgcGymnastics</a>
+									<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script-->
 							</section>
 					
 						<!-- Recent Comments -->

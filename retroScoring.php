@@ -933,11 +933,11 @@ function getValidClubs()
 								$displaySpecific = (	(sizeof(getListOfUserCaptainPermissions()) > 0) || (sizeof(getListOfUserCoachPermissions()) > 0) || (sizeof(getListOfUserClubAdministrativePermissions()) > 0)	);
 								$combinedArray = getListOfUserClubAdministrativePermissions();
 								?>
-								
+								<p>&nbsp;</p>
 								<input size = "2" disabled id = "newWId"/>
-								<input size = "15" type = "text" id = "newWLast" placeholder = "Last Name"/>
-								<input size = "12" type = "text" id = "newWFirst" placeholder = "First Name"/>
-								<input size = "3" type = "text" id = "newWMiddle"  placeholder = "Middle" />
+									<input size = "15" type = "text" id = "newWLast" name = "h76f875fvi" autocomplete="new-password" placeholder = ""/>
+									<input size = "12" type = "text" id = "newWFirst" placeholder = "First Name"/>
+									<input size = "3" type = "text" id = "newWMiddle"  placeholder = "Middle" />
 								<?php
 									if(sizeof($combinedArray)>0) //this needs to kick us out somehow if we somehow got to the page but don't have appropriate perms.
 									{

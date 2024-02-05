@@ -15,9 +15,7 @@ function getValidClubs()
 					FROM 
 						Identifiers_Institutions
 					WHERE 
-						(ID IN (Select InstitutionID From Identifiers_Programs Where ClubType IN (1,7,14)) OR
-						ID IN (78,6203,7023)) AND
-						Identifiers_Institutions.State IN ('TX','OK','LA','KS','AZ')
+						ID IN (7126)
 					ORDER BY 
 						Name ASC
 				;");
@@ -33,85 +31,6 @@ function getValidClubs()
 	}
 }
 
-function changePersonName() //maybe somehow say for spelling only. Also maybe a maiden name field...?
-{
-	
-}
-
-function getInstitutionDetails()
-{
-	//maybe program instead.
-	//facebook pages and whatnot
-	//photo? security.
-}
-
-function setPersonDegrees()
-{
-	//This needs to be a insert on duplicate key update
-}
-
-function removePersonDegrees()
-{
-	//just from the INSTID they have access for.
-}
-
-function getPersonDegrees($person, $institution)
-{
-	global $conn;
-	$stmt= $conn->prepare("
-		SELECT
-			Constraints_DegreeTypes.ID,
-			Constraints_DegreeTypes.Name,
-			Constraints_DegreeTypes.Abbr,
-			Constraints_Degrees.Group,
-			Constraints_Degrees.Specialty
-		FROM
-			People_Degrees,
-			Constraints_Degrees,
-			Constraints_DegreeTypes
-		WHERE
-			People_Degrees.PersonID = ? AND
-			People_Degrees.InstitutionID = ? AND
-			People_Degrees.DegreeType = Constraints_DegreeTypes.ID AND
-			People_Degrees.DegreeName = Constraints_Degrees.ID
-		;");
-		
-	$stmt->execute();
-	
-	
-}
-
-function getPeepDeets()
-{
-	global $conn;
-	$stmt= $conn->prepare("
-		SELECT
-			Identifiers_People.ID,
-			Identifiers_People.Gender,
-			Identifiers_People.FirstName,
-			Identifiers_People.LastName,
-			Identifiers_People.Birthday
-		FROM
-			Identifiers_People,
-			Identifiers_Affiliations
-		WHERE
-			Identifiers_People.ID = Identifiers_Affiliations.PersonID AND
-			Identifiers_Affiliations.ClubID = ?
-		Order By 
-			Identifiers_Affiliations.Season Desc
-		");
-		
-	$stmt->execute();
-	
-	if ($stmt->rowCount() > 0)
-	{
-		return $stmt;
-	}
-	else
-	{
-		return false;
-	}
-}
 ?>
 
 <script type="text/javascript" src="tabulator-master/dist/js/tabulator.js"></script>
@@ -129,7 +48,7 @@ function getPeepDeets()
 				url: "teamEditAjax.php",
 				async: false,
 				data: {
-					getTeamData: 1,
+					getOrgData: 1,
 					institutionID: document.getElementById("selectClub").value,
 					year: document.getElementById("selectYear").value
 				},
@@ -193,13 +112,16 @@ function getPeepDeets()
 	function addNewPerson()
 	{
 		var nameIsValid = false;
-		var schoolIsValid = false;
+		var emailIsValid = false;
+		var genderIsValid = false;
+		var statusIsValid = false;
 		var iLastName = document.getElementById("newWLast").value;
 		var iFirstName = document.getElementById("newWFirst").value;
 		var iMiddleName = document.getElementById("newWMiddle").value;
 		
 		var iPhone = document.getElementById("newWPhone").value;
 		var iGender = document.getElementById("newWGender").value;
+		var iStatus = document.getElementById("newWStatus").value;
 		var iEmail = document.getElementById("newWEmail").value;
 		
 		var iInstitutionID;
@@ -226,22 +148,82 @@ function getPeepDeets()
 		else
 		{
 			alert("Please make sure both the last name and first name are entered.");
-			//exit function.
 		}
-		
-		if(nameIsValid)
+		if(validateEmail(iEmail))
+		{
+			emailIsValid = true;
+		}
+		else
+		{
+			alert("Please make sure an email is entered for this user, it will be their log in.");
+		}
+
+		if(nameIsValid && emailIsValid)
 		{
 			//then show a popup asking if its for a different team
-			if (confirm("Does this person attend " + schoolsLookup[document.getElementById('selectClub').value] + "?") == true)
+			//if (confirm("Does this person attend " + schoolsLookup[document.getElementById('selectClub').value] + "?") == true)
+			var emailIsUnused = true;
+			$.ajax({
+				type: 'POST',
+				url: "teamEditAjax.php",
+				async: false,
+				data: {
+					checkIfEmailIsUsed: 1,
+					emailToCheck: iEmail
+				},
+				dataType: 'json',
+				success: function (data) {
+					if(data.emailExists >= 1)
+					{
+						emailIsUnused = false;
+					}
+				},
+				error: function (textStatus, errorThrown) {
+					alert("error validating email");
+					emailIsUnused = false;
+				}
+			});
+
+			var phoneIsUnused = true;
+			if(iPhone != "")
+			{
+				$.ajax({
+					type: 'POST',
+					url: "teamEditAjax.php",
+					async: false,
+					data: {
+						checkIfPhoneIsUsed: 1,
+						phoneToCheck: iPhone
+					},
+					dataType: 'json',
+					success: function (data) {
+						if(data.phoneExists >= 1)
+						{
+							phoneIsUnused = false;
+						}
+					},
+					error: function (textStatus, errorThrown) {
+						alert("error validating phone");
+						phoneIsUnused = false;
+					}
+				});
+			}
+			if(emailIsUnused && phoneIsUnused)
 			{
 				iInstitutionID = document.getElementById("selectClub").value;
 				InstitutionName = schoolsLookup[document.getElementById("selectClub").value];
 				//todo: solve scope issues and remove code duplicate. 
 				if(confirm("Pressing ok will create a brand new gymnast for " + iFirstName + " " + iLastName + " who will start out with affiliation for " + InstitutionName + " for the " + season + " season. If this is not correct press cancel."))
+				{
+					if(iGender >= 1)
+						genderIsValid = true;
+
+					if(iStatus != "")
+						statusIsValid = true;	
+					
+					if(genderIsValid)
 					{
-						schoolIsValid = true;
-						
-						if(schoolIsValid)
+						if(statusIsValid)
 						{
 							$.ajax({
 								type: 'POST',
@@ -254,6 +236,7 @@ function getPeepDeets()
 									middleName: iMiddleName,
 									institutionID: iInstitutionID,
 									gender: iGender,
+									status: iStatus,
 									phone: iPhone,
 									email: iEmail,
 									season: season
@@ -262,7 +245,16 @@ function getPeepDeets()
 								success: function () {
 									//alert("removed");
 									changeYearClub();
-									document.getElementById('popupSelect').selectedIndex = 0;
+
+									//reset. Need to put in frunction.
+									document.getElementById("newWFirst").value = "";
+									document.getElementById("newWLast").value = "";
+									document.getElementById("newWMiddle").value = "";
+									document.getElementById("newWId").value = "";
+									document.getElementById("newWGender").value = "";
+									document.getElementById("newWStatus").value = "";
+									document.getElementById("newWPhone").value = "";
+									document.getElementById("newWEmail").value = "";
 									
 								},
 								error: function (textStatus, errorThrown) {
@@ -271,108 +263,31 @@ function getPeepDeets()
 								}
 							});
 						}
-						//reset. Need to put in frunction.
-						document.getElementById("newWFirst").value = "";
-						document.getElementById("newWLast").value = "";
-						document.getElementById("newWMiddle").value = "";
-						document.getElementById("newWId").value = "";
-						document.getElementById("newWGender").value = "";
-						document.getElementById("newWPhone").value = "";
-						document.getElementById("newWEmail").value = "";
-					}
-			}
-			else //make a select popup
-			{
-				/*$("#popUpDiv").css("display","table");
-				$("#popupSelect").change(function(e) {
-					
-					//right now InstID is the top menu
-					iInstitutionID = $("#popupSelect").val();
-					//now it is what was selected
-										
-					InstitutionName = schoolsLookup[$("#popupSelect").val()];
-					if(confirm("Pressing ok will create a brand new gymnast for " + iFirstName + " " + iLastName + " who will start out with affiliation for " + InstitutionName + " for the " + season + " season. If this is not correct press cancel."))
-					{
-						schoolIsValid = true;
-						
-						if(schoolIsValid)
+						else
 						{
-							$.ajax({
-								type: 'POST',
-								url: "registrationAjax.php",
-								async: false,
-								data: {
-									addNewPersonToDatabase: 1,
-									lastName: iLastName,
-									firstName: iFirstName,
-									middleName: iMiddleName,
-									institutionID: iInstitutionID,
-									gender: iGender,
-									phone: iPhone,
-									email: iEmail
-								},
-								//dataType: 'json',
-								success: function () {
-									//alert("removed");
-									document.getElementById('popupSelect').selectedIndex = 0;
-								},
-								error: function (textStatus, errorThrown) {
-									//console.log(errorThrown);
-									alert("error adding person");
-								}
-							});
+							alert("Please input student status.");	
 						}
-
-						//reset. Need to put in frunction.
-						document.getElementById("newWFirst").value = "";
-						document.getElementById("newWLast").value = "";
-						document.getElementById("newWMiddle").value = "";
-						document.getElementById("newWId").value = "";
-						document.getElementById("newWGender").value = "";
-						document.getElementById("newWPhone").value = "";
-						document.getElementById("newWEmail").value = "";
 					}
-					else{
-						
+					else
+					{
+						alert("Please input gender.");
 					}
-					$("#popUpDiv").hide();
-				});	*/
-				alert("Please select the institution they actually attend from the top menu.");
+				}
+				else
+				{
+					;//do nothing, they hit cancel
+				}
+			}
+			else 
+			{
+				if(emailIsUnused == false)
+					alert("A user with that email already exists.");
+				if(phoneIsUnused == false)
+					alert("A user with that phone number already exists.");
 			}
 		}		
 	}
-	
-	function removeClubAffiliation(iSeason,iID)
-    {
-		var iSeason = document.getElementById("selectYear").value;
-		var iInstitutionID = document.getElementById("selectClub").value;
-		if(iID != "")
-		{
-			savePersonPermission(iID,"Registration","false");
-			savePersonPermission(iID,"InstitutionAdmin","false");
-			savePersonPermission(iID,"MeetScoring","false");
-			$.ajax({
-				type: 'POST',
-				url: "teamEditAjax.php",
-				async: false,
-				data: {
-					removePersonFromSeason: 1,
-					season: iSeason,
-					personID: iID,
-					institutionID: iInstitutionID
-				},
-				//dataType: 'json',
-				success: function () {
-					getListOfUserClubAffiliations();
-				},
-				error: function (textStatus, errorThrown) {
-					//console.log(errorThrown);
-					alert("error affiliating");
-				}
-			});
-		}
-    }
-	
+
 	function savePersonEmail(iID,iEmail)
 	{
 		$.ajax({
@@ -383,9 +298,13 @@ function getPeepDeets()
 				ID: iID,
 				Email: iEmail
 			},
-			//dataType: 'json',
-			success: function () {
-				;//alert("saved");
+			dataType: 'json',
+			success: function (data) {
+				if(data.hasOwnProperty('errorMsg'))
+				{
+					alert(data.errorMsg);
+					changeYearClub();
+				}
 			},
 			error: function (textStatus, errorThrown) {
                 alert("error updating person");
@@ -489,11 +408,10 @@ function getPeepDeets()
 			type: 'POST',
 			url: "teamEditAjax.php",
 			data: {
-				updatePermission: iPermission,
+				updateTGCPermission: iPermission,
 				permissionValue: iValue,
 				personID: iPerson,
-				Season: iSeason,
-				institutionID: iInstitutionID
+				Season: iSeason
 			},
 			//dataType: 'json',
 			success: function () {
@@ -505,11 +423,127 @@ function getPeepDeets()
             }
 		});
 	}
+
+	function removeClubAffiliation(iSeason,iID)
+    {
+		var iSeason = document.getElementById("selectYear").value;
+		var iInstitutionID = document.getElementById("selectClub").value;
+		if(iID != "")
+		{
+			savePersonPermission(iID,"Registration","false");
+			savePersonPermission(iID,"Administrate","false");
+			$.ajax({
+				type: 'POST',
+				url: "teamEditAjax.php",
+				async: false,
+				data: {
+					removePersonFromSeason: 1,
+					season: iSeason,
+					personID: iID,
+					institutionID: iInstitutionID
+				},
+				//dataType: 'json',
+				success: function () {
+					getListOfUserClubAffiliations();
+				},
+				error: function (textStatus, errorThrown) {
+					//console.log(errorThrown);
+					alert("error affiliating");
+				}
+			});
+		}
+    }
+
+	function addMembershipToCart(ipersonID,item)
+    {
+		//todo: validate type
+		
+		//alright, now do an ajax call to get the logged in userID and add the stuff to the user's cart.
+		$.ajax({
+			type: 'POST',
+			url: "paymentAjax.php",
+			async: false,
+			data: {
+				membershipTier: item,
+				personID : ipersonID, 
+				addMembershipFeeToCart: true,
+			},
+			//dataType: 'json',
+			success: function () {
+				checkShoppingCart();
+			},
+			error: function (textStatus, errorThrown) {
+				//console.log(errorThrown);
+				alert("error adding to cart");
+			}
+		});
+
+    }
+
+	var membershipButton = function(cell)
+	{
+		var iSeason = document.getElementById("selectYear").value;
+		var currentSeason = <?php echo getCurrentSeason(); ?>;
+
+		if(!((iSeason == currentSeason) || (iSeason == currentSeason+1)))
+			return "";
+		
+		/*var memberid = cell.getRow().getData().ID;
+		var isPaid = false;
+		var coachPaid = false;
+		$.ajax({
+			type: 'POST',
+			url: "paymentAjax.php",
+			async: false,
+			data: {
+				getMembershipOptions : 1,
+				personID : memberid
+			},
+			dataType: 'json',
+			success: function (data) {
+				console.log(data);
+				if(data.hasOwnProperty("upgrade"))
+					coachPaid = true;
+				if(data.hasOwnProperty("paid"))
+					isPaid = true;
+			},
+			error: function (textStatus, errorThrown) {
+				//console.log(errorThrown);
+				alert("error getting available membership tiers");
+			}
+		});*/
+		var coachPaid = false;
+		var isPaid = false;
+		var row = cell.getRow();
+		var data = row.getData();
+		var memberid = data.ID;
+		if(data.MembershipOptionsArray.hasOwnProperty("upgrade"))
+			coachPaid = true;
+		if(data.MembershipOptionsArray.hasOwnProperty("paid"))
+			isPaid = true;
+
+		if(isPaid)
+			return "Purchased";
+		else if(coachPaid)
+		{
+			return "<button onclick = 'addMembershipToCart("+memberid+",\"Upgrade Membership\");'>Upgrade Membership</button>";
+		}
+		else
+			return "<button onclick = 'addMembershipToCart("+memberid+",\"Coach Membership\");'>Coach Membership</button><button onclick = 'addMembershipToCart("+memberid+",\"Gymnast Membership\");'>Gymnast Membership</button>";
+	};
 	
 	$(document).ready(function(){
 		$("#newWLast").autocomplete({
 			delay:350,
-			source: "nameAutocomplete.php",
+			source: function(request, response) {
+				$.getJSON(
+					"nameAutocomplete.php",
+					{ 
+						term:request.term
+					}, 
+					response
+				);
+			},
 			dataType: "json",
 			//source: data,
 			minLength: 1,
@@ -563,13 +597,6 @@ function getPeepDeets()
 		width: 100%;
 	}
 
-	#popupSelect{
-		display:block;
-		margin:auto;	
-		z-index: 1000;
-		width:50%;
-	}
-
 	@media screen and (min-width: 480px) 
 	{
 		.inner
@@ -594,51 +621,14 @@ function getPeepDeets()
 					<div id="content">
 						<div class="inner">
 						<?php
-							$displaySpecific = ((sizeof(getListOfUserCaptainPermissions()) > 0) || (sizeof(getListOfUserCoachPermissions()) > 0) || (sizeof(getListOfUserClubAdministrativePermissions()) > 0)	);
-							if(userIsLoggedIn())
+							if(userIsSuperAdministrator())
 							{			
-								if($displaySpecific)
-								{
-									if(userIsExecutiveAdministrator())
-									{
-										echo "<p>As a TGC Admin you can control all clubs' information.</p>";
-										$combinedArray = getListOfUserClubAdministrativePermissions();
-									}
-									else
-									{
-										echo "<p>You are an administrator for the following clubs. Select which one you want to administrate:</p>";
-										//if((sizeof(getListOfUserCaptainPermissions()) > 0) && (sizeof(getListOfUserCoachPermissions()) > 0))
-											//$combinedArray = array_unique (array_merge (getListOfUserCaptainPermissions(), getListOfUserCoachPermissions())); //This looks ok but I need to order alphabetically with ksort??
-										//else
-										//ITS NOT WORKING FOR ASSOC ARRAY
-											$combinedArray = getListOfUserCaptainPermissions();
-										//echo "test";
-										//print_r($combinedarray);
-									}
-									if(sizeof($combinedArray)>0) //this needs to kick us out somehow if we somehow got to the page but don't have appropriate perms.
-									{
 										echo "<h2>Select the club and year you are managing:</h2>";
 										echo "<select id = 'selectClub' onchange = 'changeYearClub();'>";
-										//foreach (getListOfUserCaptainPermissions() AS $clubID=>$clubName)
-										foreach ($combinedArray AS $clubID=>$clubName)
-										{
-											echo "<option value = '".$clubID."'>".$clubName."</option>";
-										}
+											echo "<option selected disabled value = '0'>Select a club:</option>";
+											echo "<option value = '7126'>TGC</option>";
 										echo "</select><button onclick = 'changeYearClub();'>&#x21bb;</button><br/>";	
-										
-										
-									}
-									else
-									{
-										//$_SESSION['']; set to guest or something.
-										echo "You are not a team administrator.";
-									}
-								}
-								else
-								{
-									//$_SESSION['']; set to guest or something.
-									echo "You are not a team administrator.";
-								}						
+													
 						?>
 								<br/>
 								<select id = "selectYear" onchange = "changeYearClub();">
@@ -663,20 +653,24 @@ function getPeepDeets()
 								</select><br/>
 								<br/>
 								<input size = "2" disabled id = "newWId"/>
-								<input size = "15" type = "text" id = "newWLast" autocomplete="off" name = "g234798tyh" placeholder = ""/>
-								<input size = "12" type = "text" id = "newWFirst" autocomplete="off" placeholder = "First Name"/>
-								<input size = "3" type = "text" id = "newWMiddle"  autocomplete="off" placeholder = "Middle" />
+								<input size = "15" type = "text" id = "newWLast" autocomplete = "off" placeholder = "Last Name"/>
+								<input size = "12" type = "text" id = "newWFirst" placeholder = "First Name"/>
+								<input size = "3" type = "text" id = "newWMiddle"  placeholder = "Middle" />
 								<select id = "newWGender">
 									<option selected disabled>Select Gender</option>
 									<option value = "1">F</option>
 									<option value = "2">M</option>
 								</select>
-								<input size = "15" type = "text" id = "newWPhone"  autocomplete="off" placeholder = "Phone" />
-								<input size = "25" type = "text" id = "newWEmail"  autocomplete="off" placeholder = "Email" /><br/>
+								<select id = "newWStatus">
+									<option selected disabled value ="">Student Status</option>
+									<option value = "Student">Student</option>
+									<option value = "Part-Time Student">Part-Time Student</option>
+									<option value = "Non-Student">Non-Student</option>
+								</select>
+								<input size = "15" type = "text" id = "newWPhone"  placeholder = "Phone" />
+								<input size = "25" type = "text" id = "newWEmail"  placeholder = "Email" /><br/>
 								<button id = "addPerson" onclick ="affiliatePerson();">Affiliate person to season</button> <button id = "addNewPerson" onclick ="addNewPerson();">Add New Person to Database</button> <!--button id = "editPersonW">Name Update</button--><br/>
-								<p>Registration gives registration access. Administrate gives access to this page and the Meet Hosting pages.</p>
-								
-								<button onclick = '$("#teamTable").tabulator("download", "csv", "teamInfo.csv");'>Download</button><br/>
+								<p>Super Admin gives access to *this* page. TGC Admin gives typical all-club-admin access.</p>
 								<div id="teamTable"></div> <br>
 								
 								<script type="text/javascript">
@@ -685,22 +679,29 @@ function getPeepDeets()
 										paginationSize:30,
 										layout: "fitDataFill",
 										columns:[
-											{title:"",		 		field:"Remove", 	formatter:"buttonCross", cellClick:function(e,cell){ cell.getRow().delete();}	},
+											{title:"",		 		field:"Remove", 	formatter:"buttonCross", cellClick:function(e,cell){cell.getRow().delete();}	},
 											{title:"ID", 			field:"ID", 			visible:false},
 											{title:"PermID", 		field:"PermissionID", 	visible:false},
 											{title:"First",	 		field:"FirstName",		editor: "input",	 	formatter:"plaintext",	sorter:"string"	},
 											{title:"Middle", 		field:"MiddleName",		editor: "input",	 	formatter:"plaintext",	sorter:"string"	},
 											{title:"Last", 			field:"LastName",		editor: "input",	 	formatter:"plaintext",	sorter:"string"	},
 											{title:"Phonetic/Nick", field:"Phonetic",		editor: "input",	 	formatter:"plaintext",	sorter:"string"	},
-											{title:"M/F", 			field:"Gender",			mutator:genderMutator, 	formatter:"plaintext",	sorter:"string", editor:"select", editorParams:{values:{"2":"M","1":"F"}}},
+											//{title:"M/F", 			field:"Gender",			mutator:genderMutator, 	formatter:"plaintext",	sorter:"string", editor:"select", editorParams:{values:{"2":"M","1":"F"}}},
 											{title:"Email",			field:"Email",	 		editor: "input",	 	formatter:"plaintext"},
 											{title:"Phone", 		field:"Phone",	 		editor: "input",	 	formatter:"plaintext"},
-											{title:"Registration",	field:"Registration",	formatter:"tickCross", sorter:"boolean", cellClick:function(e, cell){cell.setValue(!cell.getValue());}	},
-											{title:"Meet Scoring",	field:"Scoring",		formatter:"tickCross", sorter:"boolean", cellClick:function(e, cell){cell.setValue(!cell.getValue());}	},
-											{title:"Administrate", 	field:"Administrate",	formatter:"tickCross", sorter:"boolean", cellClick:function(e, cell){cell.setValue(!cell.getValue());}	},
-											{title:"Type", 			field:"Type",			formatter:"plaintext",	sorter:"string", editor:"select", editorParams:{values:["Gymnast","Coach","School Staff","Gym Staff"]}},
+											{title:"Super Admin",	field:"TGCSuperAdmin",		formatter:"tickCross", sorter:"boolean", cellClick:function(e, cell){cell.setValue(!cell.getValue());}	},
+											{title:"TGC Admin",	field:"TGCAdmin",		formatter:"tickCross", sorter:"boolean", cellClick:function(e, cell){cell.setValue(!cell.getValue());}	},
+											{title:"Emulate", 		field:"Emulate",		formatter:"tickCross", sorter:"boolean", cellClick:function(e, cell){cell.setValue(!cell.getValue());}	},
+											//{title:"Create<br>Waiver", 		field:"Waiver",		formatter:"tickCross", sorter:"boolean", cellClick:function(e, cell){cell.setValue(!cell.getValue());}	},
+											//{title:"Issue<br>Refund", 		field:"Refund",		formatter:"tickCross", sorter:"boolean", cellClick:function(e, cell){cell.setValue(!cell.getValue());}	},
+											//{title:"MembershipPaid", field:"MembershipPaid", 	visible:false},
+											//{title:"Membership Paid?", field:"Membership",			formatter:membershipButton, 	sorter:"string"},
 										],
 										index:"ID",
+										rowDeleted:function(row){
+											var data = row.getData();
+											removeClubAffiliation(data.Season,data.ID);
+										},
 										cellEdited:function(cell){
 											//This callback is called any time a cell is edited
 											var row = cell.getRow();
@@ -738,17 +739,25 @@ function getPeepDeets()
 											{
 												savePersonPhone(data.ID,data.Phone);
 											}
-											else if(cell.getField() == "Registration")
+											else if(cell.getField() == "TGCAdmin")
 											{
-												savePersonPermission(data.ID,"Registration",data.Registration);
+												savePersonPermission(data.ID,"TGCAdmin",data.TGCAdmin);
 											}
-											else if(cell.getField() == "Scoring")
+											else if(cell.getField() == "Emulate")
 											{
-												savePersonPermission(data.ID,"MeetScoring",data.Scoring);
+												savePersonPermission(data.ID,"TGCEmulation",data.Emulate);
 											}
-											else if(cell.getField() == "Administrate")
+											else if(cell.getField() == "TGCSuperAdmin")
 											{
-												savePersonPermission(data.ID,"Administrate",data.Administrate);
+												savePersonPermission(data.ID,"TGCSuperAdmin",data.TGCSuperAdmin);
+											}
+											else if(cell.getField() == "Refund")
+											{
+												savePersonPermission(data.ID,"IssueRefund",data.Refund);
+											}
+											else if(cell.getField() == "Waiver")
+											{
+												savePersonPermission(data.ID,"CreateWaiver",data.Waiver);
 											}
 											else if(cell.getField() == "Type")
 											{
@@ -804,7 +813,7 @@ function getPeepDeets()
 							}
 							else
 							{
-								echo "<p>You are not a team administrator. Please log in.</p>";
+								echo "<p>You are not an TGC super administrator. Please log in.</p>";
 								display_login();
 								
 							}

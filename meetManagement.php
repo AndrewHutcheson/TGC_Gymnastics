@@ -16,7 +16,7 @@ function getMeets()
 		FROM
 			Events_Meets
 		WHERE
-			Season >= 2018 AND
+			Season >= 201 AND
 			Scored = 1
 		Order By 
 			Date
@@ -38,6 +38,35 @@ function getMeets()
 <script type="text/javascript" src="tabulator-master/dist/js/jquery_wrapper.js"></script>
 
 <script>
+
+	$(document).ready(function() {
+		getMeets();
+	});
+
+	function getMeets()
+	{
+		$.ajax({
+					type: 'POST',
+					url: "meetAjax.php",
+					async: false,
+					data: {
+						getMeetsForWhichUserIsAdmin:1
+					},
+					dataType: 'json',
+					success: function (data) {
+						$('#meetSelectMenu').empty();
+						$('#meetSelectMenu').append("<option selected disabled value = ''>Select a Meet</option>"); 
+						data.forEach(function(datum) {
+							$('#meetSelectMenu').append("<option value=" + datum['ID'] + ">" + datum['Name'] + "</option>");
+						});
+					},
+					error: function (textStatus, errorThrown) {
+						console.log(textStatus);
+						console.log(errorThrown);
+						alert("Error downloading meet list. You probably don't have any meets created yet.");
+					}
+				});
+	}
 
 	function updateTeamOptions(iRotation, iCompetition, iInstitution, iDesignation, rowID)
 	{
@@ -182,13 +211,13 @@ function getMeets()
 								$stmtMeets = getMeets();
 								echo "<select id = 'meetSelectMenu' onchange = 'loadMeetData();'>
 									<option selected disabled>Select a meet:</option>";
-								while($row = $stmtMeets->fetch(PDO::FETCH_ASSOC))
+								/*while($row = $stmtMeets->fetch(PDO::FETCH_ASSOC))
 								{
 									//if(isset($temp[$row['Hostclub']]))
 									{
 										echo "<option value = '".$row['ID']."'>".$row['MeetName']."(".$row['Date'].")</option>";
 									}
-								}
+								}*/
 								echo "</select><button onclick = 'loadMeetData();'>&#x21bb;</button><br/><br/>";
 								
 								?>

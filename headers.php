@@ -1,4 +1,5 @@
 <?php session_start();?>
+<?php require_once("auth.php");?>
 <!DOCTYPE HTML>
 <html>
 	<head>
@@ -57,6 +58,24 @@
 				padding: 4px 4px 0px 4px !important;
 				line-height: normal !important;
 			}
+			#alerts{
+				position: fixed;
+				top: 0px;
+				left:25%;
+				width: 50%;
+				padding: 10px;
+				background-color: #FF9494;
+				z-index: 40000;
+				box-shadow: #000 0 2px 18px;
+				<?php
+					if(isUserCurrentlyEmulating())
+					{
+						echo "display:block;";
+					}
+					else
+						echo "display:none;";
+				?>
+			}
 			
 		</style>
 	</head>
@@ -79,3 +98,12 @@
 	
 	<!--Instagram-->
 	<!--script>(function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];g.src="//x.instagramfollowbutton.com/follow.js";s.parentNode.insertBefore(g,s);}(document,"script"));</script-->
+
+	<?php 
+	if(isset($_REQUEST['showerrors']))
+	{
+		ini_set('display_errors', 1);
+		ini_set('display_startup_errors', 1);
+		error_reporting(E_ALL);
+	}
+	?>

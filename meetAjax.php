@@ -260,10 +260,10 @@ function getMeetsForWhichUserIsAdmin()
 	else
 	{
 		$season = "Season >= " . getCurrentSeason() . " AND ";
-		$hostClub = "AND HostClub IN (Select InstitutionID From Identifiers_Affiliations Where PersonID = ? And Year = " . getCurrentSeason() . ")";
+		$hostClub = "AND HostClub IN (Select ClubID From Identifiers_Affiliations Where PersonID = ? And Season = " . getCurrentSeason() . ")";
 	}
 	
-	$stmtMeets= $conn->prepare("
+	$sql= "
 		SELECT
 			ID, 
 			Concat(MeetName, '(', Date,')') As Name
@@ -275,8 +275,15 @@ function getMeetsForWhichUserIsAdmin()
 			".$hostClub." 
 		Order By
 			Date Desc
-		;");
+		;";
 		
+	$stmtMeets= $conn->prepare($sql);
+	if(!userIsExecutiveAdministrator())
+	{
+		$personID = getUserID();
+		$stmtMeets->bindParam(1, $personID, PDO::PARAM_INT);	
+	}	
+
 	$stmtMeets->execute();
 	
 	$count = 0;

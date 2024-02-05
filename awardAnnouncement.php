@@ -242,44 +242,6 @@ class personMAG
 	}
 }
 
-function sortTeamTies($a, $b)
-{
-	if($a->teamScoreAA < $b->teamScoreAA)
-		return true;
-	elseif($b->teamScoreAA < $a->teamScoreAA)
-		return false;
-	else
-	{
-		if($a->firstScore < $b->firstScore)
-			return true;
-		elseif($b->firstScore < $a->firstScore)
-			return false;
-		else
-		{
-			if($a->secondScore < $b->secondScore)
-				return true;
-			elseif($b->secondScore < $a->secondScore)
-				return false;
-			else
-			{
-				if($a->thirdScore < $b->thirdScore)
-					return true;
-				elseif($b->thirdScore < $a->thirdScore)
-					return false;
-				else
-				{
-					if($a->fourthScore < $b->fourthScore)
-						return true;
-					elseif($b->fourthScore < $a->fourthScore)
-						return false;
-					else //A TRUE TIE. TBD.
-						return true;
-				}
-			}
-		}
-	}
-}
-
 function sortWagTies($a, $b)
 {
 	if($a->AATie < $b->AATie)
@@ -310,29 +272,17 @@ function sortWagTies($a, $b)
 						return true;
 					elseif($b->fourthScore < $a->fourthScore)
 						return false;
-					else
+					else //a true tie
 					{
-						if($a->fifthScore < $b->fifthScore)
-							return true;
-						elseif($b->fifthScore < $a->fifthScore)
-							return false;
-						else
-						{
-							if($a->sixthScore < $b->sixthScore)
-								return true;
-							elseif($b->sixthScore < $a->sixthScore)
-								return false;
-							else //TBD, A TRUE TIE
-							{
-								return true;
-							}
-						}
+						return true;
 					}
 				}
 			}
 		}
 	}
 }
+
+
 
 function sortMagTies($a, $b)
 {
@@ -686,6 +636,27 @@ function displayScript($meetID,$places)
 			echo "<span style = 'color:red'>----pause, and let a picture be taken.----</span><br/>";
 		}
 	}
+
+	foreach($competitions as $competition)
+	{
+		$scores = getFinalTeamScoreSummary($competition['ID']);
+
+		if(sizeOf($scores) > 0)
+		{
+			echo "<h1>In the " . $competition['Name'] . " competition :</h1>";
+			arsort($scores);
+			$scores = array_reverse($scores);
+			
+			$places2 = sizeOf($scores);
+
+			foreach($scores as $club=>$score)
+			{
+				if($places2 <= $places)
+				echo "In " . ordinal($places2) . " place, " . $club . " with a score of " . $score . "<br/>";
+				$places2--;
+			}
+		}
+	}
 	
 }
 
@@ -864,4 +835,73 @@ function sortPeopleOnAnEvent($event,$EventName,$competitionID,$placesToGo)
 		$count++;
 	}	
 }
+
+function getFinalTeamScoreSummary($competitionID)
+{
+	global $conn;
+	$error = false;
+	$returnStuff = array();
+	
+		$sql = "
+				SELECT
+					coalesce(Identifiers_Institutions.AltName,Identifiers_Institutions.Name) As InstitutionName,
+					Identifiers_Institutions.ID As InstitutionID,
+					Events_Teams.Name As CompetitionName,
+					Events_Competitions.ID As CompetitionID,
+					Events_Competitions.numPerTeamScore,
+					TeamDesignation
+				FROM
+					Events_Teams,
+					Identifiers_Institutions,
+					Events_Competitions
+				WHERE
+					Events_Teams.InstitutionID = Identifiers_Institutions.ID AND
+					Events_Competitions.ID = Events_Teams.CompetitionID AND
+					Events_Competitions.ID = ? AND
+					Events_Teams.TeamScore = 1
+				;";
+				
+		$stmt = $conn->prepare($sql);
+		
+		$stmt->bindParam(1, $competitionID, PDO::PARAM_INT);
+		
+		$stmt->execute();
+		
+		while($row = $stmt->fetch(PDO::FETCH_ASSOC))
+		{
+			$compID = $competitionID;
+			$instID = $row['InstitutionID'];
+			$compName = $row['CompetitionName'];
+			$competitionLimit = $row['numPerTeamScore'];
+			$designation = $row['TeamDesignation'];
+			
+			//do not remove this comment until the db has manually been retroactively updated for years 2019 and prior.
+			/*$competitionLimit = 3;
+			if(strpos($compName, 'Level 8') != false)
+			{
+				$competitionLimit = 4;
+			}*/
+			
+			$MFX = getTeamScoreForEvent($instID, $designation, $compID, 1, $competitionLimit);
+			$MPH = getTeamScoreForEvent($instID, $designation, $compID, 2, $competitionLimit);
+			$MSR = getTeamScoreForEvent($instID, $designation, $compID, 3, $competitionLimit);
+			$MVT = getTeamScoreForEvent($instID, $designation, $compID, 4, $competitionLimit);
+			$MPB = getTeamScoreForEvent($instID, $designation, $compID, 5, $competitionLimit);
+			$MHB = getTeamScoreForEvent($instID, $designation, $compID, 6, $competitionLimit);
+			$WVT = getTeamScoreForEvent($instID, $designation, $compID, 8, $competitionLimit);
+			$WUB = getTeamScoreForEvent($instID, $designation, $compID, 9, $competitionLimit);
+			$WBB = getTeamScoreForEvent($instID, $designation, $compID, 10, $competitionLimit);
+			$WFX = getTeamScoreForEvent($instID, $designation, $compID, 11, $competitionLimit);
+			
+			$MAA = $MFX + $MPH + $MSR + $MVT + $MPB + $MHB;
+			$WAA = $WVT + $WUB + $WBB + $WFX;
+			$AAA = $MAA + $WAA;
+			
+			$returnStuff[$row['InstitutionName'] . ' ' . $row['TeamDesignation']] = $AAA;
+
+		}
+
+	return $returnStuff;
+}
+
 ?>

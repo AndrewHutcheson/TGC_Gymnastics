@@ -1,6 +1,6 @@
-<?php include("headers.php"); ?>
-<?php include("auth.php"); ?>
-<?php include("globals.php"); ?>
+<?php require_once("headers.php"); ?>
+<?php require_once("auth.php"); ?>
+<?php require_once("globals.php"); ?>
 
 	<body class="left-sidebar">
 
@@ -29,9 +29,176 @@
 										Session 1 (warmup at 9:25) - Collegiate Level 6 and Collegiate Level 8<br/>
 										Session 2 (warmup at 1:30) - Collegiate Level 9, all Open gymnasts, all Men<br/>
 									</p>
-								</article>
+								</article-->
+
 							<!-- Post -->
-								
+								<article id = "2024" class="box post post-excerpt">
+									<header>
+										<h2><a href="#">2024 Meet Schedule</a></h2>
+									</header>
+									<p style = 'color:green'>
+										Green denotes a non-TGC hosted competition to which TGC teams are in attendance.
+									</p>
+									<p>
+										<table>
+											<tr>
+												<th>Date</th>
+												<th>Meet</th>
+												<th>Location</th>
+												<th>Time/Results</th>
+											</tr>
+											<tr>
+												<td>27 Jan</td>
+												<td>Southside Showdown</td>
+												<td>Rockwall Texas</td>
+												<td></td>
+											</tr>
+											<tr>
+												<td>3 Feb</td>
+												<td>UT Austin Invitational</td>
+												<td>Austin, TX</td>
+												<td></td>
+											</tr>
+											<tr>
+												<td>10 Feb</td>
+												<td>Baylor (Women only)</td>
+												<td>Waco, TX</td>
+												<td></td>
+											</tr>
+											<tr>
+												<td>24 Feb</td>
+												<td>University of Houston Invitational</td>
+												<td>Houston, TX</td>
+												<td></td>
+											</tr>
+											<tr>
+												<td>2 Mar</td>
+												<td>Texas Tech Invitational</td>
+												<td>Houston, TX</td>
+												<td></td>
+											</tr>
+											<tr>
+												<td>23 Mar</td>
+												<td>Conference Championship @ Texas A&M</td>
+												<td>College Station, TX</td>
+												<td></td>
+											</tr>
+											<tr style = 'color:green'>
+												<td>Apr 10-13</td>
+												<td>NAIGC National Championships</td>
+												<td>Albequerque, NM</td>
+												<td><a href = 'https://naigc.org/'>Info</a></td>
+											</tr>
+										</table>
+									</p>
+									</article>
+							
+								<!-- Post -->
+									<article id = "2023" class="box post post-excerpt">
+									<header>
+										<h2><a href="#">2023 Meet Schedule</a></h2>
+									</header>
+									<p style = 'color:green'>
+										Green denotes a non-TGC hosted competition to which TGC teams are in attendance.
+									</p>
+									<p>
+										<table>
+											<tr>
+												<th>Date</th>
+												<th>Meet</th>
+												<th>Location</th>
+												<th>Time/Results</th>
+											</tr>
+											<tr>
+												<td>4 Feb Feb</td>
+												<td>UT Austin Invitational</td>
+												<td>Austin, TX</td>
+												<td></td>
+											</tr>
+											<tr style = 'color:green'>
+												<td>11 Feb Feb</td>
+												<td>Metroplex Challenge</td>
+												<td>Dallas, TX</td>
+												<td></td>
+											</tr>
+											<tr>
+												<td>18 Feb</td>
+												<td>University of Houston Invitational</td>
+												<td>Houston, TX</td>
+												<td></td>
+											</tr>
+											<tr>
+												<td>25 Mar</td>
+												<td>Conference Championship @ Texas A&M</td>
+												<td>College Station, TX</td>
+												<td></td>
+											</tr>
+											<tr style = 'color:green'>
+												<td>30 Mar - 1 Apr</td>
+												<td>NAIGC National Championships</td>
+												<td>Memphis, TN</td>
+												<td><a href = 'https://naigc.org/event/2023-nationals/'>Info</a></td>
+											</tr>
+										</table>
+									</p>
+								</article>
+
+							<!-- Post -->
+								<article id = "2022" class="box post post-excerpt">
+									<header>
+										<h2><a href="#">2022 Meet Schedule</a></h2>
+									</header>
+									<p style = 'color:green'>
+										Green denotes a non-TGC hosted competition to which TGC teams are in attendance.
+									</p>
+									<p>
+										<table>
+											<tr>
+												<th>Date</th>
+												<th>Meet</th>
+												<th>Location</th>
+												<th>Time/Results</th>
+											</tr>
+											<tr>
+												<td>16 Oct</td>
+												<td>TGC Fall Clinic</td>
+												<td>San Antonio, TX</td>
+												<td></td>
+											</tr>
+											<tr>
+												<td>5 Feb</td>
+												<td>UT Austin Invitational</td>
+												<td>Austin, TX</td>
+												<td><a href = "results.php">Results</a></td>
+											</tr>
+											<tr>
+												<td>26 Feb</td>
+												<td>Texas Tech Invitational</td>
+												<td>Lubbock, TX</td>
+												<td><a href = "results.php">Results</a></td>
+											</tr>
+											<tr>
+												<td>5 Mar</td>
+												<td>University of Houston Invitational</td>
+												<td>Houston, TX</td>
+												<td><a href = "results.php">Results</a></td>
+											</tr>
+											<tr>
+												<td>26 Mar</td>
+												<td>Conference Championship @ Texas A&M</td>
+												<td>College Station, TX</td>
+												<td><a href = "results.php">Results</a></td>
+											</tr>
+											<tr style = 'color:green'>
+												<td>16-18 Apr</td>
+												<td>NAIGC National Championships</td>
+												<td>Milwaukee, WI</td>
+												<td><a href = 'https://naigc.org/event/2022-nationals/'>Info</a></td>
+											</tr>
+										</table>
+									</p>
+								</article>	
+
 							<!-- Post -->
 								<article id = "2020" class="box post post-excerpt">
 									<header>

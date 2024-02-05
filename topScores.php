@@ -80,6 +80,8 @@
 								<option value = "1">Women's Level 9</option>
 								<option value = "3">Women's Level 8</option>
 								<option value = "5">Women's Level 6</option>
+								<option value = "15">Women's Xcel Platinum</option>
+								<option value = "14">Women's Xcel Silver</option>
 								<option value = "2">Men's NCAA</option>
 								<option value = "6">Men's Level 9</option>
 							</select>

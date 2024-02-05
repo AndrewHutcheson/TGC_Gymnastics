@@ -114,6 +114,36 @@ function getliveScores($meet,$numLimit,$Discipline)
 	return $returnArray;
 }
 
+function isScoreVerified($person, $competition, $event)
+{
+	global $conn;
+	$sql = "Select 
+				Verified
+			From 
+				Events_Routines
+			WHERE
+				PersonID = ? AND
+				CompetitionID = ? AND
+				Apparatus = ?
+			";
+
+	$stmt = $conn->prepare($sql);
+
+	$stmt->bindParam(1, $person, PDO::PARAM_INT);	
+	$stmt->bindParam(2, $competition, PDO::PARAM_INT);		
+	$stmt->bindParam(3, $event, PDO::PARAM_INT);
+
+	$stmt->execute();
+
+	while($row = $stmt->fetch(PDO::FETCH_ASSOC))
+	{
+		if($row['Verified'] == 1)
+			return true;
+	}
+
+	return false;
+}
+
 if(isset($_REQUEST['updatePersonScore']))
 {
 	$person = $_REQUEST['person'];
@@ -121,12 +151,24 @@ if(isset($_REQUEST['updatePersonScore']))
 	$event = $_REQUEST['event'];
 	$competition = $_REQUEST['competition'];
 	
-	updatePersonScore($person, $score, $competition, $event);
-	
-	if(isset($_REQUEST['startValue']))
+	if(!isScoreVerified($person, $competition, $event))
 	{
-		$startValue = $_REQUEST['startValue'];
-		updatePersonStartValue($person, $startValue, $competition, $event); //todo: re-enable return array and combine with this one.
+		updatePersonScore($person, $score, $competition, $event);
+
+		if(isset($_REQUEST['startValue']))
+		{
+			$startValue = $_REQUEST['startValue'];
+			updatePersonStartValue($person, $startValue, $competition, $event); //todo: re-enable return array and combine with this one.
+		}
+	}
+	else
+	{
+		$return_arr = array(
+			'Error' => true,
+			'Message'=>"Error, score already verified."
+			);
+
+		echo json_encode($return_arr);
 	}
 }
 
@@ -841,6 +883,18 @@ function getPersonSVForEvent($personID,$eventID,$competitionID)
 	return $startValue;
 }
 
+if(isset($_REQUEST['getAllScoresForMeetEventVerification']))
+{
+	$iInstitution = $_REQUEST['institutionID'];
+	$iMeet = $_REQUEST['meetID'];
+	$iEvent = $_REQUEST['eventID'];
+	$iDiscipline = $_REQUEST['DisciplineID'];
+	
+	$return_arr = getEventScores($iMeet, $iInstitution, $iEvent, $iDiscipline,true);
+	
+	echo json_encode($return_arr);
+}
+
 if(isset($_REQUEST['getAllScoresForMeetEvent']))
 {
 	$iInstitution = $_REQUEST['institutionID'];
@@ -848,12 +902,12 @@ if(isset($_REQUEST['getAllScoresForMeetEvent']))
 	$iEvent = $_REQUEST['eventID'];
 	$iDiscipline = $_REQUEST['DisciplineID'];
 	
-	$return_arr = getEventScores($iMeet, $iInstitution, $iEvent, $iDiscipline);
+	$return_arr = getEventScores($iMeet, $iInstitution, $iEvent, $iDiscipline, false);
 	
 	echo json_encode($return_arr);
 }
 
-function getEventScores($meetID, $institutionID, $event, $Discipline)
+function getEventScores($meetID, $institutionID, $event, $Discipline, $verified)
 {
 	
 	$theArray = array();
@@ -874,41 +928,43 @@ function getEventScores($meetID, $institutionID, $event, $Discipline)
 					concat(
 						Constraints_MeetDivisions.Name, ' ',
 						Constraints_MeetLevels.DisplayName, ' ',
-						Constraints_Disciplines.DisciplineShortName
+						Constraints_Disciplines.DisciplineShortName, ' ',
+						Constraints_MeetParts.DisplayName
 					 ) AS CompetitionName,
-					LatestDateRegistered,
-					RegPersonName,
-					MAX(Fee) As theFee,
-					coalesce(Identifiers_Institutions.Abbr,Identifiers_Institutions.AltName,Identifiers_Institutions.Name) AS Institution
+					coalesce(Identifiers_Institutions.Abbr,Identifiers_Institutions.AltName,Identifiers_Institutions.Name) AS Institution,
+					Verified,
+					ApparatusTeamScore
 				FROM
 					Identifiers_People,
 					Identifiers_Institutions,
 					Events_Routines,
 					Events_Competitions,
 					Constraints_MeetDivisions,
+					Constraints_MeetParts,
 					Constraints_MeetLevels,
-					Constraints_Disciplines,
-					(Select MAX(RegDate) AS LatestDateRegistered, PersonID, CompetitionID FROM Events_Routines GROUP BY PersonID, CompetitionID) alias,
-					(Select ID, Concat(LastName, ', ', FirstName) AS RegPersonName FROM Identifiers_People) alias2
+					Constraints_Disciplines
 				WHERE
 					Identifiers_Institutions.ID = Events_Routines.ClubID AND
-					Events_Routines.CompetitionID = alias.CompetitionID AND
-					Events_Routines.PersonID = alias.PersonID AND
-					Events_Routines.Registered = 1 AND
 					Events_Routines.Apparatus = ? AND
-					Events_Routines.PersonID = Identifiers_People.ID AND ";
+					Events_Routines.PersonID = Identifiers_People.ID AND 
+					Events_Competitions.Part IN (1,2,3) AND ";
 			
 		if($institutionID == "false")
 			$sql .=	"Events_Routines.ClubID IN (".$newInstitutionID.") AND ";
 		else
 			$sql .=	"Events_Routines.ClubID IN (?) AND ";
+
+		if($verified)
+			$sql .= "Events_Routines.Verified >= 0 AND ";
+		else
+			$sql .= "Events_Routines.Verified = 0 AND Events_Routines.Registered = 1 AND ";
 			
 			$sql .=	"Events_Routines.CompetitionID = Events_Competitions.ID AND
 					Events_Competitions.Division = Constraints_MeetDivisions.ID AND
 					Events_Competitions.Level = Constraints_MeetLevels.ID AND
 					Events_Competitions.Discipline = Constraints_Disciplines.ID AND
-					Events_Routines.CompetitionID IN (Select ID From Events_Competitions WHERE MeetID = ? AND Discipline = ?) AND
-					Events_Routines.RegisteredBy = alias2.ID
+					Events_Competitions.Part = Constraints_MeetParts.ID AND
+					Events_Routines.CompetitionID IN (Select ID From Events_Competitions WHERE MeetID = ? AND Discipline = ?)
 				GROUP BY
 					Events_Routines.PersonID,
 					Events_Routines.CompetitionID
@@ -951,7 +1007,8 @@ function getEventScores($meetID, $institutionID, $event, $Discipline)
 											'Team'=>$row['CompetitionName'],
 											"Score"=>$eventScore,
 											'SV'=>$eventSV,
-											'Institution'=>$row['Institution']
+											'Institution'=>$row['Institution'],
+											'Verified'=>$row['Verified']
 										);
 			}
 			//echo $count;
@@ -960,6 +1017,74 @@ function getEventScores($meetID, $institutionID, $event, $Discipline)
 		}
 	}
 	return $theArray;
+}
+
+if(isset($_REQUEST['updateVerification']))
+{
+	$person = $_REQUEST['person'];
+	$verified = $_REQUEST['verified'];
+	$event = $_REQUEST['event'];
+	$competition = $_REQUEST['competition'];
+	
+	updateScoreVerification($person, $verified, $competition, $event);
+}
+
+function updateScoreVerification($personID, $verified, $competition, $event)
+{
+	global $conn;
+	$error = false;
+	
+	//because of this bullshit https://bugs.php.net/bug.php?id=38546 https://stackoverflow.com/questions/10242312/pdo-bindvalue-with-pdoparam-bool-causes-statement-execute-to-fail-silently
+	if($verified=="true")
+		$verified = 1;
+	else
+		$verified = 0;
+
+	try
+	{
+		$conn->beginTransaction();
+		
+		$sql = "
+				UPDATE
+					Events_Routines
+				SET
+					Verified = ?
+				WHERE
+					PersonID = ? AND
+					CompetitionID = ? AND
+					Apparatus = ?
+				;";
+				
+		$stmt = $conn->prepare($sql);
+		
+		$stmt->bindParam(1, $verified, PDO::PARAM_INT);	
+		$stmt->bindParam(2, $personID, PDO::PARAM_INT);	
+		$stmt->bindParam(3, $competition, PDO::PARAM_INT);		
+		$stmt->bindParam(4, $event, PDO::PARAM_INT);		
+		
+		if(true)
+		{
+			$stmt->execute();
+		}
+	}
+	catch (PDOException $e)
+	{
+		$error = true;
+		$conn->rollBack();
+		echo 'ERROR: ' . $e->getMessage()."<br/>".var_dump($conn->errorInfo());
+	}
+	//I tried a finally block but php blew up.
+	if(!$error)
+	{
+		$conn->commit();
+	}
+
+		$return_arr = array(
+				'Error' => false,
+				'Message'=>"saved."
+				);
+
+	echo json_encode($return_arr);
 }
 
 if(isset($_REQUEST['getScoreHistoryForGymnast']))

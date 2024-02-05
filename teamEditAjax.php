@@ -34,12 +34,31 @@ if(userIsLoggedIn()) //quick way of parsing input since we already control who h
 		echo json_encode(affiliatePerson($personID,$institutionID,$season));
 	}
 
+	if(isset($_REQUEST['getOrgData']))
+	{
+		$institutionID = $_REQUEST['institutionID'];
+		$year = $_REQUEST['year'];
+
+		echo json_encode(getOrgData($institutionID,$year));
+	}
+
 	if(isset($_REQUEST['updateEmail']))
 	{
 		$ID = $_REQUEST['ID'];
 		$Email = $_REQUEST['Email'];
 
 		echo json_encode(updateEmail($ID,$Email));
+	}
+
+	if(isset($_REQUEST['updateTGCPermission']))
+	{
+		//oof we really need some kind of security check here...
+		$permission = $_REQUEST['updateTGCPermission'];
+		$permissionValue = $_REQUEST['permissionValue'];
+		$personID = $_REQUEST['personID'];
+		$season = $_REQUEST['Season'];
+
+		echo json_encode(updateTGCPermission($permission,$permissionValue,$personID,$season));
 	}
 
 	if(isset($_REQUEST['updatePhone']))
@@ -217,6 +236,109 @@ function updateEmail($ID,$Email)
 	return $return_arr;
 }
 
+function updateTGCPermission($permission,$permissionValue,$personID,$season)
+{
+	global $conn;
+	$error = false;
+	$errorMsg = "";
+	
+	//this isn't exactly superfluous... it was a cheap way of doing input sanitization and renaming on $permission.
+	if($permission == "TGCSuperAdmin")
+	{
+		$permission = "TGCSuperAdmin";
+	}
+	elseif($permission == "TGCEmulation")
+	{
+		$permission = "TGCEmulation";
+	}
+	elseif($permission == "TGCAdmin")
+	{
+		$permission = "TGCAdmin";
+	}
+	elseif($permission == "TGCEmulation")
+	{
+		$permission = "TGCEmulation";
+	}
+	elseif($permission == "IssueRefund")
+	{
+		$permission = "IssueRefund";
+	}
+	elseif($permission == "CreateWaiver")
+	{
+		$permission = "CreateWaiver";
+	}
+	else
+	{
+		exit;
+	}
+	
+	if($permissionValue=="false") //because of this bullshit https://bugs.php.net/bug.php?id=38546 https://stackoverflow.com/questions/10242312/pdo-bindvalue-with-pdoparam-bool-causes-statement-execute-to-fail-silently
+	{
+		$permissionValue = 0;
+	}
+	else
+	{
+		$permissionValue = 1;
+	}
+	
+	try
+	{
+		#if permission exists, then delete it
+		#else insert it.
+		if($permissionValue == 1)
+		{		
+			$sql = "INSERT INTO
+					Identifiers_Permissions(Season,PersonID,PermissionName,PermissionValue)
+					Values(?,?,?,?)
+				";
+			$stmt = $conn->prepare($sql);
+			$stmt->bindParam(1, $season, PDO::PARAM_INT, 4);
+			$stmt->bindParam(2, $personID, PDO::PARAM_INT, 10);
+			$stmt->bindParam(3, $permission, PDO::PARAM_STR, 100);
+			$stmt->bindParam(4, $permissionValue, PDO::PARAM_INT, 10);
+			$stmt->execute();
+		}
+		else
+		{
+			$sql = "Delete 
+					From
+						Identifiers_Permissions
+					Where
+						Season = ? AND
+						PersonID = ? AND
+						PermissionName Like ?
+					Limit 1
+				";
+			$stmt = $conn->prepare($sql);
+			$stmt->bindParam(1, $season, PDO::PARAM_INT, 4);
+			$stmt->bindParam(2, $personID, PDO::PARAM_INT, 10);
+			$stmt->bindParam(3, $permission, PDO::PARAM_STR, 100);
+			$stmt->execute();
+		}
+	}
+	catch (PDOException $e)
+	{
+		$error = true;
+		$errorMsg .= 'ERROR: ' . $e->getMessage()."<br/>".var_dump($conn->errorInfo());
+	}
+	if(!$error)
+	{
+		
+		$return_arr = array(
+							'Error' => false,
+							'Message'=>"success"
+							);	
+	}
+	else
+	{
+		$return_arr = array(
+							'Error' => true,
+							'Message'=>$errorMsg
+							);	
+	}
+	return $return_arr;
+}
+
 function updatePhone($ID,$Phone)
 {
 	global $conn;
@@ -272,13 +394,29 @@ function updatePermission($permission,$permissionValue,$personID,$season,$instit
 	$error = false;
 	$errorMsg = "";
 	
-	if($permission == "Registration")
+	if($permission == "TGCSuperAdmin")
+	{
+		$permission = "TGCCSuperAdmin";
+	}
+	elseif($permission == "TGCEmulation")
+	{
+		$permission = "TGCEmulation";
+	}
+	elseif($permission == "Registration")
 	{
 		$permission = "Registration";
 	}
 	elseif($permission == "Administrate")
 	{
 		$permission = "InstitutionAdmin";
+	}
+	elseif($permission == "MeetScoring")
+	{
+		$permission = "MeetScoring";
+	}
+	else
+	{
+		exit;
 	}
 	
 	if($permissionValue=="false") //because of this bullshit https://bugs.php.net/bug.php?id=38546 https://stackoverflow.com/questions/10242312/pdo-bindvalue-with-pdoparam-bool-causes-statement-execute-to-fail-silently
@@ -585,6 +723,7 @@ function getTeamData($institutionID,$year)
 			$person = $row['ID'];
 			$registration = canUserRegisterForClub($person,$institutionID,$year);
 			$administrate = isUserClubAdmin($person,$institutionID,$year);
+			$scoring = canUserMeetScore($person,$institutionID,$year);
 			
 			//fucking boolean vs t/f string vs 1/0
 			//if($registration == 1) { $registration = true; }
@@ -604,7 +743,8 @@ function getTeamData($institutionID,$year)
 										'Privacy'=>$row['Privacy'],
 										'Type'=>$row['Type'],
 										'Registration'=>$registration,
-										'Administrate'=>$administrate
+										'Administrate'=>$administrate,
+										'Scoring'=>$scoring
 									);
 			$count++;
 		}
@@ -624,6 +764,195 @@ function getTeamData($institutionID,$year)
 	{
 		return 'ERROR: ' . $e->getMessage()."<br/>".var_dump($conn->errorInfo());
 	}
+}
+
+function getOrgData($institutionID,$year)
+{
+	global $conn;
+	$error = false;
+	$return_array = array();
+	try
+	{
+		//$conn->beginTransaction();
+		
+		$sql = "
+				Select
+					Identifiers_Affiliations.ID AS AffiliationID,
+					Identifiers_People.ID AS ID,
+					FirstName,
+					LastName,
+					MiddleName,
+					Phonetic,
+					Birthday,
+					Gender,
+					Email,
+					Phone,
+					Type
+				From
+					Identifiers_People,
+					Identifiers_Affiliations
+				Where
+					Identifiers_People.ID = Identifiers_Affiliations.PersonID AND
+					Identifiers_Affiliations.ClubID = ? AND
+					Identifiers_Affiliations.Season = ?
+				;";
+				
+		$stmt = $conn->prepare($sql);
+		
+		$stmt->bindParam(1, $institutionID, PDO::PARAM_INT, 6);
+		$stmt->bindParam(2, $year, PDO::PARAM_INT, 4);
+		
+		$stmt->execute();
+		$count = 0;
+		
+		while($row = $stmt->fetch(PDO::FETCH_ASSOC))
+		{
+			$person = $row['ID'];
+			$TGCAdmin = isUserTGCAdmin($person,1,$year);
+			$emulate = canUserEmulate($person,1,$year);
+			$super = isUserTGCSuperAdmin($person,1,$year);
+			//$refund = canUserRefund($person,1,$year);
+			//$waiver = calogoutnUserCreateWaiver($person,1,$year);
+			
+			//fucking boolean vs t/f string vs 1/0
+			//if($registration == 1) { $registration = true; }
+			//if($administrate == 1) { $administrate = true; }
+			
+			$return_array[$count] = array(
+										'PermissionID'=>$row['AffiliationID'],
+										'ID'=>$row['ID'],
+										'FirstName'=>$row['FirstName'],
+										'LastName'=>$row['LastName'],
+										'MiddleName'=>$row['MiddleName'],
+										'Phonetic'=>$row['Phonetic'],
+										'Gender'=>$row['Gender'],
+										'Birthday'=>$row['Birthday'],
+										'Email'=>$row['Email'],
+										'Phone'=>$row['Phone'],
+										'TGCSuperAdmin'=>$super,
+										'TGCAdmin'=>$TGCAdmin,
+										'Emulate'=>$emulate
+										//'Refund'=>$refund,
+										//'Waiver'=>$waiver,
+										//'MembershipOptionsArray'=>getPersonMembershipOptions($person,$year)
+									);
+			$count++;
+		}
+	}
+	catch (PDOException $e)
+	{
+		$error = true;
+		//$conn->rollBack();
+		echo 'ERROR: ' . $e->getMessage()."<br/>".var_dump($conn->errorInfo());
+	}
+	if(!$error)
+	{
+		//$conn->commit();
+		return $return_array;
+	}
+	else
+	{
+		return 'ERROR: ' . $e->getMessage()."<br/>".var_dump($conn->errorInfo());
+	}
+}
+
+function isUserTGCAdmin($user,$club,$season)
+{
+	global $conn;
+		
+	$permissionFound = false;
+	
+	$query = "	SELECT 
+					* 
+				FROM
+					Identifiers_Permissions
+				Where 
+					PersonID = ? AND
+					PermissionName = 'TGCAdmin' AND
+					PermissionValue = ? AND
+					Season = ?
+			";
+	$stmt = $conn->prepare($query);
+	
+	$stmt->bindParam(1, $user, PDO::PARAM_STR, 100);
+	$stmt->bindParam(2, $club, PDO::PARAM_INT, 20);
+	$stmt->bindParam(3, $season, PDO::PARAM_INT, 4);
+	
+	$stmt->execute();
+	
+	//while($row = $stmt->fetch(PDO::FETCH_ASSOC))
+	if($stmt->rowCount() > 0)
+	{
+		$permissionFound = true;
+	}
+	
+	return $permissionFound;
+}
+
+function canUserEmulate($user,$club,$season)
+{
+	global $conn;
+		
+	$permissionFound = false;
+	
+	$query = "	SELECT 
+					* 
+				FROM
+					Identifiers_Permissions
+				Where 
+					PersonID = ? AND
+					PermissionName = 'TGCEmulation' AND
+					PermissionValue = ? AND
+					Season = ?
+			";
+	$stmt = $conn->prepare($query);
+	
+	$stmt->bindParam(1, $user, PDO::PARAM_STR, 100);
+	$stmt->bindParam(2, $club, PDO::PARAM_INT, 20);
+	$stmt->bindParam(3, $season, PDO::PARAM_INT, 4);
+	
+	$stmt->execute();
+	
+	//while($row = $stmt->fetch(PDO::FETCH_ASSOC))
+	if($stmt->rowCount() > 0)
+	{
+		$permissionFound = true;
+	}
+	
+	return $permissionFound;
+}
+
+function isUserTGCSuperAdmin($user,$club,$season)
+{
+	global $conn;
+		
+	$permissionFound = false;
+	
+	$query = "	SELECT 
+					* 
+				FROM
+					Identifiers_Permissions
+				Where 
+					PersonID = ? AND
+					PermissionName = 'TGCSuperAdmin' AND
+					PermissionValue = ? AND
+					Season = ?
+			";
+	$stmt = $conn->prepare($query);
+	
+	$stmt->bindParam(1, $user, PDO::PARAM_STR, 100);
+	$stmt->bindParam(2, $club, PDO::PARAM_INT, 20);
+	$stmt->bindParam(3, $season, PDO::PARAM_INT, 4);
+	
+	$stmt->execute();
+	
+	//while($row = $stmt->fetch(PDO::FETCH_ASSOC))
+	if($stmt->rowCount() > 0)
+	{
+		$permissionFound = true;
+	}
+	
+	return $permissionFound;
 }
 
 function isUserClubAdmin($user,$club,$season)
@@ -672,6 +1001,39 @@ function canUserRegisterForClub($user,$club,$season)
 				Where 
 					PersonID = ? AND
 					PermissionName = 'Registration' AND
+					PermissionValue = ? AND
+					Season = ?
+			";
+	$stmt = $conn->prepare($query);
+	
+	$stmt->bindParam(1, $user, PDO::PARAM_STR, 100);
+	$stmt->bindParam(2, $club, PDO::PARAM_INT, 20);
+	$stmt->bindParam(3, $season, PDO::PARAM_INT, 4);
+	
+	$stmt->execute();
+	
+	//while($row = $stmt->fetch(PDO::FETCH_ASSOC))
+	if($stmt->rowCount() > 0)
+	{
+		$permissionFound = true;
+	}
+	
+	return $permissionFound;
+}
+
+function canUserMeetScore($user,$club,$season)
+{
+	global $conn;
+		
+	$permissionFound = false;
+	
+	$query = "	SELECT 
+					* 
+				FROM
+					Identifiers_Permissions
+				Where 
+					PersonID = ? AND
+					PermissionName = 'MeetScoring' AND
 					PermissionValue = ? AND
 					Season = ?
 			";

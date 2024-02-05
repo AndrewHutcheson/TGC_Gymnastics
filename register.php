@@ -437,7 +437,7 @@ function userLoggedInNameParts(){
 		//i should maybe add some data validation here, or on the postscript
 		var canDo = true;
 		if((selfRegister) && (iPerson != <?php echo getUserID(); ?>))
-			canDo = false; //no more mr meeseeks
+			canDo = false;
 		if(canDo)
 		{
 			$.ajax({
@@ -637,7 +637,7 @@ function userLoggedInNameParts(){
 		//i should maybe add some data validation here, or on the postscript
 		var canDo = true;
 		if((selfRegister) && (iPerson != <?php echo getUserID(); ?>))
-			canDo = false; //no more mr meeseeks
+			canDo = false; 
 		if(canDo)
 		{
 			$.ajax({
@@ -652,8 +652,20 @@ function userLoggedInNameParts(){
 					designation: iDesignation
 				},
 				//dataType: 'json',
-				success: function () {
-					//alert("saved");
+				success: function (data) {
+					data = JSON.parse(data);
+					if((data.Error == true)||(data.Error == "true"))
+					{
+						//kickback 8 per event errror
+							//and uncheck the box.
+						alert(data.Message);
+						returnVal = false;
+					}
+					else
+					{
+						//alert("sucess");
+						returnVal = true;
+					}
 				},
 				error: function (textStatus, errorThrown) {
 					alert("error registering person");
@@ -752,14 +764,14 @@ function userLoggedInNameParts(){
 		//populate it
 		optionArray = [];
 		optionArray['A'] = "A";
-		optionArray['B'] = "B";
+		/*optionArray['B'] = "B";
 		optionArray['C'] = "C";
 		optionArray['D'] = "D";
 		optionArray['E'] = "E";
 		optionArray['F'] = "F";
 		optionArray['G'] = "G";
 		optionArray['H'] = "H";
-		optionArray['I'] = "I";
+		optionArray['I'] = "I";*/
 		
 		var opt;
 		for (var ID in optionArray){
@@ -1319,9 +1331,9 @@ function userLoggedInNameParts(){
 						Please make sure that it's actually a new person, as I have to manually go through and combine duplicate people.</p>
 						<p><b>Be careful about removing someone and then adding them back. If it is past the late deadline you may trigger a late fee. If you need to change their team, just click the team in their row and select from that menu.</b></p>
 							<input size = "2" disabled id = "newWId"/>
-								<input size = "15" type = "text" id = "newWLast" placeholder = "Last Name"/>
-								<input size = "12" type = "text" id = "newWFirst" placeholder = "First Name"/>
-								<input size = "3" type = "text" id = "newWMiddle"  placeholder = "Middle" />
+								<input size = "15" type = "text" id = "newWLast" name = "h76f875fvi" autocomplete="new-password" placeholder = ""/>
+								<input size = "12" type = "text" id = "newWFirst" autocomplete="new-password" placeholder = "First Name"/>
+								<input size = "3" type = "text" id = "newWMiddle" autocomplete="new-password" placeholder = "Middle" />
 							<div class = "12u">
 								<select style = "display:inline" id = "newPersonWTeam" onchange = "updateEventSelectMenu();">
 									<option selected disabled value = "">Select a meet from the menu above</option>
@@ -1329,14 +1341,14 @@ function userLoggedInNameParts(){
 								<select style = "display:inline" id = "newPersonWDesignation">
 									<option disabled>Team</option>
 									<option value = "A">A</option>
-									<option value = "B">B</option>
+									<!--option value = "B">B</option>
 									<option value = "C">C</option>
 									<option value = "D">D</option>
 									<option value = "E">E</option>
 									<option value = "F">F</option>
 									<option value = "G">G</option>
 									<option value = "H">H</option>
-									<option value = "I">I</option>
+									<option value = "I">I</option-->
 								</select>
 								<div style = "display:inline-block" id = "eventSelectMenu">
 									
@@ -1364,8 +1376,8 @@ function userLoggedInNameParts(){
 							<br/>
 							
 							
-								<!--h2>Clinic Registration:</h2>
-								<div id="clinicEventTable"></div-->
+								<h2>Clinic Registration:</h2>
+								<div id="clinicEventTable"></div>
 							
 							
 							
@@ -1386,10 +1398,10 @@ function userLoggedInNameParts(){
 								</p>
 							
 							
-							<h2>Step 4: Print your invoice:</h2>
+							<!--h2>Step 4: Print your invoice:</h2>
 							<p>
 								This feature is coming soon. Don't worry, we will email you your invoices in the meantime!
-							</p>
+							</p-->
 							
 							<script type="text/javascript">
 							
@@ -1434,7 +1446,7 @@ function userLoggedInNameParts(){
 										unregisterCompetitor(data.ID,data.CompetitionID,"");
 										loadRegData(3); //because groupBy is broken.
 									},	
-									cellEdited: function(cell){
+									cellEdited:function(cell){
 										
 										var row = cell.getRow();
 										var data = row.getData();
@@ -1475,7 +1487,7 @@ function userLoggedInNameParts(){
 											//if cell is one of the events then
 											var eventID = clinicEvents[cell.getField()];
 											//alert("eventID:"+eventID+"; cell.getValue(): "+cell.getValue());
-											savePersonRegistrationSingleEvent(data.ID,institution,data.CompetitionID,eventID,cell.getValue(),1,cell);
+											savePersonRegistrationSingleEvent(data.ID,institution,data.CompetitionID,eventID,cell.getValue(),3,true,cell);
 											//elseif cell is one of the eventcounts 
 											//savepersonregistrationSingleEventCounts(iPerson,iCompetition,iEvent,iEventRegistered)
 										}

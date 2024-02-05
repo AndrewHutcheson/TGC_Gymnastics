@@ -123,10 +123,9 @@ function getMeets()
 				<!-- Content -->
 					<div id="content">
 						<div class="inner">
-						<p>Hello, we are currently processing all the results of the past several years into our system. In the meantime you can find them at the schedule <a href = "schedule">page</a>.</p>
-						
+								<p>Enter Last Name:</p>
 								<input size = "2" disabled id = "newWId"/>
-								<input size = "25" type = "text" id = "newWLast" placeholder = "Last Name"/><br/>
+								<input size = "25" type = "text" id = "newWLast" placeholder = ""/><br/>
 								<br/>
 								<h2>Womens Competitions:</h2>
 								<div id="womenScoreTable"></div>

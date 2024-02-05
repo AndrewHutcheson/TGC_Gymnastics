@@ -381,18 +381,21 @@ class meetRegistration
 			
 		*/
 		$sql = "
-				Insert Into Log_Registration (CompetitionID, PersonID, TeamID, Action, ItemKey, Value, UserID) Values(?,?,?,?,?,?,?)
+				Insert Into Log_Registration (CompetitionID, PersonID, TeamID, Action, ItemKey, Value, UserID, EmulatorID) Values(?,?,?,?,?,?,?,?)
 				";
 				
 		$stmt = $conn->prepare($sql);
-		
-		$stmt->bindParam(1, $competitionID, PDO::PARAM_INT, 5);
-		$stmt->bindParam(2, $personID, PDO::PARAM_INT, 3);	
-		$stmt->bindParam(3, $teamID, PDO::PARAM_INT, 5);	
-		$stmt->bindParam(4, $action, PDO::PARAM_STR, 5);	
-		$stmt->bindParam(5, $key, PDO::PARAM_STR, 5);	
-		$stmt->bindParam(6, $value, PDO::PARAM_STR, 5);	
-		$stmt->bindParam(7, $_SESSION['userID'], PDO::PARAM_INT, 5);
+
+		$emulatorID = getemulatorUserID();
+
+		$stmt->bindParam(1, $competitionID, PDO::PARAM_INT);
+		$stmt->bindParam(2, $personID, PDO::PARAM_INT);	
+		$stmt->bindParam(3, $teamID, PDO::PARAM_INT);	
+		$stmt->bindParam(4, $action, PDO::PARAM_STR);	
+		$stmt->bindParam(5, $key, PDO::PARAM_STR);	
+		$stmt->bindParam(6, $value, PDO::PARAM_STR);	
+		$stmt->bindParam(7, $_SESSION['userID'], PDO::PARAM_INT);
+		$stmt->bindParam(8, $emulatorID, PDO::PARAM_INT);
 		
 		$stmt->execute();
 	}

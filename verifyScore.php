@@ -37,6 +37,30 @@ function getMeets()
 <script type="text/javascript" src="tabulator-master/dist/js/jquery_wrapper.js"></script>
 
 <script>
+	function toggleVerify(iperson, iverified, icompetition, ievent)
+	{
+		$.ajax({
+				type: 'POST',
+				url: "scoreAjax.php",
+				async: false,
+				data: {
+					updateVerification: 1,
+					person: iperson,
+					verified: iverified,
+					competition: icompetition,
+					event: ievent
+				},
+				dataType: 'json',
+				success: function (data) {
+					returnVal = true;
+				},
+				error: function (textStatus, errorThrown) {
+					//console.log(errorThrown);
+					alert("error saving verification");
+				}
+			});
+	}
+
 	function saveScore(iperson, iscore, icompetition, ievent, istartValue)
 	{
 		var doit = true;
@@ -71,18 +95,7 @@ function getMeets()
 				},
 				dataType: 'json',
 				success: function (data) {
-					responseData = data;
-					if((responseData.Error == true)||(responseData.Error == "true"))
-					{
-						alert(responseData.Message);
-						returnVal = false;
-						loadScoreData();
-					}
-					else
-					{
-						//alert("sucess");
-						returnVal = true;
-					}
+					returnVal = true;
 				},
 				error: function (textStatus, errorThrown) {
 					//console.log(errorThrown);
@@ -102,13 +115,15 @@ function getMeets()
 			var iDiscipline = 1;
 			if(iEvent < 7)
 				iDiscipline = 2;
+			if(iEvent > 16)
+				iDiscipline = 4;
 			
 			$.ajax({
 				type: 'POST',
 				url: "scoreAjax.php",
 				async: false,
 				data: {
-					getAllScoresForMeetEvent: 1,
+					getAllScoresForMeetEventVerification: 1,
 					eventID: iEvent,
 					DisciplineID: iDiscipline,
 					institutionID: false,
@@ -139,6 +154,8 @@ function getMeets()
 			loadScoreData(1);
 		else if(eventID <7)
 			loadScoreData(2);
+		else
+			loadScoreData(4);
 	}
 	
 </script>
@@ -203,9 +220,13 @@ function getMeets()
 									<option value = "9">Women's Bars</option>
 									<option value = "10">Women's Beam</option>
 									<option value = "11">Women's Floor</option>
+									<!--option disabled value = "12"></option>
+									<option value = "17">Trampoline</option>
+									<option value = "18">Double Mini</option>
+									<option value = "19">Synchronized Tramp</option>
+									<option value = "20">Rod Floor</option-->
 								</select>
 								<button onclick = 'buttonClicked();'>&#x21bb;</button><br/>
-								<br/>
 								
 								<h2>Competitors:</h2>
 								<div id="ScoreTable"></div>
@@ -216,13 +237,15 @@ function getMeets()
 										groupBy: "CompetitionID",
 										columns:[
 											{title:"ID", 			field:"ID", 		visible:false},
-											{title:"Name",	 		field:"Name",	 	sorter:"string", headerVertical:false, headerFilter:"input"},
+											{title:"Name",	 		field:"Name",	 	sorter:"string", headerFilter:"input"},
 											{title:"CompetitionID", field:"CompetitionID", 		visible:false},
 											{title:"DisciplineID", 	field:"DisciplineID", 	visible:false},
-											{title:"Competition",	field:"Team",	 	visible:false},
-											{title:"Team", 			field:"Institution", width:50, headerVertical:false, headerFilter:"input" 	},
+											{title:"Competition",	field:"Team",	 	headerFilter:"input"},
+											{title:"Team", 			field:"Institution", headerFilter:"input"	 	},
 											{title:"SV", 			field:"SV",	 	sorter:"number",	formatter:"money",	formatterParams:{precision:1},	editor:"number", width:60, headerVertical:true},
 											{title:"Score", 		field:"Score",	 	sorter:"number",	formatter:"money",	formatterParams:{precision:3},	editor:"number", width:63, headerVertical:true},
+											{title:"Verified",		field:"Verified",	formatter:"tickCross", cellClick:function(e, cell){cell.setValue(!cell.getValue());}, headerFilter:"input"},
+											//{title:"Team",		field:"TeamScore",	formatter:"tickCross", headerFilter:"input"}
 										],
 										index:"ID",
 										groupHeader:function(value, count, data, group){return data[0].Team;},
@@ -235,12 +258,11 @@ function getMeets()
 												///////////////////////////
 												/*AND UPDATE STUFF in DB*/
 												///////////////////////////
-												
+												var editingEvent = document.getElementById("eventSelection");
+												var editedEventID = editingEvent.value;
 												//all I need is person meet|competition|Discipline and event
-												if(cell.getField()!="")
+												if(cell.getField()!="Verified")
 												{ 
-													var editingEvent = document.getElementById("eventSelection");
-													var editedEventID = editingEvent.value;
 													if(saveScore(data.ID, data.Score, data.CompetitionID, editedEventID, data.SV))
 														; //yay
 													else
@@ -251,6 +273,10 @@ function getMeets()
 														row.update({Score:0});
 														row.update({SV:0});
 													}
+												}
+												else if(cell.getField()=="Verified")
+												{
+													toggleVerify(data.ID, data.Verified, data.CompetitionID, editedEventID);
 												}
 										},
 									});

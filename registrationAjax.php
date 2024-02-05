@@ -36,7 +36,24 @@ if(userIsLoggedIn()) //quick way of parsing input to prevent sql injections sinc
 		//need to add team back in here later
 		//updatePersonCompetition($person,$oldCompetition,$newCompetition,$institution);
 		$Reg = new meetRegistration("byComp",$oldCompetition); //old and new will always be the same meetID here.
-		$Reg->changePersonCompetitionInMeet($person,$oldCompetition,$newCompetition,$institution,$designation);
+		$meetID = $Reg->getMeetIDFromCompetitionID($_REQUEST['oldCompetition']);
+		$dates = $Reg->getRegFeeAndDates($meetID);
+		$finalDate = date("Y-m-d",strtotime($dates['finalDeadline']));
+		$now = date("Y-m-d");
+
+		if(($now <= $finalDate) || userIsExecutiveAdministrator())
+		{
+			$Reg->changePersonCompetitionInMeet($person,$oldCompetition,$newCompetition,$institution,$designation);
+		}
+		else
+		{
+			$returnstuff = array(
+				'Error' => true,
+				'Message'=>"Final deadline passed",
+				'now is ' . $now . ' late is ' . $lateDate
+				);
+			echo json_encode($returnstuff);
+		}
 	}
 
 	if(isset($_REQUEST['changePersonsDesignation']))
@@ -50,7 +67,15 @@ if(userIsLoggedIn()) //quick way of parsing input to prevent sql injections sinc
 		//need to add team back in here later
 		//updatePersonCompetition($person,$oldCompetition,$newCompetition,$institution);
 		$Reg = new meetRegistration("byComp",$competition); //old and new will always be the same meetID here.
-		$Reg->changePersonDesignationInMeet($person,$competition,$designation,$institution,$oldDesignation);
+		$meetID = $Reg->getMeetIDFromCompetitionID($_REQUEST['competition']);
+		$dates = $Reg->getRegFeeAndDates($meetID);
+		$finalDate = date("Y-m-d",strtotime($dates['finalDeadline']));
+		$now = date("Y-m-d");
+
+		if(($now <= $finalDate) || userIsExecutiveAdministrator())
+		{
+			$Reg->changePersonDesignationInMeet($person,$competition,$designation,$institution,$oldDesignation);
+		}
 	}
 
 	if(isset($_REQUEST['changePersonsEvent']))
@@ -63,7 +88,7 @@ if(userIsLoggedIn()) //quick way of parsing input to prevent sql injections sinc
 		if(isset($_REQUEST['countForTeam']))
 			$countsForTeam == $_REQUEST['countForTeam'];
 		//need to add team back in here later
-		$reg->updatePersonEvent($personID, $competitionID, $eventID, $registered, $countsForTeam);
+		$Reg->updatePersonEvent($personID, $competitionID, $eventID, $registered, $countsForTeam);
 	}
 
 	if(isset($_REQUEST['getMeetRegDateFees']))
@@ -89,7 +114,25 @@ if(userIsLoggedIn()) //quick way of parsing input to prevent sql injections sinc
 		//echo "minor is " . $minor;
 		//registerPersonForCompetition($competition, $institution, $person, $team, $Discipline, $events, $eventCountFlags, $first);
 		$Reg = new meetRegistration("byComp",$_REQUEST['competition']);
-		$Reg->registerPersonForCompetition($competition, $institution, $person, $team, $Discipline, $events, $eventCountFlags, $first, $minor, $designation);
+
+		$meetID = $Reg->getMeetIDFromCompetitionID($_REQUEST['competition']);
+		$dates = $Reg->getRegFeeAndDates($meetID);
+		$finalDate = date("Y-m-d",strtotime($dates['finalDeadline']));
+		$now = date("Y-m-d");
+
+		if(($now <= $finalDate) || userIsExecutiveAdministrator())
+		{
+			$Reg->registerPersonForCompetition($competition, $institution, $person, $team, $Discipline, $events, $eventCountFlags, $first, $minor, $designation);
+		}
+		else
+		{
+			$returnstuff = array(
+				'Error' => true,
+				'Message'=>"Late deadline passed",
+				'now is ' . $now . ' late is ' . $lateDate
+				);
+			echo json_encode($returnstuff);
+		}
 	}
 
 	if(isset($_REQUEST['unregisterPersonFromCompetition']))
@@ -113,7 +156,7 @@ if(userIsLoggedIn()) //quick way of parsing input to prevent sql injections sinc
 		}
 	}
 
-	if(isset($_REQUEST['unregisterPersonFromDiscipline']))
+	if(isset($_REQUEST['unregisterPersonFromDiscipline'])) //used for t&t
 	{
 		$personID = $_REQUEST['person'];
 		$meetID = $_REQUEST['meetID'];
@@ -123,10 +166,10 @@ if(userIsLoggedIn()) //quick way of parsing input to prevent sql injections sinc
 		
 		$dates = $Reg->getRegFeeAndDates($meetID);
 		
-		$lateDate = date("Y-m-d",strtotime($dates['lateDeadline']));
+		$finalDate = date("Y-m-d",strtotime($dates['finalDeadline']));
 		$now = date("Y-m-d");
 		
-		if(($now <= $lateDate) || userIsExecutiveAdministrator())
+		if(($now <= $finalDate) || userIsExecutiveAdministrator())
 		{
 			$Reg->unregisterPersonFromDiscipline($personID,$meetID,$institutionID,$discipline);
 			//echo "Now is " . $now . " late is " . $lateDate;
@@ -220,7 +263,24 @@ if(userIsLoggedIn()) //quick way of parsing input to prevent sql injections sinc
 		$institutionID = $_REQUEST['institutionID'];
 		$designation = $_REQUEST['teamDesignation'];
 		
-		$return_arr = $Reg->updateTeamOptions($teamScore, $competitionID, $institutionID, $designation);
+		$meetID = $Reg->getMeetIDFromCompetitionID($_REQUEST['competitionID']);
+		$dates = $Reg->getRegFeeAndDates($meetID);
+		$finalDate = date("Y-m-d",strtotime($dates['finalDeadline']));
+		$now = date("Y-m-d");
+
+		if(($now <= $finalDate) || userIsExecutiveAdministrator())
+		{
+			$return_arr = $Reg->updateTeamOptions($teamScore, $competitionID, $institutionID, $designation);
+		}
+		else
+		{
+			$returnstuff = array(
+				'Error' => true,
+				'Message'=>"Late deadline passed",
+				'now is ' . $now . ' late is ' . $lateDate
+				);
+			echo json_encode($returnstuff);
+		}
 		
 		echo $return_arr;
 	}

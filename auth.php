@@ -6,8 +6,25 @@
 		getCredentials();
 	}
 	
+	if(isset($_REQUEST['userWantsToEmulate'])){
+		if(userCanEmulate() && !isset($_REQUEST['emulatorUserID']))
+		{
+			$_SESSION['emulatorUserID'] = $_SESSION['userID'];
+			$_SESSION['userID'] = $_REQUEST['newWId'];
+			writeToLoginLog($_SESSION['userID'], true);
+		}
+	}
+
 	if(isset($_REQUEST['logout'])){
-		logout();
+		if(isset($_SESSION['emulatorUserID']))
+		{
+			emulatorUserLogout();
+			//Header('Location: '.str_replace("logout","",$_SERVER['PHP_SELF']));
+		}
+		else
+		{
+			logout();
+		}
 	}
 	
 	function getSalt($user)
@@ -44,14 +61,16 @@
 	{
 		global $conn;
 		$sql = "
-				INSERT INTO Log_Login (PersonID, Success, PageID, IPAddress, UserAgent, Browser, Referrer)
-				VALUES(?,?,?,?,?,?,?);
+				INSERT INTO Log_Login (PersonID, Success, PageID, IPAddress, UserAgent, Browser, Referrer, EmulatorID)
+				VALUES(?,?,?,?,?,?,?,?);
 				";
 		$stmt = $conn->prepare($sql);
 		//$stmt->bind_param("iisssss",$PersonID,$Success,basename($_SERVER['SCRIPT_FILENAME']),$_SERVER['REMOTE_ADDR'],$_SERVER['HTTP_USER_AGENT'],get_browser(),$_SERVER['HTTP_REFERER']);
 		
 		$filename = basename($_SERVER['SCRIPT_FILENAME']);
 		$browser = get_browser();
+
+		$emulatorID = getemulatorUserID();
 		
 		$stmt->bindParam(1, $PersonID, PDO::PARAM_INT, 250);
 		$stmt->bindParam(2, $Success, PDO::PARAM_INT, 250);
@@ -60,6 +79,7 @@
 		$stmt->bindParam(5, $_SERVER['HTTP_USER_AGENT'], PDO::PARAM_STR, 250);
 		$stmt->bindParam(6, $browser, PDO::PARAM_STR, 250);
 		$stmt->bindParam(7, $_SERVER['HTTP_REFERER'], PDO::PARAM_STR, 250);
+		$stmt->bindParam(8, $emulatorID, PDO::PARAM_INT);
 		
 		$stmt->execute();
 	}
@@ -167,7 +187,10 @@
 		
 		return $permissionFound;
 	}
-	
+	function userCanScoreMeetsFor($club){
+		return doesUserHavePermission("MeetScoring",$club);
+	}
+
 	function userIsAdminFor($club){
 		return doesUserHavePermission("InstitutionAdmin",$club);
 	}
@@ -187,6 +210,26 @@
 	function userIsExecutiveAdministrator(){ //e.g. TGC administrator. This is independent of club affiliation.
 		return doesUserHavePermission("TGCAdmin",1);
 		//return true;
+	}
+
+	function userIsSuperAdministrator(){
+		return doesUserHavePermission("TGCSuperAdmin",1);
+	}
+
+	function userCanEmulate(){
+		return doesUserHavePermission("TGCEmulation",1);
+	}
+
+	function isUserCurrentlyEmulating(){
+		if(isset($_SESSION['emulatorUserID'])){
+			if($_SESSION['emulatorUserID'])
+				return true;
+			else
+				return false;
+		}
+		else{
+			return false;
+		}
 	}
 	
 	function userIsGymnastFor($club){
@@ -372,10 +415,87 @@
 		}
 		return $clubList;
 	}
+
+	function getPermissionSeasonString()
+	{ 
+		//after oct then only new officers have access
+		if (DATE('m') > '09'){
+			$string = DATE('Y')+1;
+		}
+		//transistion period between may and sept where both have access
+		elseif(DATE('m') >= '05'){
+			$string = DATE('Y') . "," . (DATE('Y')+1) ;
+		}
+		//season number is now year number
+		else{
+			$string = DATE('Y');
+		}
 	
+		return $string;
+	}
+	
+	function getClubsThatUserCanScore(){
+		$clubList = array(); //array of club ID's.
+		global $conn;
+		
+		if(userIsExecutiveAdministrator()){ // if they are executive, they are admin for all clubs
+			$query = "SELECT
+						ID,
+						coalesce(Identifiers_Institutions.AltName,Identifiers_Institutions.Name) As Name
+					FROM 
+						Identifiers_Institutions
+					WHERE 
+						(ID IN (Select InstitutionID From Identifiers_Programs Where ClubType IN (1,7,14)) OR
+						ID IN (29,6203,7023))
+					ORDER BY Name ASC
+						";
+			if($stmt = $conn->prepare($query)){
+				$stmt->execute();
+			}
+			else{
+				printf("Errormessage: %s\n", $conn->error);
+			}
+			
+			while($row = $stmt->fetch(PDO::FETCH_ASSOC))
+			{
+				$clubList[$row['ID']] = $row['Name'];
+			}
+		
+		}
+		else{
+			$query = "	SELECT 
+						PermissionValue as ClubID,
+						coalesce(Identifiers_Institutions.AltName,Name) as ClubName
+					FROM
+						Identifiers_Permissions,
+						Identifiers_Institutions
+					Where 
+						PersonID = " . getUserID() . " AND
+						PermissionName = 'MeetScoring' AND
+						Season IN (" . getPermissionSeasonString() . ") AND
+						Identifiers_Permissions.PermissionValue = Identifiers_Institutions.ID
+				";
+			$stmt = $conn->prepare($query);
+			$stmt->execute();
+			
+			while($row = $stmt->fetch(PDO::FETCH_ASSOC))
+			{
+				$clubList[$row['ClubID']] = $row['ClubName'];
+			}
+		}
+		return $clubList;
+	}
+
 	function getUserID(){
 		if(isset($_SESSION['userID']))
 			return $_SESSION['userID'];
+		else
+			return 0;
+	}
+
+	function getemulatorUserID(){
+		if(isset($_SESSION['emulatorUserID']))
+			return $_SESSION['emulatorUserID'];
 		else
 			return 0;
 	}
@@ -398,22 +518,19 @@
 				;";
 			if($stmt = $conn->prepare($query))
 			{
-				$stmt->bind_param("i",$userID);
+				$stmt->bindParam(1,$userID);
 				$stmt->execute();
-				$stmt->store_result(); //allow us to get properties, e.g. stmt->num_rows;
 			}
 			else
 			{
 				printf("Errormessage: %s\n", $conn->error);
 			}
 			//echo $stmt->num_rows;
-			if($stmt->num_rows >= 1)
-			{
-				$stmt->bind_result($Name);
-			
-				while($stmt->fetch())
+			if($stmt->rowCount() >= 1)
+			{			
+				while($row = $stmt->fetch(PDO::FETCH_ASSOC))
 				{
-					$thename = $Name;
+					$thename = $row['Name'];
 				}
 			}	
 		}			
@@ -438,6 +555,11 @@
 		echo "<p><a href = 'forgotPwd.php'>Forgot Password?</a></p>";
 	}
 	
+	function emulatorUserLogout(){
+		$_SESSION['userID'] = $_SESSION['emulatorUserID'];
+		unset($_SESSION['emulatorUserID']);
+	}
+
 	function logout(){
 		unset($_SESSION['userID']);
 		unset($_SESSION['userIsLoggedIn']);
