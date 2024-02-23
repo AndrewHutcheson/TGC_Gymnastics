@@ -16,7 +16,7 @@
 						<!-- Nav -->
 							<nav id="nav">
 								<ul>
-									<?
+									<?php
 									
 									/*
 										TODO: if the current page is under a dropdown menu, start the menu expanded.
@@ -26,46 +26,47 @@
 									{ ?>
 										<li><div onclick = '$("#peopleNav").toggle();'>My Team</div>
 											<ul id = "peopleNav" style = "display:none">
-												<li <? if(basename($_SERVER['PHP_SELF'])=="#"){echo 'class="current"'; } ?> ><!--a href="#">My Profile</a></li-->
-												<?
+												<li <?php if(basename($_SERVER['PHP_SELF'])=="#"){echo 'class="current"'; } ?> ><!--a href="#">My Profile</a></li-->
+												<?php
 												//if((sizeof(getListOfUserCaptainPermissions()) > 0) || (sizeof(getListOfUserCoachPermissions()) > 0) || (userIsExecutiveAdministrator()))
 												if(true)
 												{
 												?>
-													<li <? if(basename($_SERVER['PHP_SELF'])=="register.php"){echo 'class="current"'; } ?> ><a href="register.php">Meet Registration</a></li>
-												<?
+													<li <?php if(basename($_SERVER['PHP_SELF'])=="register.php"){echo 'class="current"'; } ?> ><a href="register.php">Meet Registration</a></li>
+												<?php
 												}
 												if((sizeof(getListOfUserClubAdministrativePermissions()) > 0) || (userIsExecutiveAdministrator()))
 												{
 												?>
-													<li <? if(basename($_SERVER['PHP_SELF'])=="myTeam.php"){echo 'class="current"'; } ?> ><a href="myTeam.php">Team Management</a></li>
-													<li <? if(basename($_SERVER['PHP_SELF'])=="meetManagement.php"){echo 'class="current"'; } ?> ><a href="meetManagement.php">Meet Management</a></li>
+													<li <?php if(basename($_SERVER['PHP_SELF'])=="myTeam.php"){echo 'class="current"'; } ?> ><a href="myTeam.php">Team Management</a></li>
+													<li <?php if(basename($_SERVER['PHP_SELF'])=="meetManagement.php"){echo 'class="current"'; } ?> ><a href="meetManagement.php">Meet Management</a></li>
+													<li <?php if(basename($_SERVER['PHP_SELF'])=="verifyScore.php"){echo 'class="current"'; } ?> ><a href="verifyScore">Score Verification</a></li>
 												<?php
 												}
 												if(sizeOf(getClubsThatUserCanScore()) > 0)
 												{
 												?>
 													<li <?php if(basename($_SERVER['PHP_SELF'])=="score.php"){echo 'class="current"'; } ?> ><a href="score">Meet Scoring</a></li>
-													<li <?php if(basename($_SERVER['PHP_SELF'])=="verifyScore.php"){echo 'class="current"'; } ?> ><a href="verifyScore">Score Verification</a></li>
-												<?
+												<?php
 												}
 												?>
 											</ul>
 										</li>
-										<?
+										<?php
 										if(userIsExecutiveAdministrator())
 										{ ?>
 											<li><div onclick = '$("#tgcBoard").toggle();'>TGC Board</div>
 												<ul id = "tgcBoard" style = "display:none">
-													<li <? if(basename($_SERVER['PHP_SELF'])=="retroScoring.php"){echo 'class="current"'; } ?> ><a href="retroScoring.php">ALL Meet Scoring</a></li>
-													<li <? if(basename($_SERVER['PHP_SELF'])=="addMeet.php"){echo 'class="current"'; } ?> ><a href="addMeet.php">Create Meet</a></li>
-													<li <? if(basename($_SERVER['PHP_SELF'])=="institutionEdit.php"){echo 'class="current"'; } ?> ><a href="institutionEdit.php">Institution Edit</a></li>
-													<li <? if(basename($_SERVER['PHP_SELF'])=="registrationMetrics.php"){echo 'class="current"'; } ?> ><a href="registrationMetrics.php">Registration Metrics</a></li>
-													<li <? if(basename($_SERVER['PHP_SELF'])=="tgcOutreach.php"){echo 'class="current"'; } ?> ><a href="tgcOutreach.php">Outreach Map</a></li>
-													<li <? if(basename($_SERVER['PHP_SELF'])=="map.php"){echo 'class="current"'; } ?> ><a href="map.php">USGym Map</a></li>
-													<!--li <? if(basename($_SERVER['PHP_SELF'])=="CollegeClubFeeds.php"){echo 'class="current"'; } ?> ><a href="CollegeClubFeeds.php">Social Stream (national)</a></li-->
+													<li <?php if(basename($_SERVER['PHP_SELF'])=="retroScoring.php"){echo 'class="current"'; } ?> ><a href="retroScoring.php">ALL Meet Scoring</a></li>
+													<li <?php if(basename($_SERVER['PHP_SELF'])=="addMeet.php"){echo 'class="current"'; } ?> ><a href="addMeet.php">Create Meet</a></li>
+													<li <?php if(basename($_SERVER['PHP_SELF'])=="institutionEdit.php"){echo 'class="current"'; } ?> ><a href="institutionEdit.php">Institution Edit</a></li>
+													<li <?php if(basename($_SERVER['PHP_SELF'])=="registrationMetrics.php"){echo 'class="current"'; } ?> ><a href="registrationMetrics.php">Registration Metrics</a></li>
+													<li <?php if(basename($_SERVER['PHP_SELF'])=="tgcOutreach.php"){echo 'class="current"'; } ?> ><a href="tgcOutreach.php">Outreach Map</a></li>
+													<li <?php if(basename($_SERVER['PHP_SELF'])=="map.php"){echo 'class="current"'; } ?> ><a href="map.php">USGym Map</a></li>
+													<!--li <?php if(basename($_SERVER['PHP_SELF'])=="CollegeClubFeeds.php"){echo 'class="current"'; } ?> ><a href="CollegeClubFeeds.php">Social Stream (national)</a></li-->
 													<li><a href="https://tgcgymnastics.com/mailman/admin/clubreps_tgcgymnastics.com">TGC Email List</a></li>
 													<li><a href="https://tgcgymnastics.com/mailman/admin/alumni_tgcgymnastics.com">Alumni Email List</a></li>
+													<li <?php if(basename($_SERVER['PHP_SELF'])=="regLog.php"){echo 'class="current"'; } ?> ><a href="regLog.php">RegLog</a></li>
 													<?php 
 													if(userCanEmulate())
 													{
@@ -82,32 +83,38 @@
 													?>
 												</ul>
 											</li>
-										<?
+										<?php
 										}
 									}
 									?>
-									<li <? if(basename($_SERVER['PHP_SELF'])=="index.php"){echo 'class="current"'; } ?> ><a href="index.php">News</a></li>
-									<li <? if(basename($_SERVER['PHP_SELF'])=="schedule.php"){echo 'class="current"'; } ?> ><a href="schedule.php">Schedule</a></li>
-									<li <? if(basename($_SERVER['PHP_SELF'])=="results.php"){echo 'class="current"'; } ?> ><a href="results.php">Results</a></li>
-									<li <? if(basename($_SERVER['PHP_SELF'])=="gymnasts.php"){echo 'class="current"'; } ?> ><a href="gymnasts.php">FAQ</a></li>
-									<li <? if(basename($_SERVER['PHP_SELF'])=="nope.php"){echo 'class="current"'; } ?> ><a href="https://docs.google.com/forms/d/1aqBcYhMx7LegZcQGFZOmxegohzZ3DEUJyRVIRfVmzoQ/viewform">Join/make a team</a></li>
-									<li <? if(basename($_SERVER['PHP_SELF'])=="teams.php"){echo 'class="current"'; } ?> ><a href="teams.php">Our Teams</a></li>
-									<li <? if(basename($_SERVER['PHP_SELF'])=="about.php"){echo 'class="current"'; } ?> ><a href="about.php">About Us</a></li>
-									<li <? if(basename($_SERVER['PHP_SELF'])=="scholarships.php"){echo 'class="current"'; } ?> ><a href="scholarships.php">Scholarships</a></li>
-									<li <? if(basename($_SERVER['PHP_SELF'])=="files.php"){echo 'class="current"'; } ?> ><a href="files.php">Files</a></li>
-									<li <? if(basename($_SERVER['PHP_SELF'])=="contactUs.php"){echo 'class="current"'; } ?> ><a href="contactUs.php">Contact Us</a></li>
-									<?
+									<li <?php if(basename($_SERVER['PHP_SELF'])=="index.php"){echo 'class="current"'; } ?> ><a href="index.php">News</a></li>
+									<li <?php if(basename($_SERVER['PHP_SELF'])=="schedule.php"){echo 'class="current"'; } ?> ><a href="schedule.php">Schedule</a></li>
+									<li><div onclick = '$("#results").toggle();'>Results</div>
+										<ul id = "results" style = "display:none">
+											<li <?php if(basename($_SERVER['PHP_SELF'])=="results.php"){echo 'class="current"'; } ?> ><a href="results.php">By Meet</a></li>
+											<li <?php if(basename($_SERVER['PHP_SELF'])=="gymnast.php"){echo 'class="current"'; } ?> ><a href="gymnast.php">By Gymnast</a></li>
+											<li <?php if(basename($_SERVER['PHP_SELF'])=="topScores.php"){echo 'class="current"'; } ?> ><a href="topScores.php">Top Scores</a></li>
+										</ul>
+									</li>
+									<li <?php if(basename($_SERVER['PHP_SELF'])=="gymnasts.php"){echo 'class="current"'; } ?> ><a href="gymnasts.php">FAQ</a></li>
+									<li <?php if(basename($_SERVER['PHP_SELF'])=="nope.php"){echo 'class="current"'; } ?> ><a href="https://docs.google.com/forms/d/1aqBcYhMx7LegZcQGFZOmxegohzZ3DEUJyRVIRfVmzoQ/viewform">Join/make a team</a></li>
+									<li <?php if(basename($_SERVER['PHP_SELF'])=="teams.php"){echo 'class="current"'; } ?> ><a href="teams.php">Our Teams</a></li>
+									<li <?php if(basename($_SERVER['PHP_SELF'])=="about.php"){echo 'class="current"'; } ?> ><a href="about.php">About Us</a></li>
+									<li <?php if(basename($_SERVER['PHP_SELF'])=="scholarships.php"){echo 'class="current"'; } ?> ><a href="scholarships.php">Scholarships</a></li>
+									<li <?php if(basename($_SERVER['PHP_SELF'])=="files.php"){echo 'class="current"'; } ?> ><a href="files.php">Files</a></li>
+									<li <?php if(basename($_SERVER['PHP_SELF'])=="contactUs.php"){echo 'class="current"'; } ?> ><a href="contactUs.php">Contact Us</a></li>
+									<?php
 									if(!userIsLoggedIn())
 									{ 
 									?>
-										<li <? if(basename($_SERVER['PHP_SELF'])=="login.php"){echo 'class="current"'; } ?> ><a href="login.php">Login</a></li>
-									<?
+										<li <?php if(basename($_SERVER['PHP_SELF'])=="login.php"){echo 'class="current"'; } ?> ><a href="login.php">Login</a></li>
+									<?php
 									}
 									else
 									{
 									?>
-										<li><a href="<? echo basename($_SERVER['PHP_SELF']); ?>?logout">Logout</a></li>
-									<?
+										<li><a href="<?php echo basename($_SERVER['PHP_SELF']); ?>?logout">Logout</a></li>
+									<?php
 									}
 									?>
 								</ul>
@@ -121,37 +128,32 @@
 							</section-->
 					
 						<!-- Recent Posts -->
-						<?
-							$query = "SELECT news.ID, Title
+						<?php
+							/*$query = "SELECT news.ID, Title
 								FROM  Content_Newsfeed news
 								WHERE news.siteID = ? AND news.pageID = ?
 								ORDER BY Posted DESC
-								LIMIT 6";
+								LIMIT ?";
 										
-							$stmt = $con->prepare($query);
-							$stmt->bind_param("ii",$siteID, $pageID);
+							$stmt = $conn->prepare($query);
+							$stmt->bindParam(1, $siteID, PDO::PARAM_INT);
+							$stmt->bindParam(2, $pageID, PDO::PARAM_INT);
+							$stmt->bindParam(3, 6, PDO::PARAM_INT);
 									
 							$stmt->execute();
-							$stmt->store_result(); //allow us to get properties, e.g. stmt->num_rows;
-							
-							if($stmt->num_rows >= 1){
-								$stmt->bind_result($postID, $Title);
 						?>
 							<!--section class="box recent-posts">
 								<header>
 									<h2>Recent News</h2>
 								</header>
 								<ul>
-								<?
-								while($stmt->fetch()){
-									echo '<li><a href="index.php#'.$postID.'">'.substr($Title,0,39).'...</a></li>';
-								}	
+								<?php
+								while($row = $stmt->fetch(PDO::FETCH_ASSOC)){
+									echo '<li><a href="index.php#' . $row['news.ID'] . '">' . substr($row['Title'],0,39).'...</a></li>';
+								}	*/
 								?>
 								</ul>
 							</section-->
-						<?
-							};
-						?>
 							
 						<!-- Text -->
 							<section class="box text-style1">
@@ -236,7 +238,7 @@
 						
 						<!-- Copyright -->
 							<ul id="copyright">
-								<li>&copy; <? echo date("Y"); ?> Texas Gymnastics Conference. All Rights Reserved.</li>
+								<li>&copy; <?php echo date("Y"); ?> Texas Gymnastics Conference. All Rights Reserved.</li>
 							</ul>
 
 					</div>

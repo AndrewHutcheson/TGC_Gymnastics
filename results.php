@@ -129,8 +129,6 @@ function getMeets()
 				<!-- Content -->
 					<div id="content">
 						<div class="inner">
-						<p>You can see the score history of a person <a href = "https://tgcgymnastics.com/gymnast">here.</a></p>
-						<p>To see the top scores of all time click <a href = "https://tgcgymnastics.com/topScores">here.</a></p>
 						<?php
 								$stmtMeets = getMeets();
 								echo "<select id = 'meetSelectMenu' onchange = 'loadMeetData();'>

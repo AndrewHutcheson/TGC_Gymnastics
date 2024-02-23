@@ -25,6 +25,15 @@ if(userIsLoggedIn()) //quick way of parsing input since we already control who h
 		echo json_encode(getTeamData($institutionID,$year));
 	}
 
+	if(isset($_REQUEST['removePersonFromSeason']))
+	{
+		$personID = $_REQUEST['personID'];
+		$institutionID = $_REQUEST['institutionID'];
+		$season = $_REQUEST['season'];
+
+		echo json_encode(unaffiliatePerson($personID,$institutionID,$season));
+	}
+
 	if(isset($_REQUEST['affiliatePersontoSeason']))
 	{
 		$personID = $_REQUEST['personID'];
@@ -107,6 +116,103 @@ if(userIsLoggedIn()) //quick way of parsing input since we already control who h
 
 		echo json_encode(updateGender($ID,$Gender));
 	}
+}
+
+function unaffiliatePerson($personID,$institutionID,$season)
+{
+	global $conn;
+	$error = false;
+	$returnstuff = false;
+	$alreadyThere = false;
+	try
+	{
+		$conn->beginTransaction();
+		
+		$alreadyThere = false;
+		
+		$sql0 = "Select 
+					count(*) as num
+				From
+					Identifiers_Affiliations
+				Where
+					PersonID = ? AND
+					ClubID = ? AND
+					Season = ?
+				";
+				
+		$stmt = $conn->prepare($sql0);
+		$stmt->bindParam(1, $personID, PDO::PARAM_INT);
+		$stmt->bindParam(2, $institutionID, PDO::PARAM_INT);
+		$stmt->bindParam(3, $season, PDO::PARAM_INT);
+		$stmt->execute();
+		
+		while($row = $stmt->fetch(PDO::FETCH_ASSOC))
+		{
+			if($row["num"] > 0 )
+				$alreadyThere = true;
+		}
+		
+		if($alreadyThere)
+		{
+			$sql2 = "
+				Delete
+				From
+					Identifiers_Affiliations
+				Where
+					Season = ? AND
+					PersonID = ? AND
+					ClubID = ?
+				Limit 1
+				;";
+			$stmt2 = $conn->prepare($sql2);
+			$stmt2->bindParam(1, $season, PDO::PARAM_INT);
+			$stmt2->bindParam(2, $personID, PDO::PARAM_INT);
+			$stmt2->bindParam(3, $institutionID, PDO::PARAM_INT);
+			$stmt2->execute();
+
+			$sql3 = "
+				Delete
+				From
+					Identifiers_Permissions
+				Where
+					Season = ? AND
+					PersonID = ? AND
+					PermissionName IN ('Registration','InstitutionAdmin','MeetScoring') AND
+					PermissionValue = ?
+				Limit 1
+				;";
+			$stmt3 = $conn->prepare($sql3);
+			$stmt3->bindParam(1, $season, PDO::PARAM_INT);
+			$stmt3->bindParam(2, $personID, PDO::PARAM_INT);
+			$stmt3->bindParam(3, $institutionID, PDO::PARAM_INT);
+			$stmt3->execute();
+		}
+	}
+	catch(PDOException $e)
+	{
+		$error = true;
+		//echo 'ERROR: ' . $e->getMessage()."<br/>".var_dump($conn->errorInfo());
+	}
+	
+	if(!$error)
+	{
+		$conn->commit();
+		$return_arr = array(
+							'Error' => false,
+							'Message'=>"success"
+							);	
+	}
+	else
+	{
+		$errorMsg = 'ERROR: ' . $e->getMessage()."<br/>".var_dump($conn->errorInfo());
+		$conn->rollBack();
+		$return_arr = array(
+							'Error' => true,
+							'Message'=>$errorMsg
+							);	
+	}
+	
+	return $return_arr;
 }
 
 function affiliatePerson($personID,$institutionID,$season)
@@ -406,7 +512,7 @@ function updatePermission($permission,$permissionValue,$personID,$season,$instit
 	{
 		$permission = "Registration";
 	}
-	elseif($permission == "Administrate")
+	elseif($permission == "InstitutionAdmin")
 	{
 		$permission = "InstitutionAdmin";
 	}

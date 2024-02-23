@@ -797,15 +797,37 @@ class meetRegistration
 					
 			$stmtRegister = $conn->prepare($sql);
 			
-			$stmtRegister->bindParam(1, $designation, PDO::PARAM_STR, 5);
-			$stmtRegister->bindParam(2, $_SESSION['userID'], PDO::PARAM_INT, 6);
-			$stmtRegister->bindParam(3, $person, PDO::PARAM_INT, 5);	
-			$stmtRegister->bindParam(4, $competition, PDO::PARAM_INT, 5);		
+			$stmtRegister->bindParam(1, $designation, PDO::PARAM_STR);
+			$stmtRegister->bindParam(2, $_SESSION['userID'], PDO::PARAM_INT);
+			$stmtRegister->bindParam(3, $person, PDO::PARAM_INT);	
+			$stmtRegister->bindParam(4, $competition, PDO::PARAM_INT);		
 			
-			//if(!$alreadyRegistered)
-			if(true)
+			$max = $this->maxNumberOfCompetitorsPerEvent($competition);
+			$maxWillBeExceeded = false;
+			$eventsExceeded = '';
+			$events = $this->getEventsForCompetition($competition);
+			foreach($events as $initials=>$eventID)
+			{
+				$isPersonRegistered = $this->isPersonRegisteredForEvent($person,$eventID,$competition);
+				$numCurrentlyRegistered = $this->howManyRegisteredOnEvent($competition,$institution,$eventID,$designation);
+
+				if($isPersonRegistered)
+					$numCurrentlyRegistered += 1;
+				
+				if($numCurrentlyRegistered > $max)
+				{
+					$maxWillBeExceeded = true;
+					$eventsExceeded .= $initials . ' ';
+				}
+
+			}
+			if(!$maxWillBeExceeded)
 			{
 				$stmtRegister->execute();
+			}
+			else
+			{
+				$error = true;
 			}
 		}
 		catch (PDOException $e)
@@ -818,13 +840,51 @@ class meetRegistration
 		if(!$error)
 		{
 			$conn->commit();
-			$this->autoProcessTeamStuff($institution,$competition,$oldDesignation); //this isn't removing the old team if empty
-			$this->autoProcessTeamStuff($institution,$competition,$designation);
+			$this->autoProcessTeamStuff($institution,$competition,$designation); //double check these.
+			$this->autoProcessTeamStuff($institution,$competition,$oldDesignation);
+			$this->addToRegistrationLog($competition,$person,"","Person's Team Designation Changed",$oldDesignation,$designation);
+
+			$return_arr = array(
+				'Error' => false,
+				'Message'=>"no error"
+				);
 		}
-		
-		$this->addToRegistrationLog($competition,$person,"","Person's Team Designation Changed",$oldDesignation,$designation);
+		else
+		{
+			$return_arr = array(
+					'Error' => true,
+					'Message'=>"This change exceeds the competitors per event limit of " . $max . " on " . $eventsExceeded . " ."
+					);
+		}
+		return $return_arr;		
 	}
-	
+
+	public function getEventsForCompetition($competitionID)
+	{
+		global $conn;
+		$sql = "Select
+					Constraints_Apparatus.ID,
+					Constraints_Apparatus.Initials
+				From
+					Constraints_Apparatus
+				Where 
+					Constraints_Apparatus.Discipline in (Select Discipline From Events_Competitions Where Events_Competitions.ID = ?)
+				";
+
+		$stmt = $conn->prepare($sql);
+		$stmt->bindParam(1, $competitionID, PDO::PARAM_INT);
+		$stmt->execute();
+
+		$returnStuff = array();
+		
+		while($row = $stmt->fetch(PDO::FETCH_ASSOC))
+		{
+			$returnStuff[$row['Initials']] = $row['ID'];
+		}
+
+		return $returnStuff;
+	}
+
 	public function changePersonCompetitionInMeet($personID, $oldCompetitionID, $newCompetitionID, $institution, $designation)
 	{
 		global $conn;
@@ -836,7 +896,7 @@ class meetRegistration
 			
 			//$alreadyRegistered = checkIfPersonAlreadyRegisteredForCompetition($personID,$newCompetitionID);
 			
-			$sql = "
+			$sqlregister = "
 					UPDATE
 						Events_Routines
 					SET
@@ -847,17 +907,39 @@ class meetRegistration
 						CompetitionID = ?
 					;";
 					
-			$stmtRegister = $conn->prepare($sql);
+			$stmtRegister = $conn->prepare($sqlregister);
 			
-			$stmtRegister->bindParam(1, $newCompetitionID, PDO::PARAM_INT, 5);
-			$stmtRegister->bindParam(2, $_SESSION['userID'], PDO::PARAM_INT, 6);
-			$stmtRegister->bindParam(3, $personID, PDO::PARAM_INT, 5);	
-			$stmtRegister->bindParam(4, $oldCompetitionID, PDO::PARAM_INT, 5);		
+			$stmtRegister->bindParam(1, $newCompetitionID, PDO::PARAM_INT);
+			$stmtRegister->bindParam(2, $_SESSION['userID'], PDO::PARAM_INT);
+			$stmtRegister->bindParam(3, $personID, PDO::PARAM_INT);	
+			$stmtRegister->bindParam(4, $oldCompetitionID, PDO::PARAM_INT);		
 			
-			//if(!$alreadyRegistered)
-			if(true)
+			$max = $this->maxNumberOfCompetitorsPerEvent($newCompetitionID);
+			$maxWillBeExceeded = false;
+			$eventsExceeded = '';
+			$events = $this->getEventsForCompetition($newCompetitionID);
+			foreach($events as $initials=>$eventID)
+			{
+				$isPersonRegistered = $this->isPersonRegisteredForEvent($personID,$eventID,$oldCompetitionID);
+				$numCurrentlyRegistered = $this->howManyRegisteredOnEvent($newCompetitionID,$institution,$eventID,$designation);
+
+				if($isPersonRegistered)
+					$numCurrentlyRegistered += 1;
+				
+				if($numCurrentlyRegistered > $max)
+				{
+					$maxWillBeExceeded = true;
+					$eventsExceeded .= $initials . ' ';
+				}
+
+			}
+			if(!$maxWillBeExceeded)
 			{
 				$stmtRegister->execute();
+			}
+			else
+			{
+				$error = true;
 			}
 		}
 		catch (PDOException $e)
@@ -872,9 +954,21 @@ class meetRegistration
 			$conn->commit();
 			$this->autoProcessTeamStuff($institution,$oldCompetitionID,$designation); //double check these.
 			$this->autoProcessTeamStuff($institution,$newCompetitionID,$designation);
+			$this->addToRegistrationLog($oldCompetitionID,$personID,"","Person's Competition (level/division) Changed",$oldCompetitionID,$newCompetitionID);
+
+			$return_arr = array(
+				'Error' => false,
+				'Message'=>"no error"
+				);
 		}
-		
-		$this->addToRegistrationLog($oldCompetitionID,$personID,"","Person's Competition (level/division) Changed",$oldCompetitionID,$newCompetitionID);
+		else
+		{
+			$return_arr = array(
+					'Error' => true,
+					'Message'=>"This change exceeds the competitors per event limit of " . $max . " on " . $eventsExceeded . " ."
+					);
+		}
+		return $return_arr;
 	}
 	
 	public function updatePersonEventCompetition($personID, $oldCompetitionID, $newCompetitionID, $institution, $apparatus)
@@ -1830,11 +1924,11 @@ class meetRegistration
 				;";
 		$stmt = $conn->prepare($sql);
 		
-		$stmt->bindParam(1, $registered, PDO::PARAM_INT,10);
-		$stmt->bindParam(2, $_SESSION['userID'], PDO::PARAM_INT, 6);
-		$stmt->bindParam(3, $personID, PDO::PARAM_INT, 5);
-		$stmt->bindParam(4, $competitionID, PDO::PARAM_INT, 5);	
-		$stmt->bindParam(5, $eventID, PDO::PARAM_INT, 3);	
+		$stmt->bindParam(1, $registered, PDO::PARAM_INT);
+		$stmt->bindParam(2, $_SESSION['userID'], PDO::PARAM_INT);
+		$stmt->bindParam(3, $personID, PDO::PARAM_INT);
+		$stmt->bindParam(4, $competitionID, PDO::PARAM_INT);	
+		$stmt->bindParam(5, $eventID, PDO::PARAM_INT);	
 		
 		foreach ($events AS $eventID => $tregistered) //check how this handles the events array
 		{
@@ -1850,7 +1944,7 @@ class meetRegistration
 				if($numCurrentlyRegistered < $max)
 				{
 					$stmt->execute();
-					$this->addToRegistrationLog($competitionID,$personID,$designation,"Register Person for Event",$eventID,"");
+					$this->addToRegistrationLog($competitionID,$personID,$designation,"Register Person for Event",$eventID,$registered);
 				}
 			}
 		}
@@ -1985,7 +2079,7 @@ class meetRegistration
 					$stmt->execute();
 					if($anActualUpdate)
 					{
-						$this->addToRegistrationLog($competitionID,$personID,"",$msg,$eventID,"");
+						$this->addToRegistrationLog($competitionID,$personID,"",$msg,$eventID,$registered);
 					}
 				}
 				elseif($numCurrentlyRegistered == $max)

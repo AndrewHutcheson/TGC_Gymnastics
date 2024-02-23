@@ -663,16 +663,16 @@ function getPeepDeets()
 								</select><br/>
 								<br/>
 								<input size = "2" disabled id = "newWId"/>
-								<input size = "15" type = "text" id = "newWLast" autocomplete="off" name = "g234798tyh" placeholder = ""/>
-								<input size = "12" type = "text" id = "newWFirst" autocomplete="off" placeholder = "First Name"/>
-								<input size = "3" type = "text" id = "newWMiddle"  autocomplete="off" placeholder = "Middle" />
+								<input size = "15" type = "text" id = "newWLast" name = "h76f1234fvi" autocomplete="new-password" placeholder = ""/>
+								<input size = "12" type = "text" id = "newWFirst" autocomplete="new-password" placeholder = "First Name"/>
+								<input size = "3" type = "text" id = "newWMiddle" autocomplete="new-password" placeholder = "Middle" />
 								<select id = "newWGender">
 									<option selected disabled>Select Gender</option>
 									<option value = "1">F</option>
 									<option value = "2">M</option>
 								</select>
-								<input size = "15" type = "text" id = "newWPhone"  autocomplete="off" placeholder = "Phone" />
-								<input size = "25" type = "text" id = "newWEmail"  autocomplete="off" placeholder = "Email" /><br/>
+								<input size = "15" type = "text" id = "newWPhone"  autocomplete="new-password" placeholder = "Phone" />
+								<input size = "25" type = "text" id = "newWEmail"  autocomplete="new-password" placeholder = "Email" /><br/>
 								<button id = "addPerson" onclick ="affiliatePerson();">Affiliate person to season</button> <button id = "addNewPerson" onclick ="addNewPerson();">Add New Person to Database</button> <!--button id = "editPersonW">Name Update</button--><br/>
 								<p>Registration gives registration access. Administrate gives access to this page and the Meet Hosting pages.</p>
 								
@@ -701,6 +701,10 @@ function getPeepDeets()
 											{title:"Type", 			field:"Type",			formatter:"plaintext",	sorter:"string", editor:"select", editorParams:{values:["Gymnast","Coach","School Staff","Gym Staff"]}},
 										],
 										index:"ID",
+										rowDeleted:function(row){
+											var data = row.getData();
+											removeClubAffiliation(data.Season,data.ID);
+										},
 										cellEdited:function(cell){
 											//This callback is called any time a cell is edited
 											var row = cell.getRow();
@@ -748,7 +752,7 @@ function getPeepDeets()
 											}
 											else if(cell.getField() == "Administrate")
 											{
-												savePersonPermission(data.ID,"Administrate",data.Administrate);
+												savePersonPermission(data.ID,"InstitutionAdmin",data.Administrate);
 											}
 											else if(cell.getField() == "Type")
 											{

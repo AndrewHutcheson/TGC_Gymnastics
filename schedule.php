@@ -72,15 +72,15 @@
 												<td></td>
 											</tr>
 											<tr>
-												<td>2 Mar</td>
-												<td>Texas Tech Invitational</td>
-												<td>Houston, TX</td>
-												<td></td>
-											</tr>
-											<tr>
 												<td>23 Mar</td>
 												<td>Conference Championship @ Texas A&M</td>
 												<td>College Station, TX</td>
+												<td></td>
+											</tr>
+											<tr>
+												<td>30 Mar</td>
+												<td>Texas Tech Invitational</td>
+												<td>Lubbock, TX</td>
 												<td></td>
 											</tr>
 											<tr style = 'color:green'>

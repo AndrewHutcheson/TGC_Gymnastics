@@ -301,7 +301,7 @@ error_reporting(E_ALL);
 			$competitionID = $team['CompetitionID'];
 			
 			if($discipline == 3)
-				$max = 8;
+				$max = 6;
 			else
 				$max = $Reg->maxNumberOfCompetitorsPerEvent($competitionID);
 			
@@ -545,8 +545,10 @@ error_reporting(E_ALL);
 	
 	$clubs = explode(",",$Reg->getInstitutionsInMeet($meetID));
 	
+	$clubCounter = 0;
 	foreach($clubs AS $club)
 	{
+		$clubCounter = $clubCounter +1;
 		$womenArray = $Reg->getPeopleInTeam($meetID, $club, 1);
 		$menArray = $Reg->getPeopleInTeam($meetID, $club, 2);
 		$womenTeamArray = array();
@@ -579,9 +581,22 @@ error_reporting(E_ALL);
 		
 		drawInvoice($club,$meetID,$womenArray,$menArray,$teams);
 		
+		$lastClub = "";
 		foreach($womenArray AS $person)
 		{
-			drawWomenScoreCard($person);			
+			$currentClub = $person['Institution']; 
+			if($lastClub == "")
+				$lastClub = $currentClub;
+			
+			if(($currentClub != $lastClub) && ($pageHalf == 2))
+			{
+				$pageHalf = 1;
+				$pdf->AddPage();
+			}
+
+			$lastClub = $currentClub;	
+
+			drawWomenScoreCard($person);		
 		}
 		if($pageHalf > 1)
 		{
@@ -594,8 +609,21 @@ error_reporting(E_ALL);
 			drawScoreSheets($team,1);
 		}
 		
+		$lastClub = "";
 		foreach($menArray AS $person)
 		{
+			$currentClub = $person['Institution']; 
+			if($lastClub == "")
+				$lastClub = $currentClub;
+			
+			if(($currentClub != $lastClub) && ($pageHalf == 2))
+			{
+				$pageHalf = 1;
+				$pdf->AddPage();
+			}
+
+			$lastClub = $currentClub;
+
 			drawMenScoreCard($person);
 		}
 		if($pageHalf > 1)
@@ -608,25 +636,24 @@ error_reporting(E_ALL);
 		{
 			drawScoreSheets($team,2);
 		}
-			
-		$blankPerson = array(
-								"Name"=>"Name______________",
-								"Institution"=>"Team______________",
-								"Team"=>"Level/Div______________"
-							);
-		$blankTeam = array(
-								"Name"=>"",
-								"Institution"=>"",
-								"CompetitionID"=>""
-							);
-		
-		drawWomenScoreCard($blankPerson);
-		drawWomenScoreCard($blankPerson);
-		drawMenScoreCard($blankPerson);
-		drawMenScoreCard($blankPerson);
-		drawScoreSheets($blankTeam,3);
-		
 	}
+
+	$blankPerson = array(
+		"Name"=>"Name______________",
+		"Institution"=>"Team______________",
+		"Team"=>"Level/Div______________"
+	);
+	$blankTeam = array(
+			"Name"=>"",
+			"Institution"=>"",
+			"CompetitionID"=>""
+		);
+
+	drawWomenScoreCard($blankPerson);
+	drawWomenScoreCard($blankPerson);
+	drawMenScoreCard($blankPerson);
+	drawMenScoreCard($blankPerson);
+	drawScoreSheets($blankTeam,3);
 	
 	$pdf->Output();
 ?>

@@ -620,11 +620,23 @@ function userLoggedInNameParts(){
 					institution: document.getElementById("clubBeingRegistered").value
 				},
 				//dataType: 'json',
-				success: function () {
-					//alert("saved");
+				success: function (data) {
+					data = JSON.parse(data);
+					if((data.Error == true)||(data.Error == "true"))
+					{
+						//kickback 8 per event errror
+							//and uncheck the box.
+						alert(data.Message);
+						returnVal = false;
+					}
+					else
+					{
+						//alert("sucess");
+						returnVal = true;
+					}
 				},
 				error: function (textStatus, errorThrown) {
-					alert("error updating person");
+					alert("error updating team ABC designation");
 				}
 			});
 		}
@@ -764,15 +776,22 @@ function userLoggedInNameParts(){
 		//populate it
 		optionArray = [];
 		optionArray['A'] = "A";
-		/*optionArray['B'] = "B";
-		optionArray['C'] = "C";
-		optionArray['D'] = "D";
-		optionArray['E'] = "E";
-		optionArray['F'] = "F";
-		optionArray['G'] = "G";
-		optionArray['H'] = "H";
-		optionArray['I'] = "I";*/
-		
+		<?php
+		if(userIsExecutiveAdministrator())
+		{
+		echo "
+		optionArray['B'] = 'B';
+		optionArray['C'] = 'C';
+		optionArray['D'] = 'D';
+		optionArray['E'] = 'E';
+		optionArray['F'] = 'F';
+		optionArray['G'] = 'G';
+		optionArray['H'] = 'H';
+		optionArray['I'] = 'I';
+		";
+		}
+		?>
+
 		var opt;
 		for (var ID in optionArray){
 			opt = document.createElement('option');

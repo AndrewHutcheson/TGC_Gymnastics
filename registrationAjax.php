@@ -43,7 +43,8 @@ if(userIsLoggedIn()) //quick way of parsing input to prevent sql injections sinc
 
 		if(($now <= $finalDate) || userIsExecutiveAdministrator())
 		{
-			$Reg->changePersonCompetitionInMeet($person,$oldCompetition,$newCompetition,$institution,$designation);
+			$message = $Reg->changePersonCompetitionInMeet($person,$oldCompetition,$newCompetition,$institution,$designation);
+			echo json_encode($message);
 		}
 		else
 		{
@@ -74,7 +75,17 @@ if(userIsLoggedIn()) //quick way of parsing input to prevent sql injections sinc
 
 		if(($now <= $finalDate) || userIsExecutiveAdministrator())
 		{
-			$Reg->changePersonDesignationInMeet($person,$competition,$designation,$institution,$oldDesignation);
+			$message = $Reg->changePersonDesignationInMeet($person,$competition,$designation,$institution,$oldDesignation);
+			echo json_encode($message);
+		}
+		else
+		{
+			$returnstuff = array(
+				'Error' => true,
+				'Message'=>"Final deadline passed",
+				'now is ' . $now . ' late is ' . $lateDate
+				);
+			echo json_encode($returnstuff);
 		}
 	}
 

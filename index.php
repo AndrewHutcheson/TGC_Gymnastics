@@ -164,10 +164,11 @@
 					$query = "SELECT news.ID, Title, Subtitle, Posted, Updated, LastUpdatedAuthor, Content, people.Firstname, people.Lastname
 								FROM  Content_Newsfeed news, Identifiers_People people
 								WHERE news.siteID = ? AND news.pageID = ? AND news.InitialAuthor = people.ID AND news.Deleted = 0
-								ORDER BY Posted DESC"; // LIMIT --todo: add pagination
+								ORDER BY Posted DESC Limit ?"; // LIMIT --todo: add pagination
 										
+					$limit = 6;
 					$stmt = $con->prepare($query);
-					$stmt->bind_param("ii",$siteID, $pageID);
+					$stmt->bind_param("iii",$siteID, $pageID, $limit);
 							
 					$stmt->execute();
 					$stmt->store_result(); //allow us to get properties, e.g. stmt->num_rows;
