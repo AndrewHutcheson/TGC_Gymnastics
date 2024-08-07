@@ -323,6 +323,151 @@ function deleteCompetition($competitionID)
 	}
 }
 
+if(isset($_REQUEST['updateNumPerTeamScore']))
+{	
+	$competitionID = $_REQUEST['competitionID'];
+	$num = $_REQUEST['numPerTeamScore'];
+	echo json_encode(updateNumPerTeamScore($competitionID,$num));
+}
+
+function updateNumPerTeamScore($competitionID,$num)
+{
+	global $conn;
+	$stmtNum = $conn->prepare("
+		Update 
+			Events_Competitions
+		Set
+			numPerTeamScore = ?
+		Where
+			ID = ?
+		;");
+
+	$stmtNum->bindParam(1, $num, PDO::PARAM_INT, 5);
+	$stmtNum->bindParam(2, $competitionID, PDO::PARAM_INT, 6);
+	$stmtNum->execute();
+}
+
+if(isset($_REQUEST['updateTeamMaxOnEvent']))
+{	
+	$competitionID = $_REQUEST['competitionID'];
+	$max = $_REQUEST['max'];
+	echo json_encode(updateTeamMaxOnEvent($competitionID,$max));
+}
+
+function updateTeamMaxOnEvent($competitionID,$max)
+{
+	global $conn;
+	$stmtMax = $conn->prepare("
+		Update 
+			Events_Competitions
+		Set
+			TeamMaxOnEvent = ?
+		Where
+			ID = ?
+		;");
+
+	$stmtMax->bindParam(1, $max, PDO::PARAM_INT, 5);
+	$stmtMax->bindParam(2, $competitionID, PDO::PARAM_INT, 6);
+	$stmtMax->execute();
+}
+
+if(isset($_REQUEST['updateTeamPlacesToAward']))
+{	
+	$competitionID = $_REQUEST['competitionID'];
+	$places = $_REQUEST['places'];
+	echo json_encode(updateTeamPlacesToAward($competitionID,$places));
+}
+
+function updateTeamPlacesToAward($competitionID,$places)
+{
+	global $conn;
+	$stmtTeamPlaces = $conn->prepare("
+		Update 
+			Events_Competitions
+		Set
+			TeamPlacesToAward = ?
+		Where
+			ID = ?
+		;");
+
+	$stmtTeamPlaces->bindParam(1, $places, PDO::PARAM_INT, 5);
+	$stmtTeamPlaces->bindParam(2, $competitionID, PDO::PARAM_INT, 6);
+	$stmtTeamPlaces->execute();
+}
+
+if(isset($_REQUEST['updatePlacesToAward']))
+{	
+	$competitionID = $_REQUEST['competitionID'];
+	$places = $_REQUEST['places'];
+	echo json_encode(updatePlacesToAward($competitionID,$places));
+}
+
+function updatePlacesToAward($competitionID,$places)
+{
+	global $conn;
+	$stmtPlaces = $conn->prepare("
+		Update 
+			Events_Competitions
+		Set
+			PlacesToAward = ?
+		Where
+			ID = ?
+		;");
+
+	$stmtPlaces->bindParam(1, $places, PDO::PARAM_INT, 5);
+	$stmtPlaces->bindParam(2, $competitionID, PDO::PARAM_INT, 6);
+	$stmtPlaces->execute();
+}
+
+if(isset($_REQUEST['updateDivision']))
+{	
+	$competitionID = $_REQUEST['competitionID'];
+	$division = $_REQUEST['division'];
+	echo json_encode(updateDivision($competitionID,$division));
+}
+
+function updateDivision($competitionID,$division)
+{
+	global $conn;
+	$stmtLevels = $conn->prepare("
+		Update 
+			Events_Competitions
+		Set
+			Division = ?
+		Where
+			ID = ?
+		;");
+
+	$stmtLevels->bindParam(1, $division, PDO::PARAM_INT, 5);
+	$stmtLevels->bindParam(2, $competitionID, PDO::PARAM_INT, 6);
+	$stmtLevels->execute();
+}
+
+if(isset($_REQUEST['updateLevel']))
+{	
+	$competitionID = $_REQUEST['competitionID'];
+	$level = $_REQUEST['level'];
+	echo json_encode(updateLevel($competitionID,$level));
+}
+
+
+function updateLevel($competitionID,$level)
+{
+	global $conn;
+	$stmtLevels = $conn->prepare("
+		Update 
+			Events_Competitions
+		Set
+			Level = ?
+		Where
+			ID = ?
+		;");
+
+	$stmtLevels->bindParam(1, $level, PDO::PARAM_INT, 5);
+	$stmtLevels->bindParam(2, $competitionID, PDO::PARAM_INT, 6);
+	$stmtLevels->execute();
+}
+
 function isCompetitionEmptyOfGymnasts($competitionID)
 {
 	global $conn;

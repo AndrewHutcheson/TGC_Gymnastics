@@ -151,19 +151,19 @@ if(userIsLoggedIn())
 		$year = $_REQUEST['year'];
 	
 	//$showCgaControls = false;
-	$showCgaControls = true;
-	if(isset($_REQUEST['adrian']))
+	//$showCgaControls = true;
+	//if(isset($_REQUEST['adrian']))
 		$showCgaControls = true;
 	
 	$showThsgcaControls = false;
 	//$showThsgcaControls = true;
-	if(isset($_REQUEST['thsgca']))
-		$showThsgcaControls = true;
+	//if(isset($_REQUEST['thsgca']))
+		//$showThsgcaControls = true;
 	
 	//$showNaigcControls = false;
-	$showNaigcControls = true;
-	if(isset($_REQUEST['naigc']))
-		$showNaigcControls = true;
+	$showNaigcControls = false;
+	//if(isset($_REQUEST['naigc']))
+		//$showNaigcControls = true;
 	
 	//So I want to minimize the number of dots and datapoints. Well, the question of "does this institution have both mens and womens programs?" is most important for high schools (type3) and NCAA (type5)
 		//anything else we are simply creating a duplicate data point and people aren't really ever going to want to know how many USAG gyms have mens equipment as often (besides, we dont have the data for them)
@@ -312,7 +312,26 @@ if(userIsLoggedIn())
 					Identifiers_Programs.InstitutionID
 				HAVING
 					COUNT(*) = 2
-				";
+		UNION
+				SELECT
+					ID,
+					TEMP_CC.Name, 
+					TEMP_CC.Lat, 
+					TEMP_CC.Lng, 
+					'CC' AS ClubType, 
+					'CC' AS TypeOfClub, 
+					1 AS Enrollment, 
+					0 AS Exclusive, 
+					0 AS Discipline,
+					0 AS Division,
+					0 as Division2,
+					State,
+					0 as onCampusGym
+				FROM
+					TEMP_CC	
+				WHERE
+					State ".$state."
+				;";
 		//just load if set for hacky improvement to speed/optimization
 		if(isset($_REQUEST['andrew']))
 		{
@@ -379,26 +398,7 @@ if(userIsLoggedIn())
 					WHERE
 						Title = 'Board Contact' AND
 						Season = ".$year."
-			UNION
-					SELECT
-						ID,
-						TEMP_CC.Name, 
-						TEMP_CC.Lat, 
-						TEMP_CC.Lng, 
-						'CC' AS ClubType, 
-						'CC' AS TypeOfClub, 
-						1 AS Enrollment, 
-						0 AS Exclusive, 
-						0 AS Discipline,
-						0 AS Division,
-						0 as Division2,
-						State,
-						0 as onCampusGym
-					FROM
-						TEMP_CC	
-					WHERE
-						State ".$state."
-					";
+			";
 		}
 		
 		$sqlClubs .= ";";
@@ -1972,6 +1972,9 @@ if(userIsLoggedIn())
 					</div>
 				</td>
 			</tr>
+			<?
+			}
+			?>
 			<tr>
 				<td>
 					Convention Centers: <img src = "MapIcons/cc.png"></img><br/>
@@ -1984,9 +1987,6 @@ if(userIsLoggedIn())
 					</div>
 				</td>
 			</tr>
-			<?
-			}
-			?>
 			<tr>
 				<td>
 					<br/>

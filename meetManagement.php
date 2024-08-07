@@ -103,7 +103,7 @@ function getMeets()
 		loadRegData(2);
 		loadRegData(3);
 		loadTeamData();
-		$("#teamTable").tabulator("setHeight", "800px");
+		teamTable.setHeight("1600px");
 	}
 	function loadRegData(iDiscipline)
 	{
@@ -124,11 +124,11 @@ function getMeets()
 				dataType: 'json',
 				success: function (data) {
 					if(iDiscipline == 2)
-						$("#menRegTable").tabulator("setData", data);
+						menRegTable.setData(data);
 					else if(iDiscipline == 1)
-						$("#womenRegTable").tabulator("setData", data);
+						womenRegTable.setData(data);
 					else
-						$("#clinicEventTable").tabulator("setData", data);
+						clinicEventTable.setData(data);
 					
 				},
 				error: function (textStatus, errorThrown) {
@@ -163,7 +163,7 @@ function getMeets()
 				},
 				dataType: 'json',
 				success: function (data) {
-					$("#teamTable").tabulator("setData", data);
+					teamTable.replaceData(data);
 					document.getElementById('MeetMaterialLink').innerHTML = url + " " + liveUrl;
 					document.getElementById('MeetMaterialLink2').innerHTML = url2;
 					document.getElementById('scriptLink').innerHTML = scriptUrl;
@@ -224,16 +224,16 @@ function getMeets()
 								<div id = "MeetMaterialLink"></div>
 								<div id = "MeetMaterialLink2"></div>
 								<div id = "scriptLink"></div>
-								<h2>Clinic Registration: <span onclick = '$("#clinicEventTable").tabulator("download", "csv", "clinic.csv");'>(csv)</span></h2>
+								<h2>Clinic Registration: <span onclick = 'clinicEventTable.download("csv", "clinic.csv");'>(csv)</span></h2>
 								<div id="clinicEventTable"></div>
 								<br/>
-								<h2>Womens Teams and Competitors: <span onclick = '$("#womenRegTable").tabulator("download", "csv", "women.csv");'>(csv)</span></h2>
+								<h2>Womens Teams and Competitors: <span onclick = 'womenRegTable.download("csv", "women.csv");'>(csv)</span></h2>
 								<div id="womenRegTable"></div>
 								<br/>
-								<h2>Mens Teams and Competitors: <span onclick = '$("#menRegTable").tabulator("download", "csv", "men.csv");'>(csv)</span></h2>
+								<h2>Mens Teams and Competitors: <span onclick = 'menRegTable.download("csv", "men.csv");'>(csv)</span></h2>
 								<div id="menRegTable"></div> <br>
 								<br/>
-								<h2>Team Summary - see fees and create rotations: <span onclick = '$("#teamTable").tabulator("download", "csv", "teams.csv");'>(csv)</span><button onclick = 'loadTeamData();'>&#x21bb;</button></h2>
+								<h2>Team Summary - see fees and create rotations: <span onclick = 'teamTable.download("csv", "teams.csv");'>(csv)</span><button onclick = 'loadTeamData();'>&#x21bb;</button></h2>
 								<p>This tool will help you calculate and balance rotations. The rotations are counted on a per-name basis. 
 								So name them: Men 1, Men 2, Women 1, Women 2, ByeRoation etc. If you have multiple sets of equipment, 
 								like Texas Tech does for women, just name them with 8 or 9 in the name or something to create a new counter.</p>
@@ -242,7 +242,7 @@ function getMeets()
 								
 								<br/>
 								<script type="text/javascript">
-									$("#clinicEventTable").tabulator({
+									var clinicEventTable = new Tabulator("#clinicEventTable", {
 										layout: "fitDataFill",
 										//responsiveLayout: "collapse",
 										columns:[
@@ -266,7 +266,7 @@ function getMeets()
 										index:"ID"
 									});
 								
-									$("#menRegTable").tabulator({
+									var menRegTable = new Tabulator("#menRegTable", {
 										layout: "fitDataFill",
 										groupBy: "CompetitionID",
 										columns:[
@@ -291,7 +291,7 @@ function getMeets()
 										groupHeader:function(value, count, data, group){return data[0].Team;},
 									});
 									
-									$("#womenRegTable").tabulator({
+									var womenRegTable = new Tabulator("#womenRegTable", {
 										layout: "fitDataFill",
 										groupBy: "CompetitionID",
 										columns:[
@@ -314,51 +314,52 @@ function getMeets()
 										groupHeader:function(value, count, data, group){return data[0].Team;},
 									});
 									
-									$("#teamTable").tabulator({
-									layout: "fitDataFill",
-									groupBy: "Rotation",
-									height: "100px",
-									movableColumns: true,
-									columns:[
-										{title:"ID",				field:"ID",	 			visible:false},
-										{title:"MeetID",			field:"MeetID",	 		visible:false},
-										{title:"Competition",	 	field:"TeamName", 		sorter:"string"},
-										{title:"Club",	 			field:"InstitutionName", 		sorter:"string"},
-										{title:"Team",	 			field:"Designation"	},
-										{title:"Rotation", 			field:"Rotation", 		sorter:"string",	editor: "input"},
-										{title:"MFX",	 			field:"MFX", 			sorter:"number",	bottomCalc:"sum"},
-										//{title:"FX",	 			field:"FX", 			sorter:"number",	bottomCalc:"sum"},
-										{title:"PH",	 			field:"PH", 			sorter:"number",	bottomCalc:"sum"},
-										{title:"SR",	 			field:"SR", 			sorter:"number",	bottomCalc:"sum"},
-										//{title:"VT",	 			field:"VT", 			sorter:"number",	bottomCalc:"sum"},
-										{title:"MVT",	 			field:"MVT", 			sorter:"number",	bottomCalc:"sum"},
-										{title:"PB",	 			field:"PB", 			sorter:"number",	bottomCalc:"sum"},
-										{title:"HB",	 			field:"HB", 			sorter:"number",	bottomCalc:"sum"},
-										{title:"WVT",	 			field:"WVT", 			sorter:"number",	bottomCalc:"sum"},
-										{title:"UB",	 			field:"UB", 			sorter:"number",	bottomCalc:"sum"},
-										{title:"BB",	 			field:"BB", 			sorter:"number",	bottomCalc:"sum"},
-										{title:"WFX",	 			field:"WFX", 			sorter:"number",	bottomCalc:"sum"},
-										{title:"CompetitionID", 	field:"CompetitionID", 	visible:false},
-										{title:"InstitutionID", 	field:"InstitutionID", 	visible:false},
-										{title:"Score?", 			field:"TeamScore",		formatter:"tickCross", formatterParams:{crossElement:false,}, bottomCalc:"sum" },
-										{title:"Fee", 				field:"TeamFee",	 	formatter:"money", 	formatterParams:{symbol:"$", precision:2}, bottomCalc:"sum", bottomCalcFormatterParams :{symbol:"$", precision:2}}
-									],
-									//groupBy: "TeamName",
-									index:"ID",
-									cellEdited: function(cell){
-										
-										var row = cell.getRow();
-										var data = row.getData();
-										
-										if(cell.getField()=="Rotation")
-										{
-											if(updateTeamOptions(data.Rotation,data.CompetitionID,data.InstitutionID,data.Designation,data.ID))
-												; //yay it saved
-											else
-												cell.restoreOldValue();
-										}
-									}
-								});
+									var teamTable = new Tabulator("#teamTable", {
+										layout: "fitDataFill",
+										groupBy: "Rotation",
+										height: "250px",
+										movableColumns: true,
+										columns:[
+											{title:"ID",				field:"ID",	 			visible:false},
+											{title:"MeetID",			field:"MeetID",	 		visible:false},
+											{title:"Competition",	 	field:"TeamName", 		sorter:"string", headerFilter:"input"},
+											{title:"Club",	 			field:"InstitutionName", 		sorter:"string", headerFilter:"input"},
+											{title:"Team",	 			field:"Designation"	},
+											{title:"Rotation", 			field:"Rotation", 		sorter:"string",	editor: "input", headerFilter:"input"},
+											{title:"MFX",	 			field:"MFX", 			sorter:"number",	bottomCalc:"sum"},
+											//{title:"FX",	 			field:"FX", 			sorter:"number",	bottomCalc:"sum"},
+											{title:"PH",	 			field:"PH", 			sorter:"number",	bottomCalc:"sum"},
+											{title:"SR",	 			field:"SR", 			sorter:"number",	bottomCalc:"sum"},
+											//{title:"VT",	 			field:"VT", 			sorter:"number",	bottomCalc:"sum"},
+											{title:"MVT",	 			field:"MVT", 			sorter:"number",	bottomCalc:"sum"},
+											{title:"PB",	 			field:"PB", 			sorter:"number",	bottomCalc:"sum"},
+											{title:"HB",	 			field:"HB", 			sorter:"number",	bottomCalc:"sum"},
+											{title:"WVT",	 			field:"WVT", 			sorter:"number",	bottomCalc:"sum"},
+											{title:"UB",	 			field:"UB", 			sorter:"number",	bottomCalc:"sum"},
+											{title:"BB",	 			field:"BB", 			sorter:"number",	bottomCalc:"sum"},
+											{title:"WFX",	 			field:"WFX", 			sorter:"number",	bottomCalc:"sum"},
+											{title:"CompetitionID", 	field:"CompetitionID", 	visible:false},
+											{title:"InstitutionID", 	field:"InstitutionID", 	visible:false},
+											{title:"Score?", 			field:"TeamScore",		formatter:"tickCross", formatterParams:{crossElement:false,}, bottomCalc:"sum" },
+											{title:"Fee", 				field:"TeamFee",	 	formatter:"money", 	formatterParams:{symbol:"$", precision:2}, bottomCalc:"sum", bottomCalcFormatterParams :{symbol:"$", precision:2}}
+										],
+										//groupBy: "TeamName",
+										index:"ID"
+									});
+
+									teamTable.on("cellEdited", function(cell){
+											
+											var row = cell.getRow();
+											var data = row.getData();
+											
+											if(cell.getField()=="Rotation")
+											{
+												if(updateTeamOptions(data.Rotation,data.CompetitionID,data.InstitutionID,data.Designation,data.ID))
+													; //yay it saved
+												else
+													cell.restoreOldValue();
+											}
+									});
 								</script>
 								
 						<?php

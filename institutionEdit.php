@@ -2,8 +2,7 @@
 <?php require_once("auth.php"); ?>
 <?php require_once("globals.php"); ?>
 
-<script type="text/javascript" src="tabulator-master/dist/js/tabulator.min.js"></script>
-<script type="text/javascript" src="tabulator-master/dist/js/jquery_wrapper.js"></script>
+<script src = "tabulator-master/dist/js/tabulator.min.js" ></script>
 
 <script type="text/javascript">
 	
@@ -150,7 +149,7 @@
 											},
 											dataType: 'json',
 											success: function (data) {
-												$("#programTable").tabulator("replaceData", data);
+												ProgramTable.replaceData(data);
 											},
 											error: function (textStatus, errorThrown) {
 												//console.log(errorThrown);
@@ -243,7 +242,7 @@
 										return editor;
 									}
 									
-									$("#programTable").tabulator({
+									var ProgramTable = new Tabulator("#programTable", {
 										layout: "fitDataFill",
 										responsiveLayout:false,
 										columns:[
@@ -251,7 +250,7 @@
 											{title:"Alt Name",				field:"Name" 				},
 											{title:"Type",					field:"ClubTypeID" ,		visible:false	},
 											{title:"Type",					field:"ClubTypeName" ,		editor:typeEditor	},
-											{title:"M/W", 					field:"Discipline",			mutator:DisciplineMutator, 	formatter:"plaintext",	sorter:"string", editor:"select", editorParams:{values:{"2":"M","1":"W"}}},
+											{title:"M/W", 					field:"Discipline",			mutator:DisciplineMutator, 	formatter:"plaintext",	sorter:"string", editor:"list", editorParams:{values:{"2":"M","1":"W"}}},
 											{title:"Division",				field:"Division" 			},
 											{title:"Phone",					field:"Phone",			editor:"input"		},
 											{title:"Email",					field:"Email",			editor:"input",	formatter:"plaintext",	sorter:"string",  				},
@@ -264,7 +263,9 @@
 											{title:"Inactive",				field:"Inactive",		editor:"input",	formatter:"plaintext",	sorter:"string",  				}
 										],
 										index:"ID",
-										cellEdited: function(cell){
+									});
+
+									ProgramTable.on("cellEdited", function(cell){
 										
 										var row = cell.getRow();
 										var data = row.getData();
@@ -281,7 +282,6 @@
 										{
 											changeEmail(data.ProgramID,data.Email);
 										}
-									}
 									});
 								</script>
 						<?php

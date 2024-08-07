@@ -2084,11 +2084,23 @@ class meetRegistration
 				}
 				elseif($numCurrentlyRegistered == $max)
 				{
+					$EventLookup = array(
+						'1'=>'MFX',
+						'2'=>'MPH',
+						'3'=>'MSR',
+						'4'=>'MVT',
+						'5'=>'MPB',
+						'6'=>'MHB',
+						'8'=>'WVT',
+						'9'=>'WUB',
+						'10'=>'WBB',
+						'11'=>'WFX'
+					);
 					$error = true;
 					$conn->rollBack();
 					$return_arr = array(
 						'Error' => $error,
-						'Message'=>"This competition has a limit of " . $max . " people per event per level."
+						'Message'=>"This competition has a limit of " . $max . " people per event per level. There are already " . $max . " on " . $EventLookup[$eventID] . "."
 						);
 				}
 			}

@@ -248,8 +248,10 @@ function getMeets()
 											//{title:"Team",		field:"TeamScore",	formatter:"tickCross", headerFilter:"input"}
 										],
 										index:"ID",
-										groupHeader:function(value, count, data, group){return data[0].Team;},
-										cellEdited:function(cell){
+										groupHeader:function(value, count, data, group){return data[0].Team;}
+									});
+
+									ScoreTable.on("cellEdited", function(cell){
 												//This callback is called any time a cell is edited
 												var row = cell.getRow();
 												var data = row.getData();
@@ -278,7 +280,6 @@ function getMeets()
 												{
 													toggleVerify(data.ID, data.Verified, data.CompetitionID, editedEventID);
 												}
-										},
 									});
 								</script>
 								<br/>

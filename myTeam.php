@@ -135,7 +135,7 @@ function getPeepDeets()
 				},
 				dataType: 'json',
 				success: function (data) {
-					$("#teamTable").tabulator("setData", data);
+					teamTable.setData(data);
 				},
 				error: function (textStatus, errorThrown) {
 					//console.log(errorThrown);
@@ -676,11 +676,11 @@ function getPeepDeets()
 								<button id = "addPerson" onclick ="affiliatePerson();">Affiliate person to season</button> <button id = "addNewPerson" onclick ="addNewPerson();">Add New Person to Database</button> <!--button id = "editPersonW">Name Update</button--><br/>
 								<p>Registration gives registration access. Administrate gives access to this page and the Meet Hosting pages.</p>
 								
-								<button onclick = '$("#teamTable").tabulator("download", "csv", "teamInfo.csv");'>Download</button><br/>
+								<button onclick = 'teamTable.download("csv", "teamInfo.csv");'>Download</button><br/>
 								<div id="teamTable"></div> <br>
 								
 								<script type="text/javascript">
-									$("#teamTable").tabulator({
+									var teamTable = new Tabulator("#teamTable", {
 										pagination:"local", 
 										paginationSize:30,
 										layout: "fitDataFill",
@@ -700,12 +700,13 @@ function getPeepDeets()
 											{title:"Administrate", 	field:"Administrate",	formatter:"tickCross", sorter:"boolean", cellClick:function(e, cell){cell.setValue(!cell.getValue());}	},
 											{title:"Type", 			field:"Type",			formatter:"plaintext",	sorter:"string", editor:"select", editorParams:{values:["Gymnast","Coach","School Staff","Gym Staff"]}},
 										],
-										index:"ID",
-										rowDeleted:function(row){
+										index:"ID"
+									});
+										teamTable.on("rowDeleted", function(row){
 											var data = row.getData();
 											removeClubAffiliation(data.Season,data.ID);
-										},
-										cellEdited:function(cell){
+										});
+										teamTable.on("cellEdited", function(cell){
 											//This callback is called any time a cell is edited
 											var row = cell.getRow();
 											var data = row.getData();
@@ -758,7 +759,6 @@ function getPeepDeets()
 											{
 												savePersonType(data.ID,data.Type);
 											}
-										}
 									});
 								</script>
 								<div id="popUpDiv">

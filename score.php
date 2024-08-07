@@ -177,7 +177,11 @@ function getMeets()
 								$stmtMeets = getMeets();
 								echo "<select id = 'meetSelectMenu' onchange = 'buttonClicked();'>
 									<option selected disabled value = ''>Select a meet:</option>";
-								if($stmtMeets->rowCount() >= 1){
+								if($stmtMeets == false)
+								{
+									echo "<option disabled value = ''>No meets found this season.</option>";
+								}
+								else if($stmtMeets->rowCount() >= 1){
 									while($row = $stmtMeets->fetch(PDO::FETCH_ASSOC))
 									{
 										if(isset($temp[$row['Hostclub']]))
@@ -225,8 +229,10 @@ function getMeets()
 											{title:"Score", 		field:"Score",	 	sorter:"number",	formatter:"money",	formatterParams:{precision:3},	editor:"number", width:63, headerVertical:true},
 										],
 										index:"ID",
-										groupHeader:function(value, count, data, group){return data[0].Team;},
-										cellEdited:function(cell){
+										groupHeader:function(value, count, data, group){return data[0].Team;}
+									});
+
+									ScoreTable.on("cellEdited", function(cell){
 												//This callback is called any time a cell is edited
 												var row = cell.getRow();
 												var data = row.getData();
@@ -252,7 +258,6 @@ function getMeets()
 														row.update({SV:0});
 													}
 												}
-										},
 									});
 								</script>
 								<br/>

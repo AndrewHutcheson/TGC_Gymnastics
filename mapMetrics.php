@@ -10,7 +10,6 @@ error_reporting(E_ALL);
 
 <script type="text/javascript" src="js/moment.js"></script>
 <script type="text/javascript" src="tabulator-master/dist/js/tabulator.min.js"></script>
-<script type="text/javascript" src="tabulator-master/dist/js/jquery_wrapper.min.js"></script>
 
 <body class="left-sidebar">
 		<!-- Wrapper -->
@@ -164,8 +163,11 @@ error_reporting(E_ALL);
 								{title:"Value", field:"Value", headerFilter:"input"},
 							]
 						});
-						table.setData(theData);
-						table.redraw(true);
+						table.on("tableBuilt", function(){
+							table.setData(theData);
+							table.redraw(true);
+						});
+						
 					</script>
 					
 					<?php

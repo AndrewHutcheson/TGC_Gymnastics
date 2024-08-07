@@ -77,12 +77,12 @@
 												<td>College Station, TX</td>
 												<td></td>
 											</tr>
-											<tr>
+											<!--tr>
 												<td>30 Mar</td>
 												<td>Texas Tech Invitational</td>
 												<td>Lubbock, TX</td>
 												<td></td>
-											</tr>
+											</tr-->
 											<tr style = 'color:green'>
 												<td>Apr 10-13</td>
 												<td>NAIGC National Championships</td>

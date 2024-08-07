@@ -498,7 +498,8 @@ function getScores($meetID, $institutionID, $Discipline)
 					Events_Competitions.Level = Constraints_MeetLevels.ID AND
 					Events_Competitions.Discipline = Constraints_Disciplines.ID AND
 					Events_Routines.CompetitionID IN (Select ID From Events_Competitions WHERE MeetID = ? AND Discipline = ?) AND
-					Events_Routines.RegisteredBy = alias2.ID
+					Events_Routines.RegisteredBy = alias2.ID AND
+					Events_Routines.Exhibitionist = 0
 				GROUP BY
 					Events_Routines.PersonID,
 					Events_Routines.CompetitionID

@@ -32,9 +32,7 @@ function getValidClubs()
 }
 
 ?>
-
-<script type="text/javascript" src="tabulator-master/dist/js/tabulator.js"></script>
-<script type="text/javascript" src="tabulator-master/dist/js/jquery_wrapper.js"></script>
+<script src = "tabulator-master/dist/js/tabulator.min.js" ></script>
 
 <script>
 	function changeYearClub()
@@ -54,7 +52,7 @@ function getValidClubs()
 				},
 				dataType: 'json',
 				success: function (data) {
-					$("#teamTable").tabulator("setData", data);
+					TeamTable.setData(data);
 				},
 				error: function (textStatus, errorThrown) {
 					//console.log(errorThrown);
@@ -653,9 +651,9 @@ function getValidClubs()
 								</select><br/>
 								<br/>
 								<input size = "2" disabled id = "newWId"/>
-								<input size = "15" type = "text" id = "newWLast" autocomplete = "off" placeholder = "Last Name"/>
-								<input size = "12" type = "text" id = "newWFirst" placeholder = "First Name"/>
-								<input size = "3" type = "text" id = "newWMiddle"  placeholder = "Middle" />
+								<input size = "15" type = "text" id = "newWLast" name = "h76f875fvi" autocomplete="new-password" placeholder = ""/>
+								<input size = "12" type = "text" id = "newWFirst" placeholder = "First Name" autocomplete="new-password"/>
+								<input size = "3" type = "text" id = "newWMiddle"  placeholder = "Middle" autocomplete="new-password"/>
 								<select id = "newWGender">
 									<option selected disabled>Select Gender</option>
 									<option value = "1">F</option>
@@ -667,14 +665,14 @@ function getValidClubs()
 									<option value = "Part-Time Student">Part-Time Student</option>
 									<option value = "Non-Student">Non-Student</option>
 								</select>
-								<input size = "15" type = "text" id = "newWPhone"  placeholder = "Phone" />
-								<input size = "25" type = "text" id = "newWEmail"  placeholder = "Email" /><br/>
+								<input size = "15" type = "text" id = "newWPhone"  placeholder = "Phone" autocomplete="new-password"/>
+								<input size = "25" type = "text" id = "newWEmail"  placeholder = "Email" autocomplete="new-password"/><br/>
 								<button id = "addPerson" onclick ="affiliatePerson();">Affiliate person to season</button> <button id = "addNewPerson" onclick ="addNewPerson();">Add New Person to Database</button> <!--button id = "editPersonW">Name Update</button--><br/>
 								<p>Super Admin gives access to *this* page. TGC Admin gives typical all-club-admin access.</p>
 								<div id="teamTable"></div> <br>
 								
 								<script type="text/javascript">
-									$("#teamTable").tabulator({
+									var TeamTable = new Tabulator("#teamTable", {										
 										pagination:"local", 
 										paginationSize:30,
 										layout: "fitDataFill",
@@ -698,11 +696,14 @@ function getValidClubs()
 											//{title:"Membership Paid?", field:"Membership",			formatter:membershipButton, 	sorter:"string"},
 										],
 										index:"ID",
-										rowDeleted:function(row){
-											var data = row.getData();
-											removeClubAffiliation(data.Season,data.ID);
-										},
-										cellEdited:function(cell){
+									});
+
+									TeamTable.on("rowDeleted", function(row){
+										var data = row.getData();
+										removeClubAffiliation(data.Season,data.ID);
+									});
+
+									TeamTable.on("cellEdited", function(cell){
 											//This callback is called any time a cell is edited
 											var row = cell.getRow();
 											var data = row.getData();
@@ -763,7 +764,6 @@ function getValidClubs()
 											{
 												savePersonType(data.ID,data.Type);
 											}
-										}
 									});
 								</script>
 								<div id="popUpDiv">

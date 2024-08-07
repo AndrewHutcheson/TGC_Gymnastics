@@ -3,22 +3,18 @@
 <?php require_once("globals.php"); ?>
 <?php require_once("random_compat-2.0.17/lib/random.php"); ?>
 <?php
-/**
- * Generate a random string, using a cryptographically secure 
- * pseudorandom number generator (random_int)
- * 
- * For PHP 7, random_int is a PHP core function
- * For PHP 5.x, depends on https://github.com/paragonie/random_compat
- * 
- * @param int $length      How many characters do we want?
- * @param string $keyspace A string of all possible characters
- *                         to select from
- * @return string
- */
 
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL); 
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
+use PHPMailer\PHPMailer\Exception;
+
+require_once 'PHPMailer/src/Exception.php';
+require_once 'PHPMailer/src/PHPMailer.php';
+require_once 'PHPMailer/src/SMTP.php';
 
 function random_str($length)
 {
@@ -118,11 +114,46 @@ if(isset($_REQUEST['sendpwdrecovery']))
 		if(!$error)
 		{
 			$conn->commit();
-			$msg = wordwrap("Hi, Please click <a href = 'https://tgcgymnastics.com/resetPwd?pwdresettoken=".$token."'>this link</a> to reset your password. The link will expire in two hours. If you did not request this, please email info@tgcgymnastics.com");
-			$headers = "MIME-Version: 1.0\r\n";
-			$headers .= "Content-Type: text/html; charset=ISO-8859-1\r\n";
-			mail($email,"TGC Password Reset Link",$msg,$headers);
-			$showMsg = true;
+			$mail = new PHPMailer(true);
+
+			try {
+				//Server settings
+				//$mail->SMTPDebug = 2;                                 // Enable verbose debug output
+				$mail->isSMTP();                                      // Set mailer to use SMTP
+				$mail->Host = 'smtp.gmail.com';                  // Specify main and backup SMTP servers
+				$mail->SMTPAuth = true;								// Enable SMTP authentication
+				$mail->SMTPDebug = 0;
+  				$mail->CharSet = 'UTF-8';                               
+				$mail->Username = 'texasgymnasticsconference@gmail.com';             // SMTP username
+				$mail->Password = 'qrumtmtjwtkemsws';                           // SMTP password
+				$mail->SMTPSecure = 'ssl';                            // Enable SSL encryption, TLS also accepted with port 465
+				$mail->Port = 465;                                    // TCP port to connect to
+			
+				//Recipients
+				$mail->setFrom('texasgymnasticsconference@gmail.com', 'Mailer');          //This is the email your form sends From
+				$mail->addAddress($email); // Add a recipient address
+				//$mail->addAddress('contact@example.com');               // Name is optional
+				//$mail->addReplyTo('info@example.com', 'Information');
+				//$mail->addCC('cc@example.com');
+				//$mail->addBCC('bcc@example.com');
+			
+				//Attachments
+				//$mail->addAttachment('/var/tmp/file.tar.gz');         // Add attachments
+				//$mail->addAttachment('/tmp/image.jpg', 'new.jpg');    // Optional name
+			
+				//Content
+				$mail->isHTML(true);                                  // Set email format to HTML
+				$mail->Subject = 'TGC Password Reset Link';
+				$mail->Body    = wordwrap("Hi, Please click <a href = 'https://tgcgymnastics.com/resetPwd?pwdresettoken=".$token."'>this link</a> to reset your password. The link will expire in 48 hours. If you did not request this, you can ignore this email.");
+				//$mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
+			
+				$mail->send();
+				$showMsg = true;
+
+			} catch (Exception $e) {
+				echo 'Message could not be sent.';
+				echo 'Mailer Error: ' . $mail->ErrorInfo;
+			}
 		}		
 	}
 	else

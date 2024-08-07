@@ -5,10 +5,16 @@
 
 function getMeets()
 {
-	if(getUserID() == 2669)
+	if(userIsSuperAdministrator())
+	{
 		$dateString = " YEAR(Date) >= 2008 AND ";
+		$order = "DESC";
+	}
 	else
+	{
 		$dateString = " Date >= CURDATE() AND ";
+		$order = "ASC";
+	}
 	
 	global $conn;
 	$stmtMeets= $conn->prepare("
@@ -23,7 +29,7 @@ function getMeets()
 			" . $dateString . "
 			ID NOT IN (96,98)
 		ORDER BY
-			Date ASC
+			Date " . $order . "
 		");
 	$stmtMeets->execute();
 	
@@ -132,27 +138,27 @@ function userLoggedInNameParts(){
 			if(lateDeadlineHasPassed) //we are late.
 			{
 				removeVisible = false;
-				$("#menRegTable").tabulator("hideColumn","Remove");
-				$("#womenRegTable").tabulator("hideColumn","Remove");
-				$("#clinicEventTable").tabulator("hideColumn","Remove");
+				menRegTable.hideColumn("Remove");
+				womenRegTable.hideColumn("Remove");
+				clinicEventTable.hideColumn("Remove");
 			}
 			else if(deadlineHasPassed) //closed
 			{
 				removeVisible = false;
 				teamMenuEditable = false;
 				document.getElementById("addPerson").disabled = true;
-				$("#menRegTable").tabulator("hideColumn","Remove");
-				$("#womenRegTable").tabulator("hideColumn","Remove");
-				$("#clinicEventTable").tabulator("hideColumn","Remove");
+				menRegTable.hideColumn("Remove");
+				womenRegTable.hideColumn("Remove");
+				clinicEventTable.hideColumn("Remove");
 			}
 			else //still early
 			{
 				removeVisible = true;
 				teamMenuEditable = true;
 				document.getElementById("addPerson").disabled = false;
-				$("#menRegTable").tabulator("showColumn","Remove");
-				$("#womenRegTable").tabulator("showColumn","Remove");
-				$("#clinicEventTable").tabulator("showColumn","Remove");
+				menRegTable.showColumn("Remove");
+				womenRegTable.showColumn("Remove");
+				clinicEventTable.showColumn("Remove");
 			}
 			
 			$.ajax({
@@ -168,11 +174,11 @@ function userLoggedInNameParts(){
 				dataType: 'json',
 				success: function (data) {
 					if(iDiscipline == 2)
-						$("#menRegTable").tabulator("replaceData", data);
+						menRegTable.replaceData(data);
 					else if(iDiscipline == 1)
-						$("#womenRegTable").tabulator("replaceData", data);
+						womenRegTable.replaceData(data);
 					else
-						$("#clinicEventTable").tabulator("replaceData", data);
+						clinicEventTable.replaceData(data);
 					loadTeamData();
 				},
 				error: function (textStatus, errorThrown) {
@@ -199,7 +205,7 @@ function userLoggedInNameParts(){
 				},
 				dataType: 'json',
 				success: function (data) {
-					$("#teamTable").tabulator("replaceData", data);
+					teamTable.replaceData(data);
 				},
 				error: function (textStatus, errorThrown) {
 					//console.log(errorThrown);
@@ -345,9 +351,9 @@ function userLoggedInNameParts(){
 		removeVisible = true;
 		teamMenuEditable = true;
 		document.getElementById("addPerson").disabled = false;
-		$("#menRegTable").tabulator("showColumn","Remove");
-		$("#womenRegTable").tabulator("showColumn","Remove");
-		$("#clinicEventTable").tabulator("showColumn","Remove");
+		menRegTable.showColumn("Remove");
+		womenRegTable.showColumn("Remove");
+		clinicEventTable.showColumn("Remove");
 	}
 	
 	function unregisterCompetitor(iPerson, iCompetition, iDesignation)
@@ -471,7 +477,7 @@ function userLoggedInNameParts(){
 					}
 				},
 				error: function (textStatus, errorThrown) {
-					alert("error updating event");
+					alert("technical error updating event");
 					//cell.restoreOldValue();
 					cell.setValue(!cell.getValue());
 				}
@@ -538,31 +544,31 @@ function userLoggedInNameParts(){
 		<?php //userIsExecutiveAdministrator(); ?>
 		if(enablePerTeamCompetitionRegistration && ((document.getElementById("clubBeingRegistered").value == 1)||(document.getElementById("clubBeingRegistered").value == 2)||(document.getElementById("clubBeingRegistered").value == 4)||(document.getElementById("clubBeingRegistered").value == 8)))
 		{
-			$("#menRegTable").tabulator("showColumn","MFXCount");
-			$("#menRegTable").tabulator("showColumn","MPHCount");
-			$("#menRegTable").tabulator("showColumn","MSRCount");
-			$("#menRegTable").tabulator("showColumn","MVTCount");
-			$("#menRegTable").tabulator("showColumn","MPBCount");
-			$("#menRegTable").tabulator("showColumn","MHBCount");
+			menRegTable.showColumn("MFXCount");
+			menRegTable.showColumn("MPHCount");
+			menRegTable.showColumn("MSRCount");
+			menRegTable.showColumn("MVTCount");
+			menRegTable.showColumn("MPBCount");
+			menRegTable.showColumn("MHBCount");
 			
-			$("#womenRegTable").tabulator("showColumn","WVTCount");
-			$("#womenRegTable").tabulator("showColumn","WUBCount");
-			$("#womenRegTable").tabulator("showColumn","WBBCount");
-			$("#womenRegTable").tabulator("showColumn","WFXCount");
+			womenRegTable.showColumn("WVTCount");
+			womenRegTable.showColumn("WUBCount");
+			womenRegTable.showColumn("WBBCount");
+			womenRegTable.showColumn("WFXCount");
 		}
 		else
 		{
-			$("#menRegTable").tabulator("hideColumn","MFXCount");
-			$("#menRegTable").tabulator("hideColumn","MPHCount");
-			$("#menRegTable").tabulator("hideColumn","MSRCount");
-			$("#menRegTable").tabulator("hideColumn","MVTCount");
-			$("#menRegTable").tabulator("hideColumn","MPBCount");
-			$("#menRegTable").tabulator("hideColumn","MHBCount");
+			menRegTable.hideColumn("MFXCount");
+			menRegTable.hideColumn("MPHCount");
+			menRegTable.hideColumn("MSRCount");
+			menRegTable.hideColumn("MVTCount");
+			menRegTable.hideColumn("MPBCount");
+			menRegTable.hideColumn("MHBCount");
 			
-			$("#womenRegTable").tabulator("hideColumn","WVTCount");
-			$("#womenRegTable").tabulator("hideColumn","WUBCount");
-			$("#womenRegTable").tabulator("hideColumn","WBBCount");
-			$("#womenRegTable").tabulator("hideColumn","WFXCount");
+			womenRegTable.hideColumn("WVTCount");
+			womenRegTable.hideColumn("WUBCount");
+			womenRegTable.hideColumn("WBBCount");
+			womenRegTable.hideColumn("WFXCount");
 		}
 	}
 	
@@ -1117,45 +1123,45 @@ function userLoggedInNameParts(){
 	{
 		if(toggle == "on")
 		{
-			$("#menRegTable").tabulator("hideColumn","MFXCount");
-			$("#menRegTable").tabulator("hideColumn","MPHCount");
-			$("#menRegTable").tabulator("hideColumn","MSRCount");
-			$("#menRegTable").tabulator("hideColumn","MVTCount");
-			$("#menRegTable").tabulator("hideColumn","MPBCount");
-			$("#menRegTable").tabulator("hideColumn","MHBCount");
-			$("#menRegTable").tabulator("hideColumn","MFX");
-			$("#menRegTable").tabulator("hideColumn","MPH");
-			$("#menRegTable").tabulator("hideColumn","MSR");
-			$("#menRegTable").tabulator("hideColumn","MVT");
-			$("#menRegTable").tabulator("hideColumn","MPB");
-			$("#menRegTable").tabulator("hideColumn","MHB");
-			$("#menRegTable").tabulator("hideColumn","MAA");
+			menRegTable.hideColumn("MFXCount");
+			menRegTable.hideColumn("MPHCount");
+			menRegTable.hideColumn("MSRCount");
+			menRegTable.hideColumn("MVTCount");
+			menRegTable.hideColumn("MPBCount");
+			menRegTable.hideColumn("MHBCount");
+			menRegTable.hideColumn("MFX");
+			menRegTable.hideColumn("MPH");
+			menRegTable.hideColumn("MSR");
+			menRegTable.hideColumn("MVT");
+			menRegTable.hideColumn("MPB");
+			menRegTable.hideColumn("MHB");
+			menRegTable.hideColumn("MAA");
 		
-			$("#womenRegTable").tabulator("hideColumn","WVTCount");
-			$("#womenRegTable").tabulator("hideColumn","WUBCount");
-			$("#womenRegTable").tabulator("hideColumn","WBBCount");
-			$("#womenRegTable").tabulator("hideColumn","WFXCount");
-			$("#womenRegTable").tabulator("hideColumn","WVT");
-			$("#womenRegTable").tabulator("hideColumn","WUB");
-			$("#womenRegTable").tabulator("hideColumn","WBB");
-			$("#womenRegTable").tabulator("hideColumn","WFX");
-			$("#womenRegTable").tabulator("hideColumn","WAA");
+			womenRegTable.hideColumn("WVTCount");
+			womenRegTable.hideColumn("WUBCount");
+			womenRegTable.hideColumn("WBBCount");
+			womenRegTable.hideColumn("WFXCount");
+			womenRegTable.hideColumn("WVT");
+			womenRegTable.hideColumn("WUB");
+			womenRegTable.hideColumn("WBB");
+			womenRegTable.hideColumn("WFX");
+			womenRegTable.hideColumn("WAA");
 		}
 		else
 		{
 			//enableTeamPerEventFlags();
-			$("#womenRegTable").tabulator("showColumn","WVT");
-			$("#womenRegTable").tabulator("showColumn","WUB");
-			$("#womenRegTable").tabulator("showColumn","WBB");
-			$("#womenRegTable").tabulator("showColumn","WFX");
-			$("#womenRegTable").tabulator("showColumn","WAA");
-			$("#menRegTable").tabulator("showColumn","MFX");
-			$("#menRegTable").tabulator("showColumn","MPH");
-			$("#menRegTable").tabulator("showColumn","MSR");
-			$("#menRegTable").tabulator("showColumn","MVT");
-			$("#menRegTable").tabulator("showColumn","MPB");
-			$("#menRegTable").tabulator("showColumn","MHB");
-			$("#menRegTable").tabulator("showColumn","MAA");
+			womenRegTable.showColumn("WVT");
+			womenRegTable.showColumn("WUB");
+			womenRegTable.showColumn("WBB");
+			womenRegTable.showColumn("WFX");
+			womenRegTable.showColumn("WAA");
+			menRegTable.showColumn("MFX");
+			menRegTable.showColumn("MPH");
+			menRegTable.showColumn("MSR");
+			menRegTable.showColumn("MVT");
+			menRegTable.showColumn("MPB");
+			menRegTable.showColumn("MHB");
+			menRegTable.showColumn("MAA");
 		}
 	}
 	
@@ -1424,7 +1430,7 @@ function userLoggedInNameParts(){
 							
 							<script type="text/javascript">
 							
-								$("#clinicEventTable").tabulator({
+								var clinicEventTable = new Tabulator("#clinicEventTable", {
 									layout: "fitDataFill",
 									responsiveLayout:false,
 									columns:[
@@ -1458,14 +1464,15 @@ function userLoggedInNameParts(){
 										{title:"Last Registered", 	field:"RegDate", responsive: 6},
 										{title:"Registered By", field:"RegBy", responsive: 6}
 									],
-									index:"ID",
-									rowDeleted:function(row){
+									index:"ID"
+								});
+									clinicEventTable.on("rowDeleted", function(row){
 										var data = row.getData();
 										//console.log(data.ID + " " + data.CompetitionID);
 										unregisterCompetitor(data.ID,data.CompetitionID,"");
 										loadRegData(3); //because groupBy is broken.
-									},	
-									cellEdited:function(cell){
+									});
+									clinicEventTable.on("cellEdited", function(cell){
 										
 										var row = cell.getRow();
 										var data = row.getData();
@@ -1510,10 +1517,9 @@ function userLoggedInNameParts(){
 											//elseif cell is one of the eventcounts 
 											//savepersonregistrationSingleEventCounts(iPerson,iCompetition,iEvent,iEventRegistered)
 										}
-									}
-								});
-							
-								$("#menRegTable").tabulator({
+									});
+									
+								var menRegTable = new Tabulator("#menRegTable", {
 									layout: "fitDataFill",
 									responsiveLayout:false,
 									virtualDom:false,
@@ -1558,15 +1564,17 @@ function userLoggedInNameParts(){
 										{title:"Last Registered", 		field:"RegDate", responsive: 6},
 										{title:"Registered By", field:"RegBy", responsive: 6}
 									],
-									index:"ID",
+									index:"ID"
+								});
+									menRegTable.on("rowDeleted", function(row){
 									//groupHeader:function(value, count, data, group){return data[0].Team;},
-									rowDeleted:function(row){
 										var data = row.getData();
 										//console.log(data.ID + " " + data.CompetitionID);
 										unregisterCompetitor(data.ID,data.CompetitionID,data.Designation);
 										loadRegData(2); //because groupBy is broken.
-									},									
-									cellEdited:function(cell){
+									});
+
+									menRegTable.on("cellEdited", function(cell){
 										//This callback is called any time a cell is edited
 										var row = cell.getRow();
 										var data = row.getData();
@@ -1658,17 +1666,24 @@ function userLoggedInNameParts(){
 												}
 												else if(AAcontrol=="MAA")
 												{
+													var AAClickedValue = cell.getValue();
 													var errorLessInAA = true;
-													errorLessInAA = errorLessInAA & savePersonRegistrationSingleEvent(data.ID,institution,data.CompetitionID,1,cell.getValue(),2,false,row.getCell("MFX"));
-													errorLessInAA = errorLessInAA & savePersonRegistrationSingleEvent(data.ID,institution,data.CompetitionID,2,cell.getValue(),2,false,row.getCell("MPH"));
-													errorLessInAA = errorLessInAA & savePersonRegistrationSingleEvent(data.ID,institution,data.CompetitionID,3,cell.getValue(),2,false,row.getCell("MSR"));
-													errorLessInAA = errorLessInAA & savePersonRegistrationSingleEvent(data.ID,institution,data.CompetitionID,4,cell.getValue(),2,false,row.getCell("MVT"));
-													errorLessInAA = errorLessInAA & savePersonRegistrationSingleEvent(data.ID,institution,data.CompetitionID,5,cell.getValue(),2,false,row.getCell("MPB"));
-													errorLessInAA = errorLessInAA & savePersonRegistrationSingleEvent(data.ID,institution,data.CompetitionID,6,cell.getValue(),2,true,row.getCell("MHB"));
+													errorLessInAA = errorLessInAA & savePersonRegistrationSingleEvent(data.ID,institution,data.CompetitionID,1,AAClickedValue,2,false,row.getCell("MFX"));
+													errorLessInAA = errorLessInAA & savePersonRegistrationSingleEvent(data.ID,institution,data.CompetitionID,2,AAClickedValue,2,false,row.getCell("MPH"));
+													errorLessInAA = errorLessInAA & savePersonRegistrationSingleEvent(data.ID,institution,data.CompetitionID,3,AAClickedValue,2,false,row.getCell("MSR"));
+													errorLessInAA = errorLessInAA & savePersonRegistrationSingleEvent(data.ID,institution,data.CompetitionID,4,AAClickedValue,2,false,row.getCell("MVT"));
+													errorLessInAA = errorLessInAA & savePersonRegistrationSingleEvent(data.ID,institution,data.CompetitionID,5,AAClickedValue,2,false,row.getCell("MPB"));
+													errorLessInAA = errorLessInAA & savePersonRegistrationSingleEvent(data.ID,institution,data.CompetitionID,6,AAClickedValue,2,true,row.getCell("MHB"));
 													
 													if(!errorLessInAA)
-													{	cell.restoreOldValue();
-														alert("error");
+													{	
+														cell.restoreOldValue();
+														//row.update({MAA:true});
+														//alert("technical error, one or more of the events didn't update");
+														if(data.MFX&&data.MPH&&data.MSR&&data.MVT&&data.MPB&&data.MHB)
+															row.update({MAA:true});
+														else
+															row.update({MAA:false});
 													}
 													
 												}
@@ -1676,10 +1691,9 @@ function userLoggedInNameParts(){
 										/*AND UPDATE TEAM*///
 										/////////////////////
 										
-									}
-								});
+									});
 
-								$("#womenRegTable").tabulator({
+								var womenRegTable = new Tabulator("#womenRegTable", {
 									//height:"311px",
 									responsiveLayout:false,
 									layout: "fitDataFill",
@@ -1721,15 +1735,18 @@ function userLoggedInNameParts(){
 										{title:"Last Registered", 		field:"RegDate", responsive: 6},
 										{title:"Registered By", field:"RegBy", responsive: 6}
 									],
-									index:"ID",
-									//groupHeader:function(value, count, data, group){return data[0].Team;},
-									rowDeleted:function(row){
+									index:"ID"
+								});
+
+									womenRegTable.on("rowDeleted", function(row){
+										//groupHeader:function(value, count, data, group){return data[0].Team;},
 										var data = row.getData();
 										//console.log(data.ID + " " + data.CompetitionID);
 										unregisterCompetitor(data.ID,data.CompetitionID,data.Designation);
 										loadRegData(1); //because groupBy is broken.
-									},
-									cellEdited:function(cell){
+									});
+
+									womenRegTable.on("cellEdited", function(cell){
 										//This callback is called any time a cell is edited
 										var row = cell.getRow();
 										var data = row.getData();
@@ -1810,24 +1827,31 @@ function userLoggedInNameParts(){
 												}
 												else if(AAcontrol=="WAA")
 												{
-													
+													var AAClickedValue = cell.getValue();
 													var errorLessInAA = false;
-													errorLessInAA = errorLessInAA & savePersonRegistrationSingleEvent(data.ID,institution,data.CompetitionID,8,data.WAA,1,false,row.getCell("WVT"));
-													errorLessInAA = errorLessInAA & savePersonRegistrationSingleEvent(data.ID,institution,data.CompetitionID,9,data.WAA,1,false,row.getCell("WUB"));
-													errorLessInAA = errorLessInAA & savePersonRegistrationSingleEvent(data.ID,institution,data.CompetitionID,10,data.WAA,1,false,row.getCell("WBB"));
-													errorLessInAA = errorLessInAA & savePersonRegistrationSingleEvent(data.ID,institution,data.CompetitionID,11,data.WAA,1,true,row.getCell("WFX"));
+													errorLessInAA = errorLessInAA & savePersonRegistrationSingleEvent(data.ID,institution,data.CompetitionID,8,AAClickedValue,1,false,row.getCell("WVT"));
+													errorLessInAA = errorLessInAA & savePersonRegistrationSingleEvent(data.ID,institution,data.CompetitionID,9,AAClickedValue,1,false,row.getCell("WUB"));
+													errorLessInAA = errorLessInAA & savePersonRegistrationSingleEvent(data.ID,institution,data.CompetitionID,10,AAClickedValue,1,false,row.getCell("WBB"));
+													errorLessInAA = errorLessInAA & savePersonRegistrationSingleEvent(data.ID,institution,data.CompetitionID,11,AAClickedValue,1,true,row.getCell("WFX"));
 													
 													if(!errorLessInAA)
+													{
 														cell.restoreOldValue();
+														if(data.WVT&&data.WUB&&data.WBB&&data.WFX)
+															row.update({WAA:true});
+														else
+															row.update({WAA:false});
+														//row.update({WAA:true});
+														//alert("technical error, one or more of the events didn't update");
+													}
 												}
 												
 										/////////////////////
 										/*AND UPDATE TEAM*///
 										/////////////////////
-									}
-								});
+									});
 
-								$("#teamTable").tabulator({
+								var teamTable = new Tabulator("#teamTable", {
 									responsiveLayout:false,
 									layout: "fitDataFill",
 									virtualDom:false,
@@ -1843,8 +1867,10 @@ function userLoggedInNameParts(){
 										{title:"Last Registered", 	field:"LastModifiedDate"},
 										{title:"Last Reg By", 		field:"LastModifiedPerson"}
 									],
-									index:"ID",
-									cellEdited: function(cell){
+									index:"ID"
+								});
+
+									teamTable.on("cellEdited", function(cell){
 										
 										var row = cell.getRow();
 										var data = row.getData();
@@ -1853,8 +1879,7 @@ function userLoggedInNameParts(){
 										{
 											updateTeamOptions(data.TeamScore,data.CompetitionID,data.InstitutionID,data.Designation);
 										}
-									}
-								});
+									});
 
 								$("#addPerson").click(function(){
 									//first validate that the fields are filled out

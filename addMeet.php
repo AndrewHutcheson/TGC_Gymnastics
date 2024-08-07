@@ -3,7 +3,6 @@
 <?php require_once("globals.php"); ?>
 
 <script type="text/javascript" src="tabulator-master/dist/js/tabulator.min.js"></script>
-<script type="text/javascript" src="tabulator-master/dist/js/jquery_wrapper.min.js"></script>
 
 <script type="text/javascript">
 
@@ -44,7 +43,7 @@ function getCompetitionsInMeet()
 				},
 				dataType: 'json',
 				success: function (data) {
-					$("#competitionTable").tabulator("setData", data);
+					table.setData(data);
 					getDivisions();
 					getDisciplines();
 				},
@@ -187,6 +186,169 @@ function addMeet()
 	}
 }
 
+function updateNumPerTeamScore(iCompetitionID,iNum)
+	{
+		$.ajax({
+			type: 'POST',
+			url: "meetAjax.php",
+			async: false,
+			data: {
+				updateNumPerTeamScore:1,
+				competitionID:iCompetitionID,
+				numPerTeamScore:iNum
+			},
+			dataType: 'json',
+			success: function (data) {
+				getCompetitionsInMeet();
+			},
+			error: function (textStatus, errorThrown) {
+				//console.log(errorThrown);
+				alert("error editing # per team score");
+			}
+		});	
+	}
+
+	function updateTeamMaxOnEvent(iCompetitionID,iMax)
+	{
+		$.ajax({
+			type: 'POST',
+			url: "meetAjax.php",
+			async: false,
+			data: {
+				updateTeamMaxOnEvent:1,
+				competitionID:iCompetitionID,
+				max:iMax
+			},
+			dataType: 'json',
+			success: function (data) {
+				getCompetitionsInMeet();
+			},
+			error: function (textStatus, errorThrown) {
+				//console.log(errorThrown);
+				alert("error editing Team # of places");
+			}
+		});	
+	}
+
+	function updateTeamPlacesToAward(iCompetitionID,iPlaces)
+	{
+		$.ajax({
+			type: 'POST',
+			url: "meetAjax.php",
+			async: false,
+			data: {
+				updateTeamPlacesToAward:1,
+				competitionID:iCompetitionID,
+				places:iPlaces
+			},
+			dataType: 'json',
+			success: function (data) {
+				getCompetitionsInMeet();
+			},
+			error: function (textStatus, errorThrown) {
+				//console.log(errorThrown);
+				alert("error editing Team # of places");
+			}
+		});	
+	}
+
+	function updatePlacesToAward(iCompetitionID,iPlaces)
+	{
+		$.ajax({
+			type: 'POST',
+			url: "meetAjax.php",
+			async: false,
+			data: {
+				updatePlacesToAward:1,
+				competitionID:iCompetitionID,
+				places:iPlaces
+			},
+			dataType: 'json',
+			success: function (data) {
+				getCompetitionsInMeet();
+			},
+			error: function (textStatus, errorThrown) {
+				//console.log(errorThrown);
+				alert("error editing number of places");
+			}
+		});	
+	}
+
+	function updateLevel(iCompetitionID,iLevel)
+	{
+		$.ajax({
+			type: 'POST',
+			url: "meetAjax.php",
+			async: false,
+			data: {
+				updateLevel:1,
+				competitionID:iCompetitionID,
+				level:iLevel
+			},
+			dataType: 'json',
+			success: function (data) {
+				getCompetitionsInMeet();
+			},
+			error: function (textStatus, errorThrown) {
+				//console.log(errorThrown);
+				alert("error editing level");
+			}
+		});	
+	}
+
+	function updateDivision(iCompetitionID,iDivision)
+	{
+		$.ajax({
+			type: 'POST',
+			url: "meetAjax.php",
+			async: false,
+			data: {
+				updateDivision:1,
+				competitionID:iCompetitionID,
+				division:iDivision
+			},
+			dataType: 'json',
+			success: function (data) {
+				getCompetitionsInMeet();
+			},
+			error: function (textStatus, errorThrown) {
+				//console.log(errorThrown);
+				alert("error editing division");
+			}
+		});	
+	}
+
+	function deleteCompetition(iCompetitionID)
+	{
+		if(true)
+		{
+			$.ajax({
+				type: 'POST',
+				url: "meetAjax.php",
+				async: false,
+				data: {
+					deleteCompetition:1,
+					competitionID:iCompetitionID
+				},
+				dataType: 'json',
+				success: function (data) {
+					getCompetitionsInMeet();
+					if(data['status']=="error"){
+						alert(data['description']);
+					}
+				},
+				error: function (textStatus, errorThrown) {
+					//console.log(errorThrown);
+					alert("error removing competition");
+				}
+			});
+		}
+		else
+		{
+			alert("An error occurred");
+		}
+	}
+
 $(document).ready(function() {
     getMeets();
 });
@@ -261,37 +423,40 @@ $(document).ready(function() {
 										
 										
 										//redefine these mutators into the respective php loops above. when moving to object will have to do something different.
-										
-										
-										var DivisionMutator = function(value, data, type, params, component){
-											//value - original value of the cell
-											//data - the data for the row
-											//type - the type of mutation occurring  (data|edit)
-											//params - the mutatorParams object from the column definition
-											//component - when the "type" argument is "edit", this contains the cell component for the edited cell, otherwise it is the column component for the column
-											if(value == 1)
-												return "College";
-											if(value == 3)
-												return "Open";
-											if(value == 2)
-												return "Community";
-										}
 										var levelArray = { //to be made dynamic drom DB
-											1:"TGC WAG Level 9",
-											2:"TGC MAG NCAA",
-											3:"TGC WAG Level 8",
-											4:"TGC Registration Only Event",
-											5:"TGC WAG Level 6",
-											6:"TGC MAG Level 9",
-											7:"NAIGC MAG Developmental",
-											8:"NAIGC WAG Developmental",
-											9:"NAIGC WAG Level 7",
-											10:"NAIGC New Fliers",
-											11:"NAIGC Intermediate Fliers",
-											12:"NAIGC High Fliers",
-											13:"NAIGC MAG Level 7",
-											14:"TGC WAG Xcel Silver",
-											15:"TGC WAG Xcel Platinum"
+											"1":"TGC WAG Level 9",
+											"2":"TGC MAG NCAA",
+											"3":"TGC WAG Level 8",
+											"4":"TGC Registration Only Event",
+											"5":"TGC WAG Level 6",
+											"6":"TGC MAG Level 9",
+											"7":"NAIGC MAG Developmental",
+											"8":"NAIGC WAG Developmental",
+											"9":"NAIGC WAG Level 7",
+											"10":"NAIGC New Fliers",
+											"11":"NAIGC Intermediate Fliers",
+											"12":"NAIGC High Fliers",
+											"13":"NAIGC MAG Level 7",
+											"14":"TGC WAG Xcel Silver",
+											"15":"TGC WAG Xcel Platinum"
+										};
+
+										var levelLookupArray = { //to be made dynamic drom DB
+											"TGC WAG Level 9":1,
+											"TGC MAG NCAA":2,
+											"TGC WAG Level 8":3,
+											"TGC Registration Only Event":4,
+											"TGC WAG Level 6":5,
+											"TGC MAG Level 9":6,
+											"NAIGC MAG Developmental":7,
+											"NAIGC WAG Developmental":8,
+											"NAIGC WAG Level 7":9,
+											"NAIGC New Fliers":10,
+											"NAIGC Intermediate Fliers":11,
+											"NAIGC High Fliers":12,
+											"NAIGC MAG Level 7":13,
+											"TGC WAG Xcel Silver":14,
+											"TGC WAG Xcel Platinum":15
 										};
 										
 										//oof I need a select
@@ -339,32 +504,77 @@ $(document).ready(function() {
 											return editor;
 										}*/
 										
-										var LevelMutator = function(value, data, type, params, component){
-											return levelArray[value];
+										function LevelFormatter(cell){
+											return levelArray;
 										}
-										var LeaugeMutator = function(value, data, type, params, component){
-											if(value == 2)
-												return "TGC";
+
+										function levelLookup(cell) {
+
+											var menlevelArray = {
+												2: "TGC MAG NCAA",
+												6: "TGC MAG Level 9",
+												13: "NAIGC MAG Level 7"
+											};
+
+											var womenlevelArray = {
+												1: "TGC WAG Level 9",
+												3: "TGC WAG Level 8",
+												14: "TGC WAG Xcel Silver",
+												15: "TGC WAG Xcel Platinum"
+											};
+
+											let row = cell.getRow();
+											if (row.getData().DisciplineID == 1) {
+												return {values: womenlevelArray};
+											} else if (row.getData().DisciplineID == 2) {
+												return {values: menlevelArray};
+											}
+											return {values: {}}; // Return an empty object as default
 										}
-										var DisciplineMutator = function(value, data, type, params, component){
-											if(value == 1)
-												return "F";
-											if(value == 2)
-												return "M";
-										}
-										
-										var table = $("#competitionTable").tabulator({
+
+										var table = new Tabulator("#competitionTable", {					
 											layout: "fitDataFill",
 											responsiveLayout: "collapse",
-											columns:[
-												{title:"CompetitionID", field:"ID", 	visible:false},
-												{title:"Leauge", 		field:"LeaugeID",			mutator:LeaugeMutator, 		formatter:"plaintext",	sorter:"string", editor:"select", editorParams:{values:{"2":"TGC"}}},
-												{title:"Discipline", 	field:"DisciplineID",		mutator:DisciplineMutator, 	formatter:"plaintext",	sorter:"string", editor:"select", editorParams:{values:{"2":"M","1":"F"}}},
-												{title:"Division", 		field:"DivisionID",			mutator:DivisionMutator,	formatter:"plaintext",	sorter:"string", editor:"select", editorParams:{values:{"1":"College","3":"Open"}}},
-												{title:"Level", 		field:"LevelID",			mutator:LevelMutator, 		formatter:"plaintext",	sorter:"string", editor:"select", editorParams:{values:levelArray}},
-												{title:"Max Registered Per Team on Event", 	field:"TeamMaxOnEvent", editor:"number"}
+											columns: [
+												{title: "CompetitionID", field: "ID", visible: false},
+												{title: "Leauge", field: "LeaugeID", formatter: "lookup", formatterParams: {"2":"TGC"}, sorter: "string", editor: "list", editorParams: {values: {"2": "TGC"}}},
+												{title: "Discipline", field: "DisciplineID", formatter: "lookup", formatterParams: {"1":"F","2":"M"},  sorter: "string"},
+												{title: "Division", field: "DivisionID", formatter: "lookup", formatterParams: {"1": "College", "3": "Open"}, sorter: "string", editor: "list", editorParams: {values: {"1": "College", "3": "Open"}}},
+												{title: "Level", field: "LevelID", formatter: "lookup", formatterParams:LevelFormatter, sorter: "string", editor: "list", editorParams: levelLookup},
+												{title: "Max Registered Per Team on Event", field: "TeamMaxOnEvent", editor: "number"}
 											],
-											index:"ID"
+											index: "ID"
+										});
+
+										table.on("cellEdited", function(cell){
+											//This callback is called any time a cell is edited
+											var row = cell.getRow();
+											var data = row.getData();
+											var col = cell.getColumn();
+											if(cell.getField() == "LevelID")
+											{
+												updateLevel(data.ID,levelLookupArray[data.LevelID]);
+											}
+											else if(cell.getField() == "DivisionID")
+											{
+												updateDivision(data.ID,data.DivisionID);
+											}
+											else if(cell.getField() == "PlacesToAward")
+											{
+												updatePlacesToAward(data.ID,data.PlacesToAward);
+											}
+											else if(cell.getField() == "TeamPlacesToAward")
+											{
+												updateTeamPlacesToAward(data.ID,data.TeamPlacesToAward);
+											}
+											else if(cell.getField() == "TeamMaxOnEvent")
+											{
+												updateTeamMaxOnEvent(data.ID,data.TeamMaxOnEvent);
+											}
+											else if(cell.getField() == "numPerTeamScore")
+											{
+												updateNumPerTeamScore(data.ID,data.numPerTeamScore);
+											}
 										});
 							<?php
 								}

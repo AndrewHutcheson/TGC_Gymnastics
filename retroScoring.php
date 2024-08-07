@@ -527,9 +527,9 @@ function getValidClubs()
 				dataType: 'json',
 				success: function (data) {
 					if(iDiscipline == 2)
-						$("#menScoreTable").tabulator("setData", data);
+						menTable.setData(data);
 					if(iDiscipline == 1)
-						$("#womenScoreTable").tabulator("setData", data);
+						womenTable.setData(data);
 				},
 				error: function (textStatus, errorThrown) {
 					//console.log(errorThrown);
@@ -556,9 +556,9 @@ function getValidClubs()
 				dataType: 'json',
 				success: function (data) {
 					if(iDiscipline == 2)
-						$("#menTeamScoreTable").tabulator("setData", data);
+						menTeamTable.setData(data);
 					if(iDiscipline == 1)
-						$("#womenTeamScoreTable").tabulator("setData", data);
+						womenTeamTable.setData(data);
 				},
 				error: function (textStatus, errorThrown) {
 					//console.log(errorThrown);
@@ -1004,7 +1004,7 @@ function getValidClubs()
 								<br/>
 								<br/>
 								<script type="text/javascript">
-									$("#menScoreTable").tabulator({
+									var menTable = new Tabulator("#menScoreTable", {
 										layout: "fitDataFill",
 										groupBy: ["Team"],
 										columns:[
@@ -1025,16 +1025,18 @@ function getValidClubs()
 											{title:"AA", 			field:"MAA",	 	sorter:"number",	formatter:"money",	formatterParams:{precision:3}},
 										],
 										index:"ID",
-										rowDeleted:function(row){
+									});
+
+										menTable.on("rowDeleted", function(row){
 											var data = row.getData();
 											//console.log(data.ID + " " + data.CompetitionID);
 											unregisterCompetitor(data.ID,data.CompetitionID);
 											loadScoreData(2); //because groupBy is broken.
-										},
+										});
 
 										//groupHeader:function(value, count, data, group){return data[0].Team;},
 										//takes too long to reload everything. Just save it and update AA.
-										cellEdited:function(cell){
+										menTable.on("cellEdited", function(cell){
 											//This callback is called any time a cell is edited
 											var row = cell.getRow();
 											var data = row.getData();
@@ -1078,10 +1080,9 @@ function getValidClubs()
 											{ 
 												saveScore(data.ID, cell.getValue(), data.CompetitionID, changedEvent);
 											}
-										},
-									});
+										});
 									
-									$("#womenScoreTable").tabulator({
+									var womenTable = new Tabulator("#womenScoreTable", {
 										layout: "fitDataFill",
 										groupBy: ["Team"],
 										columns:[
@@ -1099,16 +1100,18 @@ function getValidClubs()
 											{title:"FX", 			field:"WFX",	 	sorter:"number",	formatter:"money",	formatterParams:{precision:3}, 	editor:"number"},
 											{title:"AA", 			field:"WAA",	 	sorter:"number",	formatter:"money", 	formatterParams:{precision:3}},
 										],
-										index:"ID",
-										rowDeleted:function(row){
+										index:"ID"
+									});
+
+									womenTable.on("rowDeleted", function(row){
 											var data = row.getData();
 											//console.log(data.ID + " " + data.CompetitionID);
 											unregisterCompetitor(data.ID,data.CompetitionID);
 											loadScoreData(1); //because groupBy is broken.
-										},
+									});
 										//groupHeader:function(value, count, data, group){return data[0].Team;},
 										//takes too long to reload everything. Just save it and update AA.
-										cellEdited:function(cell){
+									womenTable.on("cellEdited", function(cell){
 											//This callback is called any time a cell is edited
 											var row = cell.getRow();
 											var data = row.getData();
@@ -1149,10 +1152,9 @@ function getValidClubs()
 											{ 
 												saveScore(data.ID, cell.getValue(), data.CompetitionID, changedEvent);
 											}
-										},
 									});
 									
-									$("#womenTeamScoreTable").tabulator({
+									var womenTeamTable = new Tabulator("#womenTeamScoreTable", {
 										layout: "fitDataFill",
 										groupBy: ["CompetitionName","Designation"],
 										columns:[
@@ -1169,7 +1171,7 @@ function getValidClubs()
 										]
 									});
 									
-									$("#menTeamScoreTable").tabulator({
+									var menTeamTable = new Tabulator("#menTeamScoreTable", {
 										layout: "fitDataFill",
 										groupBy: ["CompetitionName","Designation"],
 										columns:[

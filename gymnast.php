@@ -125,7 +125,7 @@ function getMeets()
 						<div class="inner">
 								<p>Enter Last Name:</p>
 								<input size = "2" disabled id = "newWId"/>
-								<input size = "25" type = "text" id = "newWLast" placeholder = ""/><br/>
+								<input size = "25" type = "text" id = "newWLast" name = "h76f875fvi" autocomplete="new-password" placeholder = ""/><br/>
 								<br/>
 								<h2>Womens Competitions:</h2>
 								<div id="womenScoreTable"></div>

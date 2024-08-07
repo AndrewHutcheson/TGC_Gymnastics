@@ -430,6 +430,7 @@ function showDescription($id)
 function CCDescription($id)
 {
 	global $con;
+
 	$ProgramDescription = "";
 	$sqlCC = "
 					SELECT
@@ -466,7 +467,19 @@ function CCDescription($id)
 					
 				}
 			}
+			else
+			{
+				$ProgramDescription .= "num rows failed";
+			}
 		}
+		else
+		{
+			$ProgramDescription .= "bind failed";
+		}
+	}
+	else
+	{
+		$ProgramDescription .= "prepare failed";
 	}
 	log_MapAction("CCDescriptorClicked",$id);
 	return $ProgramDescription;

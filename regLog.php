@@ -221,11 +221,20 @@
 						<option selected disabled>Select a meet:</option>";
 					while($row = $stmtMeets->fetch(PDO::FETCH_ASSOC))
 					{
-						echo "<option value = '".$row['ID']."'>".$row['MeetName']."(".$row['Date'].")</option>";
+						$selected = 0;
+						if(isset($_REQUEST['meetID']))
+						{
+							$selected = $_REQUEST['meetID'];
+						}
+						if($row['ID'] == $selected)
+							echo "<option selected value = '".$row['ID']."'>".$row['MeetName']."(".$row['Date'].")</option>";
+						else
+							echo "<option value = '".$row['ID']."'>".$row['MeetName']."(".$row['Date'].")</option>";
 					}
 					echo "</select> <button onclick = 'loadMeetData();'>&#x21bb;</button><br/><br/>";
 
 					?>
+					<h2>Download Registration: <span onclick = 'table.download("csv", "meetRegLog.csv");'>(csv)</span></h2>
 					<div id = "thetable"></div>
 					<!--style>
 						#content > .inner{
@@ -242,14 +251,6 @@
 						}
 
 						var theData = [];
-						<?php
-						if(isset($_REQUEST['meetID']))
-						{
-						?>
-							theData = <?php echo json_encode($theArray); ?>;
-						<?php
-						}
-						?>
 
 						var table = new Tabulator("#thetable", 
 						{
@@ -264,10 +265,21 @@
 								{title:"Value", field:"Value", headerFilter:"input"},
 								{title:"UserID", field:"UserID", headerFilter:"input"},
 								{title:"Emulator", field:"EmulatorID", headerFilter:"input"},
-							]
+							],
 						});
-						table.setData(theData);
-						table.redraw(true);
+
+						<?php
+						if(isset($_REQUEST['meetID']))
+						{
+						?>
+							theData = <?php echo json_encode($theArray); ?>;
+							table.on("tableBuilt", function(){
+								table.setData(theData);
+							});
+						<?php
+						}
+						?>
+
 					</script>
 					
 					<?php

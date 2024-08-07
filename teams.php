@@ -370,7 +370,7 @@
 								</article>
 
 							<!-- Post -->
-								<article class="box post post-excerpt">
+								<!--article class="box post post-excerpt">
 									<header>
 
 										<h2><a href="#">Tulane University</a></h2>
@@ -392,11 +392,9 @@
 											<li><strong>Twitter: </strong><a href = "https://twitter.com/tugymn">https://twitter.com/tugymn</a></li>
 											<li><strong>Instagram: </strong><a href = "https://www.instagram.com/tulanegymnastics/">https://www.instagram.com/tulanegymnastics/</a></li>
 											<li><strong>On Campus Facility: </strong>No</li>
-											<!--li><strong>Base Dues:</strong></li>
-											<li><strong>Practice Times: </strong></li-->
 										</ul>
 									</p>
-								</article>
+								</article-->
 
 							<!-- Post -->
 								<article class="box post post-excerpt">
