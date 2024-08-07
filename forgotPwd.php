@@ -2,6 +2,7 @@
 <?php require_once("auth.php"); ?>
 <?php require_once("globals.php"); ?>
 <?php require_once("random_compat-2.0.17/lib/random.php"); ?>
+<?php require_once("mailpwd.php"); ?>
 <?php
 
 ini_set('display_errors', 1);
@@ -125,7 +126,7 @@ if(isset($_REQUEST['sendpwdrecovery']))
 				$mail->SMTPDebug = 0;
   				$mail->CharSet = 'UTF-8';                               
 				$mail->Username = 'texasgymnasticsconference@gmail.com';             // SMTP username
-				$mail->Password = 'qrumtmtjwtkemsws';                           // SMTP password
+				$mail->Password = $mailPwd;                           // SMTP password
 				$mail->SMTPSecure = 'ssl';                            // Enable SSL encryption, TLS also accepted with port 465
 				$mail->Port = 465;                                    // TCP port to connect to
 			
